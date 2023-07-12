@@ -1,0 +1,3 @@
+[submodule "hyperelliptic"]
+	path = hyperelliptic
+	url = https://github.com/JRSijsling/hyperelliptic.git
