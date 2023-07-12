@@ -1,0 +1,7 @@
+# Basic .gitattributes for a magma repo
+
+# Source files
+# ============
+*.m    linguist-language=magma
+*.mag  linguist-language=magma
+*.spec  linguist-language=magma
