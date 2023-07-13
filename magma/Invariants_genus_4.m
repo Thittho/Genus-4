@@ -95,13 +95,12 @@ function NewBasis(Q)
 end function;
 
 
-//given a cubic and a change of variables (given as a matrix), returns the cubic after the change of variables
+//given a form and a change of variables (given as a matrix), returns the form after the change of variables
 function ChangeOfBasis(C, P)
 	R := ChangeRing(Parent(C), Parent(P[1][1]));
 	C := R!C;
 	P := Transpose(Matrix([[R!P[i][j] : j in [1..NumberOfColumns(P)]] : i in [1..NumberOfRows(P)]]));
 	Y := ElementToSequence(P*Matrix([[R.i] : i in [1..Rank(R)]]));
-	//Y := [P[1][i]*R.1+P[2][i]*R.2+P[3][i]*R.3+P[4][i]*R.4 : i in [1..Rank(R)]];
 	return Evaluate(C, Y);
 end function;
 	
@@ -114,23 +113,201 @@ function CubicNewBasis(Q, C)
 end function;
 
 
-//goes from weighted projective to projective, so we can compare two sets of invariants
-//it divides by the first invariant (it's almost never zero), but it can be adapted to divide by the first invariants which is non-zero
-function same_wps(L, I1, I2)
-	res := [];
-	for i in [1..#L] do
-		l := I2[i]/I2[1]^(ExactQuotient(DegreeOrder(L[i])[1],2));
-		Append(~res, l);
-	end for;
-	return [I1[i]/I1[1]^(ExactQuotient(DegreeOrder(L[i])[1],2)) : i in [1..#L]], res;
-end function;
+function InvariantsGenus4Curves_test(f)
+	//Covariants
+	//Degree 2
+	f2 := Transvectant(f, f, 0, 0);
+	Jac := Transvectant(f, f, 1, 1);
+	H := Transvectant(f, f, 2, 2);
 
+	//Degree 3
+	C31 := Transvectant(Jac, f, 3, 3);
+	C33 := Transvectant(Jac, f, 2, 2);
+	C35 := Transvectant(Jac, f, 1, 1);
+	C37 := Transvectant(Jac, f, 0, 0);
+
+	C31H := Transvectant(H, f, 2, 2);
+	C33H := Transvectant(H, f, 1, 1);
+	C35H := Transvectant(H, f, 0, 0);
+
+	f3 := Transvectant(f2, f, 0, 0);
+	C37f := Transvectant(f2, f, 1, 1);
+	C35f := Transvectant(f2, f, 2, 2);
+	C33f := Transvectant(f2, f, 3, 3);
+
+	//Degree 4
+	CH := Transvectant(H, H, 1, 1);
+	C42H := Transvectant(C31H, f, 1, 1);
+	C44H := Transvectant(C31H, f, 0, 0);
+	C44H1 := Transvectant(C33H, f, 1, 1);
+	C42H1 := Transvectant(C33H, f, 2, 2);
+	C42H2 := Transvectant(C35H, f, 3, 3);
+	C46H := Transvectant(C33H, f, 0, 0);
+
+	C42 := Transvectant(C33, f, 2, 2);
+	C421 := Transvectant(C31, f, 1, 1);
+	C44 := Transvectant(C33, f, 1, 1);
+	C441 := Transvectant(C35, f, 2, 2);
+	C46 := Transvectant(f3, f, 3, 3);
+	C48 := Transvectant(f3, f, 2, 2);
+	C48f := Transvectant(C35f, f, 0, 0);
+	C46f := Transvectant(C37f, f, 2, 2);
+	C44f := Transvectant(C33f, f, 1, 1);
+	C44f2 := Transvectant(C37f, f, 3, 3);
+
+	f4 := Transvectant(f3, f, 0, 0);
+
+	//Degree 5
+	C51H := Transvectant(C42H, f, 2, 2);
+	C53H := Transvectant(C42H, f, 1, 1);
+	C55H := Transvectant(C44H, f, 1, 1);
+	C53H1 := Transvectant(C42H1, f, 1, 1);
+
+	C55f := Transvectant(C46f, f, 2, 2);
+	C513f := Transvectant(f4, f, 1, 1);
+
+	C55 := Transvectant(C42H, f, 0, 0);
+	C551 := Transvectant(C42, f, 0, 0);
+
+	C57 := Transvectant(C441, f, 0, 0);
+
+	//Degree 6
+	C62H := Transvectant(C53H, f, 2, 2);
+	C62H1 := Transvectant(C53H1, f, 2, 2);
+	C62H2 := Transvectant(C51H, f, 1, 1);
+	C66H := Transvectant(C55H, f, 1, 1);
+
+	//Degree 7
+	C71H := Transvectant(C62H, f, 2, 2);
+	C73H1 := Transvectant(C62H1, f, 1, 1);
+	C79H := Transvectant(C66H, f, 0, 0);
+
+	//Invariants
+	//HSOP
+	J2 := Transvectant(f, f, 3, 3);
+	J4H := Transvectant(H, H, 2, 2);
+	J4 := Transvectant(C33, f, 3, 3);	
+	J6H := Transvectant(H, CH, 2, 2);
+	J61 := Transvectant(C53H, f, 3, 3);
+	J8H := Transvectant(CH, CH, 2, 2);
+	J81 := Transvectant(C73H1, f, 3, 3);
+	J101 := Transvectant(Transvectant(Transvectant(C71H, f, 1, 1), f, 1, 1), f, 3, 3);
+	J121 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C73H1, f, 1, 1), f, 2, 2), f, 0, 0), f, 3, 3), f, 3, 3);
+	J141 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C62H2, f, 1, 1), f, 2, 2), f, 2, 2), f, 1, 1), f, 2, 2), H, 0, 0), f, 3, 3);
+	invHSOP := [J2, J4H, J4, J6H, J61, J8H, J81, J101, J121, J141];
+
+	//Degree 6
+	J62 := Transvectant(Transvectant(Transvectant(f3, f, 3, 3), f, 3, 3), f, 3, 3);
+	inv6 := [J62];
+
+	//Degree 8
+	J82 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C35H, f, 2, 2), f, 0, 0), f, 2, 2), f, 3, 3), f, 3, 3);
+	J83 := Transvectant(Transvectant(C66H, f, 3, 3), f, 3, 3);
+	inv8 := [J82, J83];
+	
+	//Degree 10
+	J102 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C42H2, f, 0, 0), f, 0, 0), f, 2, 2), f, 3, 3), f, 2, 2), f, 3, 3);
+	J103 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C48f, f, 2, 2), f, 1, 1), f, 1, 1), f, 3, 3), f, 3, 3), f, 3, 3);
+	J104 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C48f, f, 3, 3), f, 2, 2), f, 3, 3), f, 1, 1), f, 1, 1), f, 3, 3);
+	J105 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C35, f, 1, 1), f, 3, 3), f, 0, 0), f, 0, 0), f, 3, 3), f, 3, 3), f, 3, 3);
+	J106 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44H1, f, 3, 3), f, 0, 0), f, 1, 1), f, 2, 2), f, 2, 2), f, 3, 3);
+	J107 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C42H2, f, 1, 1), f, 2, 2), f, 2, 2), f, 0, 0), f, 2, 2), f, 3, 3);
+	inv10 := [J102, J103, J104, J105, J106, J107];
+
+	//Degree 12
+	J122 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44f, f, 3, 3), f, 0, 0), f, 3, 3), f, 0, 0), f, 1, 1), f, 2, 2), f, 2, 2), f, 3, 3); 
+	J123 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C37f, f, 1, 1), f, 2, 2), f, 2, 2), f, 0, 0), f, 1, 1), f, 3, 3), f, 3, 3), f, 2, 2), f, 3, 3); 
+	J124 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C55f, f, 3, 3), f, 1, 1), f, 0, 0), f, 3, 3), f, 1, 1), f, 2, 2), f, 3, 3);
+	J125 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C513f, f, 3, 3), f, 2, 2), f, 1, 1), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3);
+	J126 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44, f, 3, 3), f, 1, 1), f, 0, 0), f, 1, 1), f, 2, 2), f, 1, 1), f, 3, 3), f, 3, 3);
+	J127 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44f, f, 0, 0), f, 1, 1), f, 1, 1), f, 2, 2), f, 1, 1), f, 3, 3), f, 3, 3), f, 3, 3);
+	J128 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(f4, f, 2, 2), f, 2, 2), f, 1, 1), f, 1, 1), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3);
+	J129 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C48f, f, 0, 0), f, 3, 3), f, 2, 2), f, 2, 2), f, 3, 3), f, 0, 0), f, 3, 3), f, 3, 3);
+	J1210 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C79H, f, 1, 1), f, 3, 3), f, 3, 3), f, 2, 2), f, 3, 3);
+	inv12 := [J122, J123, J124, J125, J126, J127, J128, J129, J1210];
+
+	//Degree 14
+	J142 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44H1, f, 0, 0), f, 2, 2), f, 0, 0), f, 2, 2), f, 0, 0), f, 2, 2), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3);
+	J143 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C48, f, 1, 1), f, 2, 2), f, 1, 1), f, 0, 0), f, 2, 2), f, 2, 2), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3);
+	J144 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44H, f, 0, 0), f, 3, 3), f, 2, 2), f, 2, 2), f, 2, 2), f, 0, 0), f, 0, 0), f, 2, 2), f, 3, 3), f, 3, 3);
+	J145 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C35, f, 3, 3), f, 2, 2), f, 0, 0), f, 1, 1), f, 1, 1), f, 3, 3), f, 0, 0), f, 1, 1), f, 3, 3), f, 2, 2), f, 3, 3);
+	J146 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44f2, f, 1, 1), f, 2, 2), f, 0, 0), f, 3, 3), f, 0, 0), f, 3, 3), f, 3, 3), f, 0, 0), f, 2, 2), f, 3, 3);
+	J147 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44, f, 1, 1), f, 1, 1), f, 0, 0), f, 1, 1), f, 1, 1), f, 2, 2), f, 3, 3), f, 3, 3), f, 2, 2), f, 3, 3);
+	J148 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44f2, f, 3, 3), f, 1, 1), f, 0, 0), f, 1, 1), f, 0, 0), f, 1, 1), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3);
+	J149 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C35f, f, 1, 1), f, 0, 0), f, 0, 0), f, 2, 2), f, 3, 3), f, 2, 2), f, 3, 3), f, 1, 1), f, 1, 1), f, 3, 3), f, 3, 3);
+	J1410 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C37, f, 0, 0), f, 3, 3), f, 2, 2), f, 0, 0), f, 2, 2), f, 0, 0), f, 1, 1), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3);
+	J1411 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C513f, f, 0, 0), f, 1, 1), f, 2, 2), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3);
+	J1412 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C55, f, 2, 2), f, 3, 3), f, 1, 1), f, 0, 0), f, 0, 0), f, 3, 3), f, 1, 1), f, 3, 3), f, 3, 3);
+	J1413 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C33f, f, 0, 0), f, 0, 0), f, 3, 3), f, 0, 0), f, 1, 1), f, 2, 2), f, 3, 3), f, 2, 2), f, 2, 2), f, 2, 2), f, 3, 3);
+	inv14 := [J142, J143, J144, J145, J146, J147, J148, J149, J1410, J1411, J1412, J1413];
+
+	//Degree 16
+	J161 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C551, f, 1, 1), f, 2, 2), f, 2, 2), f, 0, 0), f, 1, 1), f, 0, 0), f, 3, 3), f, 3, 3), f, 2, 2), f, 2, 2), f, 3, 3);
+	J162 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44f2, f, 0, 0), f, 3, 3), f, 1, 1), f, 1, 1), f, 1,1), f, 1, 1), f, 2, 2), f, 1, 1), f, 3, 3), f, 2, 2), f, 2, 2), f, 3, 3);
+	J163 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C55, f, 0, 0), f, 1, 1), f, 0, 0), f, 2, 2), f, 2, 2), f, 0, 0), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3);
+	J164 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C46H, f, 1, 1), f, 3, 3), f, 2, 2), f, 2, 2), f, 0,0), f, 2, 2), f, 3, 3), f, 0, 0), f, 0, 0), f, 3, 3), f, 2, 2), f, 3, 3);
+	J165 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44H, f, 3, 3), f, 1, 1), f, 1, 1), f, 0, 0), f, 2,2), f, 2, 2), f, 3, 3), f, 1, 1), f, 0, 0), f, 2, 2), f, 2, 2), f, 3, 3);
+	J166 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44H, f, 2, 2), f, 1, 1), f, 3, 3), f, 0, 0), f, 3,3), f, 1, 1), f, 0, 0), f, 0, 0), f, 1, 1), f, 3, 3), f, 3, 3), f, 3, 3);
+	J167 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C35, f, 0, 0), f, 3, 3), f, 1, 1), f,1, 1), f, 2, 2), f, 3, 3), f, 2, 2), f, 2, 2), f, 0, 0), f, 3, 3), f, 0, 0), f, 2, 2), f, 3, 3);
+	J168 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C33, f, 0, 0), f, 0, 0), f, 0, 0), f,0, 0), f, 2, 2), f, 1, 1), f, 0, 0), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3);
+	J169 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C441, f, 1, 1), f, 1, 1), f, 0, 0), f, 3, 3), f, 1,1), f, 0, 0), f, 1, 1), f, 2, 2), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3);
+	J1610 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44H1, f, 2, 2), f, 1, 1), f, 1, 1), f, 1, 1), f, 1,1), f, 3, 3), f, 1, 1), f, 0, 0), f, 3, 3), f, 2, 2), f, 2, 2), f, 3, 3);
+	J1611 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C37f, f, 0, 0), f, 0, 0), f, 1, 1), f,0, 0), f, 2, 2), f, 2, 2), f, 2, 2), f, 1, 1), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3);
+	J1612 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C57, f, 1, 1), f, 3, 3), f, 1, 1), f, 1, 1), f, 1, 1), f, 3, 3), f, 1, 1), f, 0, 0), f, 3, 3), f, 3, 3), f, 3, 3);
+	J1613 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C421, f, 0, 0), f, 1, 1), f, 0, 0), f, 0, 0), f, 2,2), f, 3, 3), f, 1, 1), f, 0, 0), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3);
+	J1614 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C62H2, f, 0, 0), f, 1, 1), f, 2, 2), f, 2, 2), f, 1, 1), f, 3, 3), f, 2, 2), f, 1, 1), f, 1, 1), f, 3, 3);
+	inv16 := [J161, J162, J163, J164, J165, J166, J167, J168, J169, J1610, J1611, J1612, J1613, J1614];
+
+	//Degree 18
+	J181 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C71H, f, 0, 0), f, 0, 0), f, 0, 0), f, 2, 2), f, 3, 3), f, 0, 0), f, 3, 3), f, 1, 1), f, 3, 3), f, 2, 2), f, 3, 3);
+	J182 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C55f, f, 0, 0), f, 0, 0), f, 0, 0), f,0, 0), f, 3, 3), f, 0, 0), f, 3, 3), f, 3, 3), f, 2, 2), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3);
+	J183 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C79H, f, 3, 3), f, 1, 1), f, 1, 1), f, 1, 1), f, 1, 1), f, 2, 2), f, 1, 1), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3);
+	J184 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(f3, f, 1, 1), f, 2, 2), f, 3, 3), f, 1, 1), f, 3, 3), f, 1, 1), f, 0, 0), f, 1, 1), f, 3, 3), f, 2, 2), f, 1, 1), f, 0, 0), f, 3, 3), f, 3, 3), f, 3, 3);
+	J185 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C57, f, 0, 0), f, 2, 2), f, 1, 1), f,2, 2), f, 3, 3), f, 1, 1), f, 3, 3), f, 3, 3), f, 0, 0), f, 0, 0), f, 2, 2), f, 3, 3), f, 3, 3);
+	J186 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C46H, f, 2, 2), f, 0, 0),f, 1, 1), f, 3, 3), f, 0, 0), f, 1, 1), f, 2, 2), f, 3, 3), f, 2, 2), f, 2, 2), f, 1, 1), f, 3, 3), f, 1, 1), f, 3, 3);
+	J187 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C551, f, 0, 0), f, 0, 0), f, 2, 2), f,2, 2), f, 2, 2), f, 3, 3), f, 1, 1), f, 0, 0), f, 1, 1), f, 3, 3), f, 2, 2), f, 3, 3), f, 3, 3);
+	J188 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C31, f, 0, 0), f, 0, 0), f, 1, 1), f, 1, 1), f, 0, 0), f, 3, 3), f, 2, 2), f, 3, 3), f, 2, 2), f, 3, 3), f, 1, 1), f, 2, 2), f, 1, 1), f, 1, 1), f, 3, 3);
+	J189 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C35H, f, 2, 2), f, 2, 2), f, 0, 0), f, 2, 2), f, 3, 3), f, 1, 1), f, 0, 0), f, 3, 3), f, 2, 2), f, 0, 0), f, 2, 2), f, 3, 3), f, 0, 0), f, 2, 2), f, 3, 3);
+	J1810 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C421, f, 0, 0), f, 2, 2),f, 1, 1), f, 1, 1), f, 1, 1), f, 1, 1), f, 2, 2), f, 2, 2), f, 3, 3), f, 1, 1), f, 0, 0), f, 3, 3), f, 2, 2), f, 3, 3);
+	J1811 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C48, f, 0, 0), f, 0, 0),f, 3, 3), f, 0, 0), f, 1, 1), f, 3, 3), f, 3, 3), f, 1, 1), f, 1, 1), f, 3, 3), f, 1, 1), f, 3, 3), f, 3, 3), f, 3, 3);
+	inv18 := [J181, J182, J183, J184, J185, J186, J187, J188, J189, J1810, J1811];
+
+	return invHSOP cat inv6 cat inv8 cat inv10 cat inv12 cat inv14 cat inv16 cat inv18;
+end function;
 
 
 d<f> := PolynomialRing(Rationals(), 1); //only to write "f" in the transvectants, I don't know how else to define a variable
 
-//the invariants
-list_invariants := [*[*f, f, 3, 3*], [*[*f, f, 2, 2*], [*f, f, 2, 2*], 2, 2*], [*[*[*f, f, 1, 1*], f, 2, 2*], f, 3, 3*], [* [* [* f, f, 2, 2*], [* f, f, 2, 2*], 1, 1 *], [* f, f, 2, 2 *], 2, 2 *], [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], [* [* [* f, f, 2, 2*], [* f, f, 2, 2*], 1, 1 *], [* [* f, f, 2, 2*], [* f, f, 2, 2*], 1, 1 *], 2, 2 *], [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], [* f, f, 2, 2 *], 0, 0 *], f, 3, 3 *], [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* f, f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [*[*[* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *]*];
+list_invariants := [*[*f, f, 3, 3*], [*[*f, f, 2, 2*], [*f, f, 2, 2*], 2, 2*], [*[*[*f, f, 1, 1*], f, 2, 2*], f, 3, 3*], [*[*[*f, f, 2, 2*], [*f, f, 2, 2*], 1, 1 *], [*f, f, 2, 2 *], 2, 2 *], [*[*[*[*[*f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], [*[*[*f, f, 2, 2*], [*f, f, 2, 2*], 1, 1 *], [*[*f, f, 2, 2*], [*f, f, 2, 2*], 1, 1 *], 2, 2 *], [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], [* f, f, 2, 2 *], 0, 0 *], f, 3, 3 *], [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* f, f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [*[*[* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *]*];
+
+
+function conv(I)
+	if Type(I) ne List then
+		return "f, ";
+	elif #I eq 1 then
+		return "f, ";
+	end if;
+	if I[3] eq 0 then
+		c := "0, 0), ";
+	elif I[3] eq 1 then
+		c := "1, 1), ";
+	elif I[3] eq 2 then
+		c := "2, 2), ";
+	elif I[3] eq 3 then
+		c := "3, 3), ";
+	end if;
+	return "Transvectant(" cat conv(I[1]) cat conv(I[2]) cat c;
+end function;
+
+
+
+
+
+
+
+
+
+
 
 QQ := Rationals();
 R<x,y,z,w> := PolynomialRing(QQ, [1,1,1,1]);
@@ -143,81 +320,9 @@ R<x, y, u, v> := PolynomialRing(BaseRing(Parent(f1)), 4);
 f1 := Evaluate(f1, [x*u, x*v, y*u, y*v]);
 time I1 := InvariantsGenus4Curves(list_invariants, f1);
 same_wps(list_invariants, I1, I1);
-//Examples of computations: first with Bring's curve and an approximation of it, and then on a random curve over Q
-
-//exact equations of Bring's curve
-R1<X,Y,Z,T> := PolynomialRing(Rationals(), 4);
-Q := X^2+Y^2+Z^2+T^2+(X+Y+Z+T)^2;
-C := X^3+Y^3+Z^3+T^3-(X+Y+Z+T)^3;
-P := NewBasis(Q);
-ChangeOfBasis(Q, P);
-f0 := CubicNewBasis(Q,C);
-R<x, y, u, v> := PolynomialRing(BaseRing(Parent(f0)), 4);
-f0 := Evaluate(f0, [x*u, y*u, x*v, y*v]); //this is the pullback of the cubic by the Segre morphism
-time I1 := InvariantsGenus4Curves(list_invariants, f0);
-I1;
-
-//now the approximation, given with period matrices and theta functions
-K<I> := ComplexField();
-R2<X,Y,Z,T> := PolynomialRing(K, 4);
-Q := -0.696204170879482*X^2 - 8.92722674847333*I*X^2 - 50.7464824844223*X*Y + 58.7433272900886*I*X*Y - 57.8475326042462*X*Z - 32.3114052362709*I*X*Z + 0.696204169859874*X*T + 8.92722674924129*I*X*T + 47.4047605707472*Y^2 - 101.593270607375*I*Y^2 + 5.27347385941716e-10*Y*Z + 2.16410098974995e-10*I*Y*Z + 3.89862714549051*Y*T + 49.9909796383706*I*Y*T + 57.8475326039864*Z^2 + 32.311405236749*I*Z^2 + 57.8475326042301*Z*T + 32.3114052362822*I*Z*T + 1.25310940216974*T^2 + 16.0682630702241*I*T^2;
-C := -234.90098969853*X^3 + 18.3191324015837*I*X^3 + 731.606628191784*X^2*Y + 478.455421156368*I*X^2*Y - 28.0203433984233*X^2*Z + 537.696155252943*I*X^2*Z + 352.35148455507*X^2*T - 27.4786985925642*I*X^2*T - 1147.27882034153*X*Y^2 - 485.876613084882*I*X*Y^2 + 562.593434153083*X*Y*Z - 32.1564704803837*I*X*Y*Z + 980.788369655334*X*Y*T - 92.8898492454102*I*X*Y*T + 28.0203433999316*X*Z^2 - 537.696155256996*I*X*Z^2 + 46.4622057542801*X*Z*T - 1058.24383026716*I*X*Z*T - 117.49502119373*X*T^2 + 9.16303864839564*I*X*T^2 + 125.61555530265*Y^3 - 446.88807153401*I*Y^3 + 6.75526150060275e-9*Y^2*Z - 1.19815129405316e-9*I*Y^2*Z + 26.7719595933429*Y^2*T + 14.3136325339934*I*Y^2*T - 562.593434151639*Y*Z^2 + 32.1564704772876*I*Y*Z^2 - 562.593434153289*Y*Z*T + 32.1564704813713*I*Y*Z*T - 537.802876178166*Y*T^2 + 41.9414243755401*I*Y*T^2 + 2.42764898083213e-9*Z^3 + 3.72099942130995e-9*I*Z^3 - 18.4418623558656*Z^2*T + 520.547675015364*I*Z^2*T - 18.4418623559262*Z*T^2 + 520.547675014923*I*Z*T^2 + 0.0222631708007216*T^3 - 0.00173622441208977*I*T^3;
-f1 := CubicNewBasis(Q,C);
-R<x, y, u, v> := PolynomialRing(K, 4);
-f1 := Evaluate(f1, [x*u, y*u, x*v, y*v]);
-time I2 := InvariantsGenus4Curves(list_invariants, f1);
-I2;
-
-//indeed, the invariants are the same up to a small precision
-J1, J2 := same_wps(list_invariants, I1, I2);
-
-J1;
-J2;
-
-for i in [1..#J1] do
-	ComplexField()!J1[i]-J2[i];
-end for;
-
-//here we suppose that 10^-9 = 0
-Q := -0.696204170879482*X^2 - 8.92722674847333*I*X^2 - 50.7464824844223*X*Y + 58.7433272900886*I*X*Y - 57.8475326042462*X*Z - 32.3114052362709*I*X*Z + 0.696204169859874*X*T + 8.92722674924129*I*X*T + 47.4047605707472*Y^2 - 101.593270607375*I*Y^2 + 3.89862714549051*Y*T + 49.9909796383706*I*Y*T + 57.8475326039864*Z^2 + 32.311405236749*I*Z^2 + 57.8475326042301*Z*T + 32.3114052362822*I*Z*T + 1.25310940216974*T^2 + 16.0682630702241*I*T^2;
-C := -234.90098969853*X^3 + 18.3191324015837*I*X^3 + 731.606628191784*X^2*Y + 478.455421156368*I*X^2*Y - 28.0203433984233*X^2*Z + 537.696155252943*I*X^2*Z + 352.35148455507*X^2*T - 27.4786985925642*I*X^2*T - 1147.27882034153*X*Y^2 - 485.876613084882*I*X*Y^2 + 562.593434153083*X*Y*Z - 32.1564704803837*I*X*Y*Z + 980.788369655334*X*Y*T - 92.8898492454102*I*X*Y*T + 28.0203433999316*X*Z^2 - 537.696155256996*I*X*Z^2 + 46.4622057542801*X*Z*T - 1058.24383026716*I*X*Z*T - 117.49502119373*X*T^2 + 9.16303864839564*I*X*T^2 + 125.61555530265*Y^3 - 446.88807153401*I*Y^3 + 26.7719595933429*Y^2*T + 14.3136325339934*I*Y^2*T - 562.593434151639*Y*Z^2 + 32.1564704772876*I*Y*Z^2 - 562.593434153289*Y*Z*T + 32.1564704813713*I*Y*Z*T - 537.802876178166*Y*T^2 + 41.9414243755401*I*Y*T^2 - 18.4418623558656*Z^2*T + 520.547675015364*I*Z^2*T - 18.4418623559262*Z*T^2 + 520.547675014923*I*Z*T^2 + 0.0222631708007216*T^3 - 0.00173622441208977*I*T^3;
 
 
-//here we don't
-
-
-//takes a random bicubic, a random change of variables, returns the set of invariants 
-K := Rationals();
-R0<x,y,u,v> := PolynomialRing(K, 4);
-f0 := 0;
-for i in [0..3] do
-	for j in [0..3] do
-		f0 := f0 + Random(-10, 10)*x^i*y^(3-i)*u^j*v^(3-j);
-	end for;
-end for;
-a1 := Random(1,10);
-b1 := Random(-10,10);
-c1 := Random(-10,10);
-d1 := (1-b1*c1)/a1;
-a2 := Random(1,10);
-b2 := Random(-10,10);
-c2 := Random(-10,10);
-d2 := (1-b2*c2)/a2;
-f1 := Evaluate(f0, [a1*x+b1*y, c1*x+d1*y, a2*u+b2*v, c2*u+d2*v]);
-f0;
-f1;
-I1 := eval_inv(list_invariants, f0);
-I2 := eval_inv(list_invariants, f1);
-
-
-//same invariants !
-J1, J2 := same_wps(list_invariants, I1, I2);
-for i in [1..#J1] do
-	if J1[i]-J2[i] ne 0 then
-		i, J1[i], J2[i];
-	end if;
-end for;
-
+time I2 := InvariantsGenus4Curves_test(f1);
 
 function normal_form(f1)
 	R := Parent(f1);
