@@ -119,9 +119,54 @@ function InvariantsHSOP(f0, d)
 	inv10 := R!Evaluate(Evaluation(j10, f0), [0,0,0,0]);
 	inv12 := R!Evaluate(Evaluation(j12, f0), [0,0,0,0]);
 	inv14 := R!Evaluate(Evaluation(j14, f0), [0,0,0,0]);
-	return [inv2, inv4, inv6, inv8, inv10, inv12, inv14, MH[1][1], MH[2][1], MH[3][1], MH[2][2], MH[d][2]];
+	return [inv2, MH[1][1], MH[2][1], MH[3][1], MH[2][2], MH[d][2], inv4, inv6, inv8, inv10, inv12, inv14];
 end function;
 
+function InvariantsGenus4Curves_test(f, d)
+	//Covariants
+	//Degree 2
+	Jac := Transvectant(f, f, 1, 1);
+	H := Transvectant(f, f, 2, 2);
+
+	//Degree 3
+	C33 := Transvectant(Jac, f, 2, 2);
+
+	C31H := Transvectant(H, f, 2, 2);
+	C33H := Transvectant(H, f, 1, 1);
+
+	//Degree 4
+	CH := Transvectant(H, H, 1, 1);
+	C42H := Transvectant(C31H, f, 1, 1);
+	C42H1 := Transvectant(C33H, f, 2, 2);
+
+	//Degree 5
+	C51H := Transvectant(C42H, f, 2, 2);
+	C53H := Transvectant(C42H, f, 1, 1);
+	C53H1 := Transvectant(C42H1, f, 1, 1);
+
+	//Degree 6
+	C62H := Transvectant(C53H, f, 2, 2);
+	C62H1 := Transvectant(C53H1, f, 2, 2);
+	C62H2 := Transvectant(C51H, f, 1, 1);
+
+	//Degree 7
+	C71H := Transvectant(C62H, f, 2, 2);
+	C73H1 := Transvectant(C62H1, f, 1, 1);
+
+	//Invariants
+	//HSOP
+	J2 := Transvectant(f, f, 3, 3);
+	J4H := Transvectant(H, H, 2, 2);
+	J4 := Transvectant(C33, f, 3, 3);	
+	J6H := Transvectant(H, CH, 2, 2);
+	J61 := Transvectant(C53H, f, 3, 3);
+	J8H := Transvectant(CH, CH, 2, 2);
+	J81 := Transvectant(C73H1, f, 3, 3);
+	J101 := Transvectant(Transvectant(Transvectant(C71H, f, 1, 1), f, 1, 1), f, 3, 3);
+	J121 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C73H1, f, 1, 1), f, 2, 2), f, 0, 0), f, 3, 3), f, 3, 3);
+	J141 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C62H2, f, 1, 1), f, 2, 2), f, 2, 2), f, 1, 1), f, 2, 2), H, 0, 0), f, 3, 3);
+	return [J2, MH[1][1], MH[2][1], MH[3][1], MH[2][2], MH[d][2], J4, J61, J81, J101, J121, J141];
+end function;
 
 K := Rationals();
 R1<a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33, X> := PolynomialRing(K, [1 : i in [1..17]]);
