@@ -77,9 +77,9 @@ function NewBasis(Q)
 	K := BaseRing(Parent(Q));
 	M1 := KMatrixSpace(K,4,4);
 	D, P, t := OrthogonalizeGram(Q_mat);
-	if t ne 4 then
+	if t lt 3 then
 		return "The quadric is not of rank 3 or 4"; //will be changed later to include rank 3 quadrics
-	else
+	elif t eq 4 then
 		L := [-D[4][4]/D[1][1], -D[3][3]/D[2][2]];
 		if not Category(K) eq FldCom then //we take a bigger field to be sure that the change of variable is well defined, and AlgebraicClosure(ComplexField()) returns an error
 			S := AlgebraicClosure(K);
@@ -90,6 +90,28 @@ function NewBasis(Q)
 		M2 := KMatrixSpace(S,4,4);
 		P := ChangeRing(P, S);
 		P_fin := (M2![1/(2*D[1][1]),0,0,1/(2*D[1][1]*Sqrt(S!L[1])),0,-1/(2*D[2][2]),-1/(2*D[2][2]*Sqrt(S!L[2])),0,0,1/2,-1/(2*Sqrt(S!L[2])),0,1/2,0,0,-1/(2*Sqrt(S!L[1]))])*P;
+		return P_fin;
+	else
+		i := 1;
+		while D[i][i] ne 0 do
+			i := i+1;
+		end while;
+		L := [1,2,3,4];
+		L[i] := 4;
+		L[4] := i;
+		P_swap := PermutationMatrix(K, L);
+		D := P_swap*D*P_swap;
+		P := P_swap*P;
+		L := [-D[3][3]/D[1][1], -D[2][2]];
+		if not Category(K) eq FldCom then //we take a bigger field to be sure that the change of variable is well defined, and AlgebraicClosure(ComplexField()) returns an error
+			S := AlgebraicClosure(K);
+			//[[Sqrt(S!L[i]), S!L[i]] : i in [1..2]]; //this is useful to know which square roots we are adding
+		else
+			S := K;
+		end if;
+		M2 := KMatrixSpace(S,4,4);
+		P := ChangeRing(P, S);
+		P_fin := (M2![1/(2*D[1][1]),0,1/(2*D[1][1]*Sqrt(S!L[1])),0,0,1/(Sqrt(S!L[2])),0,0,1/2,0,-1/(2*Sqrt(S!L[1])),0,0,0,0,1])*P;
 		return P_fin;
 	end if;
 end function;
@@ -113,7 +135,11 @@ function CubicNewBasis(Q, C)
 end function;
 
 
-function InvariantsGenus4Curves_test(f)
+function InvariantsGenus4Curves(Q, C)
+	
+end function;
+
+function InvariantsGenus4CurvesRank4(f)
 	//Covariants
 	//Degree 2
 	f2 := Transvectant(f, f, 0, 0);
@@ -273,6 +299,123 @@ function InvariantsGenus4Curves_test(f)
 	inv18 := [J181, J182, J183, J184, J185, J186, J187, J188, J189, J1810, J1811];
 
 	return invHSOP cat inv6 cat inv8 cat inv10 cat inv12 cat inv14 cat inv16 cat inv18;
+end function;
+
+
+function InvariantsGenus4CurvesRank3(f, v)
+	//Covariants of f
+	h24 := Transvectant(f, f, 4);
+	h28 := Transvectant(f, f, 2);
+	h32 := Transvectant(h24, f, 4);
+	h36 := Transvectant(h24, f, 2);
+	h38 := Transvectant(h24, f, 1);
+	h312 := Transvectant(h28, f, 1);
+	h44 := Transvectant(h32, f, 2);
+	h46 := Transvectant(h32, f, 1);
+	h52 := Transvectant(h24, h32, 2);
+	h54 := Transvectant(h24, h32, 1);
+	h58 := Transvectant(h28, h32, 1);
+	h661 := Transvectant(h38, h32, 2);
+	h662 := Transvectant(h36, h32, 1);
+	h74 := Transvectant(f, h32^2, 3);
+	h82 := Transvectant(h24, h32^2, 3);
+	h94 := Transvectant(h38, h32^2, 4);
+	h102 := Transvectant(h32^3, f, 5);
+
+	//Covariants of v
+	k24 := Transvectant(v, v, 2);
+	k36 := Transvectant(v, k24, 1);
+
+	//Invariants
+	J2f := Transvectant(f, f, 6);
+	J4f := Transvectant(h24, h24, 4);
+	J6f := Transvectant(h32, h32, 2);
+	J10f := Transvectant(h32^3, f, 6);
+	J15f := Transvectant(h38, h32^4, 8);
+	invf := [J2f, J4f, J6f, J10f, J15f];
+
+	J2v := Transvectant(v, v, 4);
+	J3v := Transvectant(k24, v, 4);
+	invv := [J2v, J3v];
+
+	J3 := Transvectant(h24, v, 4);
+	inv3 := [J3];
+
+	J41 := Transvectant(h28, v^2, 8);
+	J42 := Transvectant(h24, k24, 4);
+	J43 := Transvectant(k36, f, 6);
+	inv4 := [J41, J42, J43];
+
+	J51 := Transvectant(h38, v^2, 8);
+	J52 := Transvectant(h44, v, 4);
+	J53 := Transvectant(h28, v*k24, 8);
+	J54 := Transvectant(f^2, v^3, 12);
+	inv5 := [J51, J52, J53, J54];
+
+	J61 := Transvectant(h38, v*k24, 8);
+	J62 := Transvectant(f^2, v^2*k24, 12);
+	J63 := Transvectant(h28, k24^2, 8);
+	J64 := Transvectant(h36, k36, 6);
+	J65 := Transvectant(h312, v^3, 12);
+	J66 := Transvectant(h54, v, 4);
+	J67 := Transvectant(h44, k24, 4);
+	J68 := Transvectant(h32*f, v^2, 8);
+	inv6 := [J61, J62, J63, J64, J65, J66, J67, J68];
+
+	J71 := Transvectant(h32^2, v, 4);
+	J71 := Transvectant(h54, k24, 4);
+	J72 := Transvectant(h58, v^2, 8);
+	J73 := Transvectant(f*h36, v^3, 12);
+	J74 := Transvectant(f^2, v*k24^2, 12);
+	J75 := Transvectant(h32*f, v*k24, 8);
+	J76 := Transvectant(h46, k36, 6);
+	J76 := Transvectant(h312, v^2*k24, 12);
+	J77 := Transvectant(h38, k24^2, 8);
+	inv7 := [J71, J72, J73, J74, J75, J76, J77];
+
+	J81 := Transvectant(h32*h24, k36, 6);
+	J82 := Transvectant(h312, v*k24^2, 12);
+	J83 := Transvectant(h32*h36, v^2, 8);
+	J84 := Transvectant(h32^2, k24, 4);
+	J85 := Transvectant(h74, v, 4);
+	J86 := Transvectant(f*h46, v^3, 12);
+	J87 := Transvectant(f*h36, v^2*k24, 12);
+	J88 := Transvectant(h32*f, k24^2, 8);
+	J89 := Transvectant(h58, v*k24, 8);
+	inv8 := [J81, J82, J83, J84, J85, J86, J87, J88, J89];
+
+	J91 := Transvectant(h74, k24, 4);
+	J92 := Transvectant(h32*h52, v, 4);
+	J93 := Transvectant(h52*f, v*k24, 8);
+	J94 := Transvectant(h312, k24^3, 12);
+	J95 := Transvectant(h32*h28, v*k36, 10);
+	J96 := Transvectant(f*h46, v^2*k24, 12);
+	J97 := Transvectant(h36^2, v^3, 12);
+	J98 := Transvectant(h32*h46, v^2, 8);
+	inv9 := [J91, J92, J93, J94, J95, J96, J97, J98];
+
+	J101 := Transvectant(h94, v, 4);
+	J102 := Transvectant(h32*h28, k24*k36, 10);
+	J103 := Transvectant(h52*h36, v^2, 8);
+	J104 := Transvectant(f*h661, v^3, 12);
+	inv10 := [J101, J102, J103, J104];
+
+	J111 := Transvectant(h52^2, v, 4);
+	J112 := Transvectant(f*h662, v^2*k24, 12);
+	J113 := Transvectant(h32*h661, v^2, 8);
+	inv11 := [J111, J112, J113];
+
+	J121 := Transvectant(h32*h82, v, 4);
+	J122 := Transvectant(h32*h662, v*k24, 8);
+	inv12 := [J121, J122];
+
+	J13 := Transvectant(h82*h36, v^2, 8);
+	inv13 := [J13];
+
+	J14 := Transvectant(h32*h102, v, 4);
+	inv14 := [J14];
+
+	return invf cat invv cat inv3 cat inv4 cat inv5 cat inv6 cat inv7 cat inv8 cat inv9 cat inv10 cat inv11 cat inv12 cat inv13 cat inv14;
 end function;
 
 

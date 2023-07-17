@@ -75,7 +75,11 @@ function Transvectant(f, g, r, s)
 	m2 := Degree(Evaluate(g, [P.1, P.2, 1, 2]));
 	n2 := Degree(Evaluate(g, [1, 2, P.3, P.4]));
     	cfg := Factorial(m1-r)*Factorial(m2-r)*Factorial(n1-s)*Factorial(n2-s)/(Factorial(m1)*Factorial(m2)*Factorial(n1)*Factorial(n2));
-    return cfg*Tfg;
+    if Degree(Tfg) eq 0 then 
+		return cfg*Evaluate(Tfg, [0,0,0,0]);
+	else
+		return cfg*Tfg;
+	end if;
 end function;
 
 function Evaluation(I, f)
@@ -122,11 +126,13 @@ function InvariantsHSOP(f0, d)
 	return [inv2, MH[1][1], MH[2][1], MH[3][1], MH[2][2], MH[d][2], inv4, inv6, inv8, inv10, inv12, inv14];
 end function;
 
-function InvariantsGenus4Curves_test(f, d)
+function InvariantsHSOP(f, d)
 	//Covariants
 	//Degree 2
+	R<a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33, X> := CoefficientRing(Parent(f));
 	Jac := Transvectant(f, f, 1, 1);
 	H := Transvectant(f, f, 2, 2);
+	MH := CoefficientMatrix(H);
 
 	//Degree 3
 	C33 := Transvectant(Jac, f, 2, 2);
@@ -194,7 +200,6 @@ f0 := x^3*u^2*v+a30*x^3*v^3+a21*x^2*y*u*v^2+a20*x^2*y*v^3+a13*x*y^2*u^3+a12*x*y^
 CoefficientMatrix(f0);
 MH := CoefficientMatrix(Transvectant(f0, f0, 2, 2));
 I := Ideal(InvariantsHSOP(f0, 1) cat [MH[3][2]*X-1]);
-//It is not clear that it implies that f belongs to the nullcone
 [[IsInRadical(MH[i][j], I) : j in [1..3]] : i in [1..3]];
 [[IsInRadical(MonomialCoefficient(f0, y^i*x^(3-i)*v^j*u^(3-j)), I) : i in [0..3]] : j in [0..3]];
 
@@ -203,7 +208,7 @@ I := Ideal(InvariantsHSOP(f0, 1) cat [MH[3][2]*X-1]);
 //Case 4 
 f0 := a31*x^3*u*v^2+a30*x^3*v^3+x^2*y*u^3+a21*x^2*y*u*v^2+a20*x^2*y*v^3+a12*x*y^2*u^2*v+a11*x*y^2*u*v^2+a10*x*y^2*v^3+a03*y^3*u^3+a02*y^3*u^2*v+a01*y^3*u*v^2+a00*y^3*v^3;
 CoefficientMatrix(f0);
-List_invariants := InvariantsHSOP(f0, 1)
+List_invariants := InvariantsHSOP(f0, 1);
 I := Ideal(List_invariants);
 MH := CoefficientMatrix(Transvectant(f0, f0, 2, 2));
 [[IsInRadical(MH[i][j], I) : j in [1..3]] : i in [1..3]];
