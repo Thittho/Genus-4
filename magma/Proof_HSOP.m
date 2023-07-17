@@ -284,3 +284,59 @@ CoefficientMatrix(f0);
 MH := CoefficientMatrix(Transvectant(f0, f0, 2, 2));
 I := Ideal(InvariantsHSOP(f0, 3) cat [MH[1][2]*X-1]);
 IsInRadical(a30, I);
+
+
+//proof lemma
+
+
+function ProofLemma()
+	K := Rationals();
+	R1<a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33, X> := PolynomialRing(K, [1 : i in [1..17]]);
+	R<x, y, u, v> := PolynomialRing(R1, 4);
+	f0 := a33*x^3*u^3+a32*x^3*u^2*v+a31*x^3*u*v^2+a30*x^3*v^3+a23*x^2*y*u^3+a22*x^2*y*u^2*v+a21*x^2*y*u*v^2+a20*x^2*y*v^3+a13*x*y^2*u^3+a12*x*y^2*u^2*v+a11*x*y^2*u*v^2+a10*x*y^2*v^3+a03*y^3*u^3+a02*y^3*u^2*v+a01*y^3*u*v^2+a00*y^3*v^3;
+	MH := CoefficientMatrix(Transvectant(f0, f0, 2, 2));
+	inv2 := Transvectant(f0, f0, 3, 3);
+	I := Ideal([inv2, MH[1][1], MH[2][1], MH[3][1], MH[1][2], MH[2][2], MH[3][2], MH[1][3], MH[2][3], MH[3][3]]);
+	"The invariants which come from J_{3,1} vanish:";
+	s := Transvectant(f0, f0, 3, 1);
+	"(J_{3,1}, J_{3,1})_4 = 0", IsInRadical(R1!Transvectant(s, s, 0, 4), I);
+	"((J_{3,1}, J_{3,1})_2, J_{3,1})_4 = 0", IsInRadical(R1!Transvectant(Transvectant(s, s, 0, 2), s, 0, 4), I);
+	"";
+	"The invariants which come from J_{3,1} vanish:";
+	s := Transvectant(f0, f0, 1, 3);
+	"(J_{1,3}, J_{1,3})_4 = 0", IsInRadical(R1!Transvectant(s, s, 4, 0), I);
+	"((J_{1,3}, J_{1,3})_2, J_{1,3})_4 = 0", IsInRadical(R1!Transvectant(Transvectant(s, s, 2, 0), s, 4, 0), I);
+	"";
+	"If we take into account that y^3 divides J_{1,3}:";
+	liste_f0 := [a30*x^3*v^3+a22*x^2*y*u^2*v+a21*x^2*y*u*v^2+a20*x^2*y*v^3+a13*x*y^2*u^3+a12*x*y^2*u^2*v+a11*x*y^2*u*v^2+a10*x*y^2*v^3+a03*y^3*u^3+a02*y^3*u^2*v+a01*y^3*u*v^2+a00*y^3*v^3,
+	 x^3*u*v^2+a22*x^2*y*u^2*v+a20*x^2*y*v^3+a13*x*y^2*u^3+a12*x*y^2*u^2*v+a11*x*y^2*u*v^2+a10*x*y^2*v^3+a03*y^3*u^3+a02*y^3*u^2*v+a01*y^3*u*v^2+a00*y^3*v^3, 
+	 x^3*u^2*v+a30*x^3*v^3+a21*x^2*y*u*v^2+a20*x^2*y*v^3+a13*x*y^2*u^3+a12*x*y^2*u^2*v+a11*x*y^2*u*v^2+a10*x*y^2*v^3+a03*y^3*u^3+a02*y^3*u^2*v+a01*y^3*u*v^2+a00*y^3*v^3, 
+	 a31*x^3*u*v^2+a30*x^3*v^3+x^2*y*u^3+a21*x^2*y*u*v^2+a20*x^2*y*v^3+a12*x*y^2*u^2*v+a11*x*y^2*u*v^2+a10*x*y^2*v^3+a03*y^3*u^3+a02*y^3*u^2*v+a01*y^3*u*v^2+a00*y^3*v^3, 
+	 x^3*u^2*v+a31*x^3*u*v^2+a30*x^3*v^3+x^2*y*u^3+a21*x^2*y*u*v^2+a20*x^2*y*v^3+a12*x*y^2*u^2*v+a11*x*y^2*u*v^2+a10*x*y^2*v^3+a03*y^3*u^3+a02*y^3*u^2*v+a01*y^3*u*v^2+a00*y^3*v^3];
+	for j in [1..5] do
+		"Case " cat IntegerToString(j) cat":";
+		f0 := liste_f0[j];
+		Mat := CoefficientMatrix(f0);
+		M := [R1!MonomialCoefficient(Transvectant(f0, f0, 1, 3),x^(4-i)*y^(i)) : i in [0..4]];
+		MH := CoefficientMatrix(Transvectant(f0, f0, 2, 2));
+		inv2 := Transvectant(f0, f0, 3, 3);
+		I := Ideal([inv2, M[1], M[2], M[3], MH[1][1], MH[2][1], MH[3][1], MH[1][2], MH[2][2], MH[3][2], MH[1][3], MH[2][3], MH[3][3]]);
+		Gb := RadicalDecomposition(I);
+		for bas in Gb do
+			Matrix([[NormalForm(Mat[i][j], bas) : j in [1..4]] : i in [1..4]]);
+			"";
+		end for;
+	end for;
+	"The first subcase of case 5 is the only one which does not quite work. We do a suitable change of variables, and get:";
+	f0 := liste_f0[5];
+	CoefficientMatrix(f0);
+	M := [R1!MonomialCoefficient(Transvectant(f0, f0, 1, 3),x^(4-i)*y^(i)) : i in [0..4]];
+	MH := CoefficientMatrix(Transvectant(f0, f0, 2, 2));
+	inv2 := Transvectant(f0, f0, 3, 3);
+	I := Ideal([inv2, M[1], M[2], M[3], MH[1][1], MH[2][1], MH[3][1], MH[1][2], MH[2][2], MH[3][2], MH[1][3], MH[2][3], MH[3][3]]);
+	f1 := R!(Evaluate(f0, [x+a31/2*y, y, u-a31/2*v, v]));
+	Gb := RadicalDecomposition(I);
+	Matrice_f1 := CoefficientMatrix(f1);
+	Matrix([[NormalForm(Matrice_f1[i][j], Gb[1]) : j in [1..4]] : i in [1..4]]);
+	return "";
+end function;
