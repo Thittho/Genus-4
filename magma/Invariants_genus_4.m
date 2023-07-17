@@ -1,6 +1,63 @@
-//FUNCTIONS TO DETERMINE THE CUBIC IN THE BASIS IN WHICH Q=XT-YZ (the order of the variables is X,Y,Z,T)
+/*
+intrinsic Transvectant(f::RngMPolElt, g::RngMPolElt, r::RngIntElt, s::RngIntElt) -> RngMPolElt
+    	{Given two covariants f and g given as two bihomogeneous polynomials, return their transvectant of level (r,s)}
+    	P := Parent(f);
+    	require P eq Parent(g) : "Arguments 1 and 2 must be have the same parent.";
+    	require IsHomogeneous(Evaluate(f, [P.1, P.2, 1, 1])) and IsHomogeneous(Evaluate(f, [1, 1, P.3, P.4])) and IsHomogeneous(Evaluate(g, [P.1, P.2, 1, 1])) and IsHomogeneous(Evaluate(g, [1, 1, P.3, P.4])) : "Arguments 1 and 2 must be bihomogeneous.";
+    	if f eq 0 or g eq 0 then return P!0; end if;
+    	Sf := [[Derivative(Derivative(Derivative(Derivative(f, j, 1), r-j, 2), i, 3), s-i, 4) : j in [0..r]] : i in [0..s]];
+	Sg := [[Derivative(Derivative(Derivative(Derivative(g, j, 1), r-j, 2), i, 3), s-i, 4) : j in [0..r]] : i in [0..s]];
+    	Tfg := P!0;
+    	for i := 0 to s do
+		for j := 0 to r do
+        		Tfg +:= (-1)^(i+j)*Binomial(s, i)*Binomial(r, j)*(Sf[i+1][j+1]*Sg[s+1-i][r+1-j]);
+		end for;
+    	end for;
+    	m1 := Degree(Evaluate(f, [P.1, P.2, 1, 2]));
+	n1 := Degree(Evaluate(f, [1, 2, P.3, P.4]));
+	m2 := Degree(Evaluate(g, [P.1, P.2, 1, 2]));
+	n2 := Degree(Evaluate(g, [1, 2, P.3, P.4]));
+    	cfg := Factorial(m1-r)*Factorial(m2-r)*Factorial(n1-s)*Factorial(n2-s)/(Factorial(m1)*Factorial(m2)*Factorial(n1)*Factorial(n2));
+    return cfg*Tfg;
+end intrinsic;
 
-//given a quadric and a field of definition of the quadric, returns a field and a matrix defined on that field which transforms the quadric into XT-YZ
+
+function Evaluation(I, f)
+	if Type(I) ne List then
+		return f;
+	elif #I eq 1 then
+		return f;
+	elif #I eq 2 then
+		return Evaluation(I[1], f)+Evaluation(I[2], f);
+	end if;
+	return Transvectant(Evaluation(I[1], f), Evaluation(I[2], f), I[3], I[4]);
+end function;
+
+
+function DegreeOrder(I)
+	if Type(I) ne List then
+		return [1,3,3];
+	elif #I eq 1 then
+		return [1,3,3];
+	elif #I eq 2 then
+		return DegreeOrder(I[1]);
+	end if;
+	c1 := DegreeOrder(I[1]);
+	c2 := DegreeOrder(I[2]);
+	return [c1[1]+c2[1], c1[2]+c2[2]-2*I[3], c1[3]+c2[3]-2*I[4]];
+end function;
+
+function CoefficientMatrix(f)
+	P := Parent(f);
+	R := BaseRing(P);
+	m := Degree(Evaluate(f, [P.1, P.2, 1, 2]));	
+	n := Degree(Evaluate(f, [1, 2, P.3, P.4]));
+	M := [[R!MonomialCoefficient(f, y^i*x^(m-i)*v^j*u^(n-j)) : i in [0..m]] : j in [0..n]];
+	return Matrix(M);
+end function; 
+
+
+*/
 
 function Transvectant(f, g, r, s)
     	P := Parent(f);
