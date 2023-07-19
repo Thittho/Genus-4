@@ -1,64 +1,3 @@
-/*
-intrinsic Transvectant(f::RngMPolElt, g::RngMPolElt, r::RngIntElt, s::RngIntElt) -> RngMPolElt
-    	{Given two covariants f and g given as two bihomogeneous polynomials, return their transvectant of level (r,s)}
-    	P := Parent(f);
-    	require P eq Parent(g) : "Arguments 1 and 2 must be have the same parent.";
-    	require IsHomogeneous(Evaluate(f, [P.1, P.2, 1, 1])) and IsHomogeneous(Evaluate(f, [1, 1, P.3, P.4])) and IsHomogeneous(Evaluate(g, [P.1, P.2, 1, 1])) and IsHomogeneous(Evaluate(g, [1, 1, P.3, P.4])) : "Arguments 1 and 2 must be bihomogeneous.";
-    	if f eq 0 or g eq 0 then return P!0; end if;
-    	Sf := [[Derivative(Derivative(Derivative(Derivative(f, j, 1), r-j, 2), i, 3), s-i, 4) : j in [0..r]] : i in [0..s]];
-	Sg := [[Derivative(Derivative(Derivative(Derivative(g, j, 1), r-j, 2), i, 3), s-i, 4) : j in [0..r]] : i in [0..s]];
-    	Tfg := P!0;
-    	for i := 0 to s do
-		for j := 0 to r do
-        		Tfg +:= (-1)^(i+j)*Binomial(s, i)*Binomial(r, j)*(Sf[i+1][j+1]*Sg[s+1-i][r+1-j]);
-		end for;
-    	end for;
-    	m1 := Degree(Evaluate(f, [P.1, P.2, 1, 2]));
-	n1 := Degree(Evaluate(f, [1, 2, P.3, P.4]));
-	m2 := Degree(Evaluate(g, [P.1, P.2, 1, 2]));
-	n2 := Degree(Evaluate(g, [1, 2, P.3, P.4]));
-    	cfg := Factorial(m1-r)*Factorial(m2-r)*Factorial(n1-s)*Factorial(n2-s)/(Factorial(m1)*Factorial(m2)*Factorial(n1)*Factorial(n2));
-    return cfg*Tfg;
-end intrinsic;
-
-
-function Evaluation(I, f)
-	if Type(I) ne List then
-		return f;
-	elif #I eq 1 then
-		return f;
-	elif #I eq 2 then
-		return Evaluation(I[1], f)+Evaluation(I[2], f);
-	end if;
-	return Transvectant(Evaluation(I[1], f), Evaluation(I[2], f), I[3], I[4]);
-end function;
-
-
-function DegreeOrder(I)
-	if Type(I) ne List then
-		return [1,3,3];
-	elif #I eq 1 then
-		return [1,3,3];
-	elif #I eq 2 then
-		return DegreeOrder(I[1]);
-	end if;
-	c1 := DegreeOrder(I[1]);
-	c2 := DegreeOrder(I[2]);
-	return [c1[1]+c2[1], c1[2]+c2[2]-2*I[3], c1[3]+c2[3]-2*I[4]];
-end function;
-
-function CoefficientMatrix(f)
-	P := Parent(f);
-	R := BaseRing(P);
-	m := Degree(Evaluate(f, [P.1, P.2, 1, 2]));	
-	n := Degree(Evaluate(f, [1, 2, P.3, P.4]));
-	M := [[R!MonomialCoefficient(f, y^i*x^(m-i)*v^j*u^(n-j)) : i in [0..m]] : j in [0..n]];
-	return Matrix(M);
-end function; 
-
-
-*/
-
 function Transvectant(f, g, r, s)
     	P := Parent(f);
     	if f eq 0 or g eq 0 then return P!0; end if;
@@ -106,10 +45,6 @@ function Evaluation(I, f)
 	return Transvectant(Evaluation(I[1], f), Evaluation(I[2], f), I[3], I[4]);
 end function;
 
-function InvariantsGenus4Curves(L, f)
-	return [Evaluation(L[i], f) : i in [1..#L]];
-end function;
-
 function CoefficientsMatrix(f)
 	P := Parent(f);
 	R<a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33, X> := CoefficientRing(P);
@@ -135,7 +70,8 @@ function NewBasis(Q)
 	M1 := KMatrixSpace(K,4,4);
 	D, P, t := OrthogonalizeGram(Q_mat);
 	if t lt 3 then
-		return "The quadric is not of rank 3 or 4"; //will be changed later to include rank 3 quadrics
+		"The quadric is not of rank 3 or 4";
+		return D, t;
 	elif t eq 4 then
 		L := [-D[4][4]/D[1][1], -D[3][3]/D[2][2]];
 		if not Category(K) eq FldCom then //we take a bigger field to be sure that the change of variable is well defined, and AlgebraicClosure(ComplexField()) returns an error
@@ -147,7 +83,7 @@ function NewBasis(Q)
 		M2 := KMatrixSpace(S,4,4);
 		P := ChangeRing(P, S);
 		P_fin := (M2![1/(2*D[1][1]),0,0,1/(2*D[1][1]*Sqrt(S!L[1])),0,-1/(2*D[2][2]),-1/(2*D[2][2]*Sqrt(S!L[2])),0,0,1/2,-1/(2*Sqrt(S!L[2])),0,1/2,0,0,-1/(2*Sqrt(S!L[1]))])*P;
-		return P_fin;
+		return P_fin, 4;
 	else
 		i := 1;
 		while D[i][i] ne 0 do
@@ -169,7 +105,7 @@ function NewBasis(Q)
 		M2 := KMatrixSpace(S,4,4);
 		P := ChangeRing(P, S);
 		P_fin := (M2![1/(2*D[1][1]),0,1/(2*D[1][1]*Sqrt(S!L[1])),0,0,1/(Sqrt(S!L[2])),0,0,1/2,0,-1/(2*Sqrt(S!L[1])),0,0,0,0,1])*P;
-		return P_fin;
+		return P_fin, 3;
 	end if;
 end function;
 
@@ -189,11 +125,6 @@ function CubicNewBasis(Q, C)
 	R := ChangeRing(R, BaseRing(Parent(P)));
 	C1 := R!C;
 	return ChangeOfBasis(C1, P);
-end function;
-
-
-function InvariantsGenus4Curves(Q, C)
-	
 end function;
 
 function InvariantsGenus4CurvesRank4(f)
@@ -384,142 +315,164 @@ function InvariantsGenus4CurvesRank3(f, v)
 	k36 := Transvectant(v, k24, 1);
 
 	//Invariants
-	J2f := Transvectant(f, f, 6);
-	J4f := Transvectant(h24, h24, 4);
-	J6f := Transvectant(h32, h32, 2);
-	J10f := Transvectant(h32^3, f, 6);
-	J15f := Transvectant(h38, h32^4, 8);
+	J2f := Evaluate(Transvectant(f, f, 6), [0,0]);
+	J4f := Evaluate(Transvectant(h24, h24, 4), [0,0]);
+	J6f := Evaluate(Transvectant(h32, h32, 2), [0,0]);
+	J10f := Evaluate(Transvectant(h32^3, f, 6), [0,0]);
+	J15f := Evaluate(Transvectant(h38, h32^4, 8), [0,0]);
 	invf := [J2f, J4f, J6f, J10f, J15f];
 
-	J2v := Transvectant(v, v, 4);
-	J3v := Transvectant(k24, v, 4);
+	J2v := Evaluate(Transvectant(v, v, 4), [0,0]);
+	J3v := Evaluate(Transvectant(k24, v, 4), [0,0]);
 	invv := [J2v, J3v];
 
-	J3 := Transvectant(h24, v, 4);
+	J3 := Evaluate(Transvectant(h24, v, 4), [0,0]);
 	inv3 := [J3];
 
-	J41 := Transvectant(h28, v^2, 8);
-	J42 := Transvectant(h24, k24, 4);
-	J43 := Transvectant(k36, f, 6);
+	J41 := Evaluate(Transvectant(h28, v^2, 8), [0,0]);
+	J42 := Evaluate(Transvectant(h24, k24, 4), [0,0]);
+	J43 := Evaluate(Transvectant(k36, f, 6), [0,0]);
 	inv4 := [J41, J42, J43];
 
-	J51 := Transvectant(h38, v^2, 8);
-	J52 := Transvectant(h44, v, 4);
-	J53 := Transvectant(h28, v*k24, 8);
-	J54 := Transvectant(f^2, v^3, 12);
+	J51 := Evaluate(Transvectant(h38, v^2, 8), [0,0]);
+	J52 := Evaluate(Transvectant(h44, v, 4), [0,0]);
+	J53 := Evaluate(Transvectant(h28, v*k24, 8), [0,0]);
+	J54 := Evaluate(Transvectant(f^2, v^3, 12), [0,0]);
 	inv5 := [J51, J52, J53, J54];
 
-	J61 := Transvectant(h38, v*k24, 8);
-	J62 := Transvectant(f^2, v^2*k24, 12);
-	J63 := Transvectant(h28, k24^2, 8);
-	J64 := Transvectant(h36, k36, 6);
-	J65 := Transvectant(h312, v^3, 12);
-	J66 := Transvectant(h54, v, 4);
-	J67 := Transvectant(h44, k24, 4);
-	J68 := Transvectant(h32*f, v^2, 8);
+	J61 := Evaluate(Transvectant(h38, v*k24, 8), [0,0]);
+	J62 := Evaluate(Transvectant(f^2, v^2*k24, 12), [0,0]);
+	J63 := Evaluate(Transvectant(h28, k24^2, 8), [0,0]);
+	J64 := Evaluate(Transvectant(h36, k36, 6), [0,0]);
+	J65 := Evaluate(Transvectant(h312, v^3, 12), [0,0]);
+	J66 := Evaluate(Transvectant(h54, v, 4), [0,0]);
+	J67 := Evaluate(Transvectant(h44, k24, 4), [0,0]);
+	J68 := Evaluate(Transvectant(h32*f, v^2, 8), [0,0]);
 	inv6 := [J61, J62, J63, J64, J65, J66, J67, J68];
 
-	J71 := Transvectant(h32^2, v, 4);
-	J71 := Transvectant(h54, k24, 4);
-	J72 := Transvectant(h58, v^2, 8);
-	J73 := Transvectant(f*h36, v^3, 12);
-	J74 := Transvectant(f^2, v*k24^2, 12);
-	J75 := Transvectant(h32*f, v*k24, 8);
-	J76 := Transvectant(h46, k36, 6);
-	J76 := Transvectant(h312, v^2*k24, 12);
-	J77 := Transvectant(h38, k24^2, 8);
+	J71 := Evaluate(Transvectant(h32^2, v, 4), [0,0]);
+	J71 := Evaluate(Transvectant(h54, k24, 4), [0,0]);
+	J72 := Evaluate(Transvectant(h58, v^2, 8), [0,0]);
+	J73 := Evaluate(Transvectant(f*h36, v^3, 12), [0,0]);
+	J74 := Evaluate(Transvectant(f^2, v*k24^2, 12), [0,0]);
+	J75 := Evaluate(Transvectant(h32*f, v*k24, 8), [0,0]);
+	J76 := Evaluate(Transvectant(h46, k36, 6), [0,0]);
+	J76 := Evaluate(Transvectant(h312, v^2*k24, 12), [0,0]);
+	J77 := Evaluate(Transvectant(h38, k24^2, 8), [0,0]);
 	inv7 := [J71, J72, J73, J74, J75, J76, J77];
 
-	J81 := Transvectant(h32*h24, k36, 6);
-	J82 := Transvectant(h312, v*k24^2, 12);
-	J83 := Transvectant(h32*h36, v^2, 8);
-	J84 := Transvectant(h32^2, k24, 4);
-	J85 := Transvectant(h74, v, 4);
-	J86 := Transvectant(f*h46, v^3, 12);
-	J87 := Transvectant(f*h36, v^2*k24, 12);
-	J88 := Transvectant(h32*f, k24^2, 8);
-	J89 := Transvectant(h58, v*k24, 8);
+	J81 := Evaluate(Transvectant(h32*h24, k36, 6), [0,0]);
+	J82 := Evaluate(Transvectant(h312, v*k24^2, 12), [0,0]);
+	J83 := Evaluate(Transvectant(h32*h36, v^2, 8), [0,0]);
+	J84 := Evaluate(Transvectant(h32^2, k24, 4), [0,0]);
+	J85 := Evaluate(Transvectant(h74, v, 4), [0,0]);
+	J86 := Evaluate(Transvectant(f*h46, v^3, 12), [0,0]);
+	J87 := Evaluate(Transvectant(f*h36, v^2*k24, 12), [0,0]);
+	J88 := Evaluate(Transvectant(h32*f, k24^2, 8), [0,0]);
+	J89 := Evaluate(Transvectant(h58, v*k24, 8), [0,0]);
 	inv8 := [J81, J82, J83, J84, J85, J86, J87, J88, J89];
 
-	J91 := Transvectant(h74, k24, 4);
-	J92 := Transvectant(h32*h52, v, 4);
-	J93 := Transvectant(h52*f, v*k24, 8);
-	J94 := Transvectant(h312, k24^3, 12);
-	J95 := Transvectant(h32*h28, v*k36, 10);
-	J96 := Transvectant(f*h46, v^2*k24, 12);
-	J97 := Transvectant(h36^2, v^3, 12);
-	J98 := Transvectant(h32*h46, v^2, 8);
+	J91 := Evaluate(Transvectant(h74, k24, 4), [0,0]);
+	J92 := Evaluate(Transvectant(h32*h52, v, 4), [0,0]);
+	J93 := Evaluate(Transvectant(h52*f, v*k24, 8), [0,0]);
+	J94 := Evaluate(Transvectant(h312, k24^3, 12), [0,0]);
+	J95 := Evaluate(Transvectant(h32*h28, v*k36, 10), [0,0]);
+	J96 := Evaluate(Transvectant(f*h46, v^2*k24, 12), [0,0]);
+	J97 := Evaluate(Transvectant(h36^2, v^3, 12), [0,0]);
+	J98 := Evaluate(Transvectant(h32*h46, v^2, 8), [0,0]);
 	inv9 := [J91, J92, J93, J94, J95, J96, J97, J98];
 
-	J101 := Transvectant(h94, v, 4);
-	J102 := Transvectant(h32*h28, k24*k36, 10);
-	J103 := Transvectant(h52*h36, v^2, 8);
-	J104 := Transvectant(f*h661, v^3, 12);
+	J101 := Evaluate(Transvectant(h94, v, 4), [0,0]);
+	J102 := Evaluate(Transvectant(h32*h28, k24*k36, 10), [0,0]);
+	J103 := Evaluate(Transvectant(h52*h36, v^2, 8), [0,0]);
+	J104 := Evaluate(Transvectant(f*h661, v^3, 12), [0,0]);
 	inv10 := [J101, J102, J103, J104];
 
-	J111 := Transvectant(h52^2, v, 4);
-	J112 := Transvectant(f*h662, v^2*k24, 12);
-	J113 := Transvectant(h32*h661, v^2, 8);
+	J111 := Evaluate(Transvectant(h52^2, v, 4), [0,0]);
+	J112 := Evaluate(Transvectant(f*h662, v^2*k24, 12), [0,0]);
+	J113 := Evaluate(Transvectant(h32*h661, v^2, 8), [0,0]);
 	inv11 := [J111, J112, J113];
 
-	J121 := Transvectant(h32*h82, v, 4);
-	J122 := Transvectant(h32*h662, v*k24, 8);
+	J121 := Evaluate(Transvectant(h32*h82, v, 4), [0,0]);
+	J122 := Evaluate(Transvectant(h32*h662, v*k24, 8), [0,0]);
 	inv12 := [J121, J122];
 
-	J13 := Transvectant(h82*h36, v^2, 8);
+	J13 := Evaluate(Transvectant(h82*h36, v^2, 8), [0,0]);
 	inv13 := [J13];
 
-	J14 := Transvectant(h32*h102, v, 4);
+	J14 := Evaluate(Transvectant(h32*h102, v, 4), [0,0]);
 	inv14 := [J14];
 
 	return invf cat invv cat inv3 cat inv4 cat inv5 cat inv6 cat inv7 cat inv8 cat inv9 cat inv10 cat inv11 cat inv12 cat inv13 cat inv14;
 end function;
 
-
-d<f> := PolynomialRing(Rationals(), 1); //only to write "f" in the transvectants, I don't know how else to define a variable
-
-list_invariants := [*[*f, f, 3, 3*], [*[*f, f, 2, 2*], [*f, f, 2, 2*], 2, 2*], [*[*[*f, f, 1, 1*], f, 2, 2*], f, 3, 3*], [*[*[*f, f, 2, 2*], [*f, f, 2, 2*], 1, 1 *], [*f, f, 2, 2 *], 2, 2 *], [*[*[*[*[*f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], [*[*[*f, f, 2, 2*], [*f, f, 2, 2*], 1, 1 *], [*[*f, f, 2, 2*], [*f, f, 2, 2*], 1, 1 *], 2, 2 *], [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], [* f, f, 2, 2 *], 0, 0 *], f, 3, 3 *], [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* f, f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [*[*[* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 1, 1 *], f, 2, 2 *], f, 3, 3 *], f, 2, 2 *], f, 2, 2 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 3, 3 *], f, 0, 0 *], f, 0, 0 *], f, 1, 1 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], f, 0, 0 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 2, 2 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 1, 1 *], f, 2, 2 *], f, 2, 2 *], f, 3, 3 *], f, 1, 1 *], f, 0, 0 *], f, 3, 3 *], f, 2, 2 *], f, 3, 3 *], [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* [* f, f, 0, 0 *], f, 0, 0 *], f, 2, 2 *], f, 0, 0 *], f, 0, 0 *], f, 3, 3 *], f, 0, 0 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 1, 1 *], f, 1, 1 *], f, 3, 3 *], f, 1, 1 *], f, 3, 3 *], f, 3, 3 *], f, 3, 3 *]*];
-
-
-function conv(I)
-	if Type(I) ne List then
-		return "f, ";
-	elif #I eq 1 then
-		return "f, ";
+function InvariantsGenus4Curves(Q, C)
+	R0<X,Y,Z,T> := Parent(Q);
+	K := BaseRing(R0);
+	P, t := NewBasis(Q);
+	if t eq 4 then
+		ChangeOfBasis(Q, P);
+		f0 := CubicNewBasis(Q,C);
+		R<x, y, u, v> := PolynomialRing(BaseRing(Parent(f0)), 4);
+		f_bic := Evaluate(f0, [x*u, y*u, x*v, y*v]); //this is the pullback of the cubic by the Segre morphism
+		return 0;//InvariantsGenus4CurvesRank4(f_bic);
+	elif t eq 3 then
+		ChangeOfBasis(Q, P);
+		f0 := CubicNewBasis(Q,C);
+		R<s, t, w> := PolynomialRing(BaseRing(Parent(f0)), [1,1,2]);
+		f_weighted := Evaluate(f0, [s^2, s*t, t^2, w]); //this is the pullback of the cubic by the Segre morphism
+		if MonomialCoefficient(f_weighted, w^3) eq 0 then
+			return "The curve is not smooth";
+		else
+			alpha := Root(MonomialCoefficient(f_weighted, w^3), 3);
+			f_weighted := Evaluate(f_weighted, [s, t, w/alpha]);        
+			f_weighted := Evaluate(f_weighted, [s, t, w-ExactQuotient(Terms(f_weighted, w)[3], 3*w^2)]);
+			S<[x]> := PolynomialRing(BaseRing(Parent(f_weighted)), 2);
+			list_inv := InvariantsGenus4CurvesRank3(S!Evaluate(f_weighted, [x[1], x[2], 0]), S!Evaluate(ExactQuotient(Terms(f_weighted, w)[2], w), [x[1], x[2], 0]));
+			return WPSMultiply([2,4,6,10,15,2,3,3,4,4,4,5,5,5,5,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,9,9,9,9,9,9,9,9,10,10,10,10,11,11,11,12,12,13,14], list_inv, 1/Sqrt(list_inv[1]));
+		end if;
 	end if;
-	if I[3] eq 0 then
-		c := "0, 0), ";
-	elif I[3] eq 1 then
-		c := "1, 1), ";
-	elif I[3] eq 2 then
-		c := "2, 2), ";
-	elif I[3] eq 3 then
-		c := "3, 3), ";
-	end if;
-	return "Transvectant(" cat conv(I[1]) cat conv(I[2]) cat c;
 end function;
 
+QQ := Rationals();
+Rtest<x,y,z,w> := PolynomialRing(QQ, [1,1,1,1]);
+Quadric1:=-10*x^2 - x*y + 8*x*z + 9*y*z - 6*z^2;
+Cubic1:=-x^2*y - x^2*z - 5*x^2*w - 6*x*y^2 - 2*x*y*z - 9*x*y*w + 7*x*z^2 + 3*x*z*w -
+    8*x*w^2 - 10*y^3 + 3*y^2*z - y^2*w - 3*y*z^2 - 7*y*w^2 - z^3 + z^2*w -
+    10*z*w^2 + 3*w^3;
+time I1 := InvariantsGenus4Curves(Quadric1, Cubic1);
+
+Quadric2 := Evaluate(Quadric1, [2*y+3*x, x-2*y, 3*z, -3*w]);
+Cubic2 := Evaluate(Cubic1, [2*y+3*x, x-2*y, 3*z, -3*w]);
+time I2 := InvariantsGenus4Curves(Quadric2, Cubic2);
+I2 eq I1;
+
+load "InvS10.m";
+IdxInv := [idx : idx in [1..#FdCov] | FdCov[idx]`order eq 0];
 
 
+function InvariantsGenus4HyperellipticCurves(f);
+	IdxInv := [idx : idx in [1..#FdCov] | FdCov[idx]`order eq 0];
+	return [GetCovariant(FdCov[IdxInv[i]], FdCov, f)[1] : i in [1..106]];
+end function;
 
-
-
-
-
-
+C<X> := PolynomialRing(Rationals());   
+time InvariantsGenus4HyperellipticCurves(X^10);
 
 
 QQ := Rationals();
-R<x,y,z,w> := PolynomialRing(QQ, [1,1,1,1]);
+Rtest<x,y,z,w> := PolynomialRing(QQ, [1,1,1,1]);
 Quadric1:=-10*x^2 - x*y + 8*x*z + 3*x*w - 9*y*z + y*w - 6*z^2 - 5*z*w - 5*w^2;
 Cubic1:=-x^2*y - x^2*z - 5*x^2*w - 6*x*y^2 - 2*x*y*z - 9*x*y*w + 7*x*z^2 + 3*x*z*w -
     8*x*w^2 - 10*y^3 + 3*y^2*z - y^2*w - 3*y*z^2 - 7*y*w^2 - z^3 + z^2*w -
     10*z*w^2 + 3*w^3;
+time I1 := InvariantsGenus4Curves(Quadric1, Cubic1);
 f1 := CubicNewBasis(Quadric1,Cubic1);
 R<x, y, u, v> := PolynomialRing(BaseRing(Parent(f1)), 4);
 f1 := Evaluate(f1, [x*u, x*v, y*u, y*v]);
-time I1 := InvariantsGenus4Curves(list_invariants, f1);
-same_wps(list_invariants, I1, I1);
+time I2 := InvariantsGenus4CurvesRank4(f1);
+same_wps(list_invariants, I1, I2);
+
 
 
 time I2 := InvariantsGenus4Curves_test(f1);
@@ -542,7 +495,7 @@ function normal_form(f1)
 end function;
 
 f1 := Evaluate(f1, [x*u, y*u, x*v, y*v]);
-f1 := f1/Sqrt(K!Evaluate(transvectant(f1, f1, 3, 3), [0,0,0,0]));
+f1 := f1/Sqrt(K!Evaluate(Transvectant(f1, f1, 3, 3), [0,0,0,0]));
 I1 := eval_inv(list_invariants, f1);
 f2 := normal_form(f1);
 I2 := eval_inv(list_invariants, f1);

@@ -41,29 +41,6 @@ function CoefficientMatrix(f)
 	return Matrix(M);
 end function; 
 
-function InvariantsHSOP(f0, d)
-	R<a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33, X> := CoefficientRing(Parent(f0));
-	D<f> := PolynomialRing(K);
-	H := [*f, f, 2, 2*];
-	m := [*f, f, 1, 1*];
-	H2 := [*H, H, 1, 1*];
-	j2 := [*f, f, 3, 3*];
-	j4 := [*[*m, f, 2, 2*], f, 3, 3*];
-	j6 := [*[*[*[*[*f, f, 2, 2*], f, 2, 2*], f, 1, 1*], f, 1, 1*], f, 3, 3*];
-	j8 := [*[*[*[*[*[*[*f, f, 2, 2*], f, 1, 1*], f, 2, 2*], f, 1, 1*], f, 2, 2*], f, 1, 1*], f, 3, 3*];
-	j10 := [*[*[*[*[*[*[*[*[*f, f, 2, 2*], f, 2, 2*], f, 1, 1*], f, 1, 1*], f, 2, 2*], f, 2, 2*], f, 1, 1*], f, 1, 1*], f, 3, 3*];
-	j12 := [*[*[*[*[*[*[*[*[*[*[*f, f, 2, 2*], f, 1, 1*], f, 2, 2*], f, 1, 1*], f, 2, 2*], f, 1, 1*], f, 1, 1*], f, 2, 2*], f, 0, 0*], f, 3, 3*], f, 3, 3*];
-	j14 := [*[*[*[*[*[*[*[*[*[*[*H, f, 2, 2*], f, 1, 1*], f, 2, 2*], f, 1, 1*], f, 1, 1*], f, 2, 2*], f, 2, 2*], f, 1, 1*], f, 2, 2*], H, 0, 0*], f, 3, 3*];
-	MH := CoefficientMatrix(Evaluation(H, f0));
-	inv2 := R!Evaluate(Evaluation(j2, f0), [0,0,0,0]);
-	inv4 := R!Evaluate(Evaluation(j4, f0), [0,0,0,0]);
-	inv6 := R!Evaluate(Evaluation(j6, f0), [0,0,0,0]);
-	inv8 := R!Evaluate(Evaluation(j8, f0), [0,0,0,0]);
-	inv10 := R!Evaluate(Evaluation(j10, f0), [0,0,0,0]);
-	inv12 := R!Evaluate(Evaluation(j12, f0), [0,0,0,0]);
-	inv14 := R!Evaluate(Evaluation(j14, f0), [0,0,0,0]);
-	return [inv2, MH[1][1], MH[2][1], MH[3][1], MH[2][2], MH[d][2], inv4, inv6, inv8, inv10, inv12, inv14];
-end function;
 
 function InvariantsHSOP(f, d)
 	//Covariants
