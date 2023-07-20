@@ -1,4 +1,4 @@
-intrinsic Transvectant(f::RngMPolElt, g::RngMPolElt, r::RngIntElt, s::RngIntElt, invariant := false) -> RngMPolElt
+intrinsic Transvectant(f::RngMPolElt, g::RngMPolElt, r::RngIntElt, s::RngIntElt : invariant := false) -> RngMPolElt
 	{Given two covariants f and g given as two bihomogeneous polynomials, return their transvectant of level (r,s). 
 	If invariant is set to true, the element returned is an element of the base ring, not a polynomial.}
 
