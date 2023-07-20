@@ -434,6 +434,10 @@ function InvariantsGenus4Curves(Q, C)
 	end if;
 end function;
 
+function IsIsomorphic(Q1, C1, Q2, C2)
+	
+end function;
+
 QQ := Rationals();
 Rtest<x,y,z,w> := PolynomialRing(QQ, [1,1,1,1]);
 Quadric1:=-10*x^2 - x*y + 8*x*z + 9*y*z - 6*z^2;

@@ -21,7 +21,7 @@ function UnivariateTransvectant(F, G, r)
 
     n := IntegerRing()!n;
     m := IntegerRing()!m;
-
+	n,m;
     K := BaseRing(Parent(Q));
 
     h := Parent(Q)!0;
