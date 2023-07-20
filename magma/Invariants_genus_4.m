@@ -1,3 +1,6 @@
+load "~/gordan-10.dat";
+load "~/InvS10.m";
+
 function QuadraticFormToMatrix(Q)
 	R := Parent(Q);
 	K := CoefficientRing(R);
