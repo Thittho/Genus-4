@@ -1,58 +1,5 @@
-function Transvectant(f, g, r, s)
-    	P := Parent(f);
-    	if f eq 0 or g eq 0 then return P!0; end if;
-    	Sf := [[Derivative(Derivative(Derivative(Derivative(f, j, 1), r-j, 2), i, 3), s-i, 4) : j in [0..r]] : i in [0..s]];
-	Sg := [[Derivative(Derivative(Derivative(Derivative(g, j, 1), r-j, 2), i, 3), s-i, 4) : j in [0..r]] : i in [0..s]];
-    	Tfg := P!0;
-    	for i := 0 to s do
-		for j := 0 to r do
-        		Tfg +:= (-1)^(i+j)*Binomial(s, i)*Binomial(r, j)*(Sf[i+1][j+1]*Sg[s+1-i][r+1-j]);
-		end for;
-    	end for;
-    	m1 := Degree(Evaluate(f, [P.1, P.2, 1, 2]));
-	n1 := Degree(Evaluate(f, [1, 2, P.3, P.4]));
-	m2 := Degree(Evaluate(g, [P.1, P.2, 1, 2]));
-	n2 := Degree(Evaluate(g, [1, 2, P.3, P.4]));
-    	cfg := Factorial(m1-r)*Factorial(m2-r)*Factorial(n1-s)*Factorial(n2-s)/(Factorial(m1)*Factorial(m2)*Factorial(n1)*Factorial(n2));
-    if Degree(Tfg) eq 0 then 
-		return cfg*Evaluate(Tfg, [0,0,0,0]);
-	else
-		return cfg*Tfg;
-	end if;
-end function;
-
-function DegreeOrder(I)
-	if Type(I) ne List then
-		return [1,3,3];
-	elif #I eq 1 then
-		return [1,3,3];
-	elif #I eq 2 then
-		return DegreeOrder(I[1]);
-	end if;
-	c1 := DegreeOrder(I[1]);
-	c2 := DegreeOrder(I[2]);
-	return [c1[1]+c2[1], c1[2]+c2[2]-2*I[3], c1[3]+c2[3]-2*I[4]];
-end function;
-
-function Evaluation(I, f)
-	if Type(I) ne List then
-		return f;
-	elif #I eq 1 then
-		return f;
-	elif #I eq 2 then
-		return Evaluation(I[1], f)+Evaluation(I[2], f);
-	end if;
-	return Transvectant(Evaluation(I[1], f), Evaluation(I[2], f), I[3], I[4]);
-end function;
-
-function CoefficientsMatrix(f)
-	P := Parent(f);
-	R<a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33, X> := CoefficientRing(P);
-	m := Degree(Evaluate(f, [P.1, P.2, 1, 2]));	
-	n := Degree(Evaluate(f, [1, 2, P.3, P.4]));
-	M := [[R!MonomialCoefficient(f, (P.2)^i*(P.1)^(m-i)*(P.4)^j*(P.3)^(n-j)) : i in [0..m]] : j in [0..n]];
-	return Matrix(M);
-end function; 
+load "./gordan-10.dat";
+load "InvS10.m";
 
 function QuadraticFormToMatrix(Q)
 	R := Parent(Q);
@@ -76,7 +23,7 @@ function NewBasis(Q)
 		L := [-D[4][4]/D[1][1], -D[3][3]/D[2][2]];
 		if not Category(K) eq FldCom then //we take a bigger field to be sure that the change of variable is well defined, and AlgebraicClosure(ComplexField()) returns an error
 			S := AlgebraicClosure(K);
-			//[[Sqrt(S!L[i]), S!L[i]] : i in [1..2]]; //this is useful to know which square roots we are adding
+			//[[Sqrt(S!L[i]), S!L[i]] : i in [1..2]]; // this is useful to know which square roots we are adding
 		else
 			S := K;
 		end if;
@@ -96,9 +43,9 @@ function NewBasis(Q)
 		D := P_swap*D*P_swap;
 		P := P_swap*P;
 		L := [-D[3][3]/D[1][1], -D[2][2]];
-		if not Category(K) eq FldCom then //we take a bigger field to be sure that the change of variable is well defined, and AlgebraicClosure(ComplexField()) returns an error
+		if not Category(K) eq FldCom then // we take a bigger field to be sure that the change of variable is well defined, and AlgebraicClosure(ComplexField()) returns an error
 			S := AlgebraicClosure(K);
-			//[[Sqrt(S!L[i]), S!L[i]] : i in [1..2]]; //this is useful to know which square roots we are adding
+			// [[Sqrt(S!L[i]), S!L[i]] : i in [1..2]]; // this is useful to know which square roots we are adding
 		else
 			S := K;
 		end if;
@@ -110,7 +57,7 @@ function NewBasis(Q)
 end function;
 
 
-//given a form and a change of variables (given as a matrix), returns the form after the change of variables
+// given a form and a change of variables (given as a matrix), returns the form after the change of variables
 function ChangeOfBasis(C, P)
 	R := ChangeRing(Parent(C), Parent(P[1][1]));
 	C := R!C;
@@ -128,13 +75,13 @@ function CubicNewBasis(Q, C)
 end function;
 
 function InvariantsGenus4CurvesRank4(f)
-	//Covariants
-	//Degree 2
+	// Covariants
+	// Degree 2
 	f2 := Transvectant(f, f, 0, 0);
 	Jac := Transvectant(f, f, 1, 1);
 	H := Transvectant(f, f, 2, 2);
 
-	//Degree 3
+	// Degree 3
 	C31 := Transvectant(Jac, f, 3, 3);
 	C33 := Transvectant(Jac, f, 2, 2);
 	C35 := Transvectant(Jac, f, 1, 1);
@@ -149,7 +96,7 @@ function InvariantsGenus4CurvesRank4(f)
 	C35f := Transvectant(f2, f, 2, 2);
 	C33f := Transvectant(f2, f, 3, 3);
 
-	//Degree 4
+	// Degree 4
 	CH := Transvectant(H, H, 1, 1);
 	C42H := Transvectant(C31H, f, 1, 1);
 	C44H := Transvectant(C31H, f, 0, 0);
@@ -171,7 +118,7 @@ function InvariantsGenus4CurvesRank4(f)
 
 	f4 := Transvectant(f3, f, 0, 0);
 
-	//Degree 5
+	// Degree 5
 	C51H := Transvectant(C42H, f, 2, 2);
 	C53H := Transvectant(C42H, f, 1, 1);
 	C55H := Transvectant(C44H, f, 1, 1);
@@ -185,19 +132,19 @@ function InvariantsGenus4CurvesRank4(f)
 
 	C57 := Transvectant(C441, f, 0, 0);
 
-	//Degree 6
+	// Degree 6
 	C62H := Transvectant(C53H, f, 2, 2);
 	C62H1 := Transvectant(C53H1, f, 2, 2);
 	C62H2 := Transvectant(C51H, f, 1, 1);
 	C66H := Transvectant(C55H, f, 1, 1);
 
-	//Degree 7
+	// Degree 7
 	C71H := Transvectant(C62H, f, 2, 2);
 	C73H1 := Transvectant(C62H1, f, 1, 1);
 	C79H := Transvectant(C66H, f, 0, 0);
 
-	//Invariants
-	//HSOP
+	// Invariants
+	// HSOP
 	J2 := Transvectant(f, f, 3, 3);
 	J4H := Transvectant(H, H, 2, 2);
 	J4 := Transvectant(C33, f, 3, 3);	
@@ -210,16 +157,16 @@ function InvariantsGenus4CurvesRank4(f)
 	J141 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C62H2, f, 1, 1), f, 2, 2), f, 2, 2), f, 1, 1), f, 2, 2), H, 0, 0), f, 3, 3);
 	invHSOP := [J2, J4H, J4, J6H, J61, J8H, J81, J101, J121, J141];
 
-	//Degree 6
+	// Degree 6
 	J62 := Transvectant(Transvectant(Transvectant(f3, f, 3, 3), f, 3, 3), f, 3, 3);
 	inv6 := [J62];
 
-	//Degree 8
+	// Degree 8
 	J82 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C35H, f, 2, 2), f, 0, 0), f, 2, 2), f, 3, 3), f, 3, 3);
 	J83 := Transvectant(Transvectant(C66H, f, 3, 3), f, 3, 3);
 	inv8 := [J82, J83];
 	
-	//Degree 10
+	// Degree 10
 	J102 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C42H2, f, 0, 0), f, 0, 0), f, 2, 2), f, 3, 3), f, 2, 2), f, 3, 3);
 	J103 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C48f, f, 2, 2), f, 1, 1), f, 1, 1), f, 3, 3), f, 3, 3), f, 3, 3);
 	J104 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C48f, f, 3, 3), f, 2, 2), f, 3, 3), f, 1, 1), f, 1, 1), f, 3, 3);
@@ -228,7 +175,7 @@ function InvariantsGenus4CurvesRank4(f)
 	J107 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C42H2, f, 1, 1), f, 2, 2), f, 2, 2), f, 0, 0), f, 2, 2), f, 3, 3);
 	inv10 := [J102, J103, J104, J105, J106, J107];
 
-	//Degree 12
+	// Degree 12
 	J122 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44f, f, 3, 3), f, 0, 0), f, 3, 3), f, 0, 0), f, 1, 1), f, 2, 2), f, 2, 2), f, 3, 3); 
 	J123 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C37f, f, 1, 1), f, 2, 2), f, 2, 2), f, 0, 0), f, 1, 1), f, 3, 3), f, 3, 3), f, 2, 2), f, 3, 3); 
 	J124 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C55f, f, 3, 3), f, 1, 1), f, 0, 0), f, 3, 3), f, 1, 1), f, 2, 2), f, 3, 3);
@@ -240,7 +187,7 @@ function InvariantsGenus4CurvesRank4(f)
 	J1210 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C79H, f, 1, 1), f, 3, 3), f, 3, 3), f, 2, 2), f, 3, 3);
 	inv12 := [J122, J123, J124, J125, J126, J127, J128, J129, J1210];
 
-	//Degree 14
+	// Degree 14
 	J142 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44H1, f, 0, 0), f, 2, 2), f, 0, 0), f, 2, 2), f, 0, 0), f, 2, 2), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3);
 	J143 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C48, f, 1, 1), f, 2, 2), f, 1, 1), f, 0, 0), f, 2, 2), f, 2, 2), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3);
 	J144 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44H, f, 0, 0), f, 3, 3), f, 2, 2), f, 2, 2), f, 2, 2), f, 0, 0), f, 0, 0), f, 2, 2), f, 3, 3), f, 3, 3);
@@ -255,7 +202,7 @@ function InvariantsGenus4CurvesRank4(f)
 	J1413 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C33f, f, 0, 0), f, 0, 0), f, 3, 3), f, 0, 0), f, 1, 1), f, 2, 2), f, 3, 3), f, 2, 2), f, 2, 2), f, 2, 2), f, 3, 3);
 	inv14 := [J142, J143, J144, J145, J146, J147, J148, J149, J1410, J1411, J1412, J1413];
 
-	//Degree 16
+	// Degree 16
 	J161 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C551, f, 1, 1), f, 2, 2), f, 2, 2), f, 0, 0), f, 1, 1), f, 0, 0), f, 3, 3), f, 3, 3), f, 2, 2), f, 2, 2), f, 3, 3);
 	J162 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44f2, f, 0, 0), f, 3, 3), f, 1, 1), f, 1, 1), f, 1,1), f, 1, 1), f, 2, 2), f, 1, 1), f, 3, 3), f, 2, 2), f, 2, 2), f, 3, 3);
 	J163 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C55, f, 0, 0), f, 1, 1), f, 0, 0), f, 2, 2), f, 2, 2), f, 0, 0), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3);
@@ -272,7 +219,7 @@ function InvariantsGenus4CurvesRank4(f)
 	J1614 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C62H2, f, 0, 0), f, 1, 1), f, 2, 2), f, 2, 2), f, 1, 1), f, 3, 3), f, 2, 2), f, 1, 1), f, 1, 1), f, 3, 3);
 	inv16 := [J161, J162, J163, J164, J165, J166, J167, J168, J169, J1610, J1611, J1612, J1613, J1614];
 
-	//Degree 18
+	// Degree 18
 	J181 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C71H, f, 0, 0), f, 0, 0), f, 0, 0), f, 2, 2), f, 3, 3), f, 0, 0), f, 3, 3), f, 1, 1), f, 3, 3), f, 2, 2), f, 3, 3);
 	J182 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C55f, f, 0, 0), f, 0, 0), f, 0, 0), f,0, 0), f, 3, 3), f, 0, 0), f, 3, 3), f, 3, 3), f, 2, 2), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3);
 	J183 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C79H, f, 3, 3), f, 1, 1), f, 1, 1), f, 1, 1), f, 1, 1), f, 2, 2), f, 1, 1), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3);
@@ -286,12 +233,13 @@ function InvariantsGenus4CurvesRank4(f)
 	J1811 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C48, f, 0, 0), f, 0, 0),f, 3, 3), f, 0, 0), f, 1, 1), f, 3, 3), f, 3, 3), f, 1, 1), f, 1, 1), f, 3, 3), f, 1, 1), f, 3, 3), f, 3, 3), f, 3, 3);
 	inv18 := [J181, J182, J183, J184, J185, J186, J187, J188, J189, J1810, J1811];
 
-	return invHSOP cat inv6 cat inv8 cat inv10 cat inv12 cat inv14 cat inv16 cat inv18;
+	return 	[2,4,4,6,6,8,8,10,12,14,6,8,8,10,10,10,10,10,10,12,12,12,12,12,12,12,12,12,14,14,14,14,14,14,14,14,14,14,14,14,16,16,16,16,16,16,16,16,16,16,16,16,16,16,18,18,18,18,18,18,18,18,18,18,18];
+, invHSOP cat inv6 cat inv8 cat inv10 cat inv12 cat inv14 cat inv16 cat inv18;
 end function;
 
 
 function InvariantsGenus4CurvesRank3(f, v)
-	//Covariants of f
+	// Covariants of f
 	h24 := Transvectant(f, f, 4);
 	h28 := Transvectant(f, f, 2);
 	h32 := Transvectant(h24, f, 4);
@@ -310,11 +258,12 @@ function InvariantsGenus4CurvesRank3(f, v)
 	h94 := Transvectant(h38, h32^2, 4);
 	h102 := Transvectant(h32^3, f, 5);
 
-	//Covariants of v
+	// Covariants of v
 	k24 := Transvectant(v, v, 2);
 	k36 := Transvectant(v, k24, 1);
 
-	//Invariants
+	// Invariants
+	// Invariants of f
 	J2f := Evaluate(Transvectant(f, f, 6), [0,0]);
 	J4f := Evaluate(Transvectant(h24, h24, 4), [0,0]);
 	J6f := Evaluate(Transvectant(h32, h32, 2), [0,0]);
@@ -322,24 +271,29 @@ function InvariantsGenus4CurvesRank3(f, v)
 	J15f := Evaluate(Transvectant(h38, h32^4, 8), [0,0]);
 	invf := [J2f, J4f, J6f, J10f, J15f];
 
+	// Invariants of v
 	J2v := Evaluate(Transvectant(v, v, 4), [0,0]);
 	J3v := Evaluate(Transvectant(k24, v, 4), [0,0]);
 	invv := [J2v, J3v];
-
+ 
+	//  Joint degree 3
 	J3 := Evaluate(Transvectant(h24, v, 4), [0,0]);
 	inv3 := [J3];
 
+	//  Joint degree 4
 	J41 := Evaluate(Transvectant(h28, v^2, 8), [0,0]);
 	J42 := Evaluate(Transvectant(h24, k24, 4), [0,0]);
 	J43 := Evaluate(Transvectant(k36, f, 6), [0,0]);
 	inv4 := [J41, J42, J43];
 
+	// Joint degree 5
 	J51 := Evaluate(Transvectant(h38, v^2, 8), [0,0]);
 	J52 := Evaluate(Transvectant(h44, v, 4), [0,0]);
 	J53 := Evaluate(Transvectant(h28, v*k24, 8), [0,0]);
 	J54 := Evaluate(Transvectant(f^2, v^3, 12), [0,0]);
 	inv5 := [J51, J52, J53, J54];
 
+	// Joint degree 6
 	J61 := Evaluate(Transvectant(h38, v*k24, 8), [0,0]);
 	J62 := Evaluate(Transvectant(f^2, v^2*k24, 12), [0,0]);
 	J63 := Evaluate(Transvectant(h28, k24^2, 8), [0,0]);
@@ -350,6 +304,7 @@ function InvariantsGenus4CurvesRank3(f, v)
 	J68 := Evaluate(Transvectant(h32*f, v^2, 8), [0,0]);
 	inv6 := [J61, J62, J63, J64, J65, J66, J67, J68];
 
+	// Joint degree 7
 	J71 := Evaluate(Transvectant(h32^2, v, 4), [0,0]);
 	J71 := Evaluate(Transvectant(h54, k24, 4), [0,0]);
 	J72 := Evaluate(Transvectant(h58, v^2, 8), [0,0]);
@@ -361,6 +316,7 @@ function InvariantsGenus4CurvesRank3(f, v)
 	J77 := Evaluate(Transvectant(h38, k24^2, 8), [0,0]);
 	inv7 := [J71, J72, J73, J74, J75, J76, J77];
 
+	// Joint degree 8
 	J81 := Evaluate(Transvectant(h32*h24, k36, 6), [0,0]);
 	J82 := Evaluate(Transvectant(h312, v*k24^2, 12), [0,0]);
 	J83 := Evaluate(Transvectant(h32*h36, v^2, 8), [0,0]);
@@ -372,6 +328,7 @@ function InvariantsGenus4CurvesRank3(f, v)
 	J89 := Evaluate(Transvectant(h58, v*k24, 8), [0,0]);
 	inv8 := [J81, J82, J83, J84, J85, J86, J87, J88, J89];
 
+	// Joint degree 9
 	J91 := Evaluate(Transvectant(h74, k24, 4), [0,0]);
 	J92 := Evaluate(Transvectant(h32*h52, v, 4), [0,0]);
 	J93 := Evaluate(Transvectant(h52*f, v*k24, 8), [0,0]);
@@ -382,165 +339,129 @@ function InvariantsGenus4CurvesRank3(f, v)
 	J98 := Evaluate(Transvectant(h32*h46, v^2, 8), [0,0]);
 	inv9 := [J91, J92, J93, J94, J95, J96, J97, J98];
 
+	// Joint degree 10
 	J101 := Evaluate(Transvectant(h94, v, 4), [0,0]);
 	J102 := Evaluate(Transvectant(h32*h28, k24*k36, 10), [0,0]);
 	J103 := Evaluate(Transvectant(h52*h36, v^2, 8), [0,0]);
 	J104 := Evaluate(Transvectant(f*h661, v^3, 12), [0,0]);
 	inv10 := [J101, J102, J103, J104];
 
+	// Joint degree 11
 	J111 := Evaluate(Transvectant(h52^2, v, 4), [0,0]);
 	J112 := Evaluate(Transvectant(f*h662, v^2*k24, 12), [0,0]);
 	J113 := Evaluate(Transvectant(h32*h661, v^2, 8), [0,0]);
 	inv11 := [J111, J112, J113];
 
+	// Joint degree 12
 	J121 := Evaluate(Transvectant(h32*h82, v, 4), [0,0]);
 	J122 := Evaluate(Transvectant(h32*h662, v*k24, 8), [0,0]);
 	inv12 := [J121, J122];
 
+	// Joint degree 13
 	J13 := Evaluate(Transvectant(h82*h36, v^2, 8), [0,0]);
 	inv13 := [J13];
 
+	// Joint degree 14
 	J14 := Evaluate(Transvectant(h32*h102, v, 4), [0,0]);
 	inv14 := [J14];
 
 	return invf cat invv cat inv3 cat inv4 cat inv5 cat inv6 cat inv7 cat inv8 cat inv9 cat inv10 cat inv11 cat inv12 cat inv13 cat inv14;
 end function;
 
-function InvariantsGenus4Curves(Q, C)
+intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C:RngMPolElt) -> SeqEnum, SeqEnum
+	{Given a homogeneous quadric and a homogeneous cubic in 4 variables, returns its invariants.}
+
+	require (Parent(Q) eq Parent(C)): "Q and C must have the same parent";
+	require (Rank(Parent(Q)) eq 4): "Q and C must be polynomials in 4 variables";
+	require IsHomogeneous(Q) and IsHomogeneous(C): "Q and C must be homogeneous";
+	require (Degree(Q) eq 2) and (Degree(C) eq 3): "Q must be of degree 2 and C of degree 3";
+
 	R0<X,Y,Z,T> := Parent(Q);
 	K := BaseRing(R0);
 	P, t := NewBasis(Q);
+
 	if t eq 4 then
-		ChangeOfBasis(Q, P);
+		//ChangeOfBasis(Q, P);
 		f0 := CubicNewBasis(Q,C);
+
 		R<x, y, u, v> := PolynomialRing(BaseRing(Parent(f0)), 4);
-		f_bic := Evaluate(f0, [x*u, y*u, x*v, y*v]); //this is the pullback of the cubic by the Segre morphism
-		return 0;//InvariantsGenus4CurvesRank4(f_bic);
+		f_bic := Evaluate(f0, [x*u, y*u, x*v, y*v]);
+		
+		return InvariantsGenus4CurvesRank4(f_bic);
+
 	elif t eq 3 then
-		ChangeOfBasis(Q, P);
+		//ChangeOfBasis(Q, P);
 		f0 := CubicNewBasis(Q,C);
+		
 		R<s, t, w> := PolynomialRing(BaseRing(Parent(f0)), [1,1,2]);
-		f_weighted := Evaluate(f0, [s^2, s*t, t^2, w]); //this is the pullback of the cubic by the Segre morphism
-		if MonomialCoefficient(f_weighted, w^3) eq 0 then
-			return "The curve is not smooth";
-		else
-			alpha := Root(MonomialCoefficient(f_weighted, w^3), 3);
-			f_weighted := Evaluate(f_weighted, [s, t, w/alpha]);        
-			f_weighted := Evaluate(f_weighted, [s, t, w-ExactQuotient(Terms(f_weighted, w)[3], 3*w^2)]);
-			S<[x]> := PolynomialRing(BaseRing(Parent(f_weighted)), 2);
-			list_inv := InvariantsGenus4CurvesRank3(S!Evaluate(f_weighted, [x[1], x[2], 0]), S!Evaluate(ExactQuotient(Terms(f_weighted, w)[2], w), [x[1], x[2], 0]));
-			return WPSMultiply([2,4,6,10,15,2,3,3,4,4,4,5,5,5,5,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,9,9,9,9,9,9,9,9,10,10,10,10,11,11,11,12,12,13,14], list_inv, 1/Sqrt(list_inv[1]));
-		end if;
+		f_weighted := Evaluate(f0, [s^2, s*t, t^2, w]);
+
+		require MonomialCoefficient(f_weighted, w^3) ne 0: "The curve is not smooth";
+		
+		// we put the curve in normal form
+		alpha := Root(MonomialCoefficient(f_weighted, w^3), 3);
+		f_weighted := Evaluate(f_weighted, [s, t, w/alpha]);        
+		f_weighted := Evaluate(f_weighted, [s, t, w-ExactQuotient(Terms(f_weighted, w)[3], 3*w^2)]);
+
+		S<[x]> := PolynomialRing(BaseRing(Parent(f_weighted)), 2);
+		return InvariantsGenus4CurvesRank3(S!Evaluate(f_weighted, [x[1], x[2], 0]), S!Evaluate(ExactQuotient(Terms(f_weighted, w)[2], w), [x[1], x[2], 0]));
 	end if;
-end function;
 
-function IsIsomorphic(Q1, C1, Q2, C2)
-	
-end function;
-
-QQ := Rationals();
-Rtest<x,y,z,w> := PolynomialRing(QQ, [1,1,1,1]);
-Quadric1:=-10*x^2 - x*y + 8*x*z + 9*y*z - 6*z^2;
-Cubic1:=-x^2*y - x^2*z - 5*x^2*w - 6*x*y^2 - 2*x*y*z - 9*x*y*w + 7*x*z^2 + 3*x*z*w -
-    8*x*w^2 - 10*y^3 + 3*y^2*z - y^2*w - 3*y*z^2 - 7*y*w^2 - z^3 + z^2*w -
-    10*z*w^2 + 3*w^3;
-time I1 := InvariantsGenus4Curves(Quadric1, Cubic1);
-
-Quadric2 := Evaluate(Quadric1, [2*y+3*x, x-2*y, 3*z, -3*w]);
-Cubic2 := Evaluate(Cubic1, [2*y+3*x, x-2*y, 3*z, -3*w]);
-time I2 := InvariantsGenus4Curves(Quadric2, Cubic2);
-I2 eq I1;
-
-load "InvS10.m";
-IdxInv := [idx : idx in [1..#FdCov] | FdCov[idx]`order eq 0];
+end intrinsic;
 
 
-function InvariantsGenus4HyperellipticCurves(f);
+intrinsic InvariantsGenus4Curves(f::RngUPolElt) -> SeqEnum, SeqEnum
+	{Compute the invariants of a univariate polynomial of degree smaller than 10 as a binary form of degree 10.}
+
+	require Degree(f) le 10: "f must be of degree smaller than 10";
+
 	IdxInv := [idx : idx in [1..#FdCov] | FdCov[idx]`order eq 0];
-	return [GetCovariant(FdCov[IdxInv[i]], FdCov, f)[1] : i in [1..106]];
+	List_invariants := [GetCovariant(FdCov[IdxInv[i]], FdCov, f) : i in [1..#IdxInv]];
+	return [List_invariants[i][2] : i in [1..#IdxInv]], [List_invariants[i][1] : i in [1..#IdxInv]];
+
+end intrinsic;
+
+
+intrinsic InvariantsGenus4Curves(f::RngMPolElt) -> SeqEnum, SeqEnum
+	{Compute the invariants of a bivariate homogeneous polynomial of degree 10.}
+
+	require Rank(Parent(f)) eq 2: "f must be a bivariate polynomial";
+	require IsHomogeneous(f): "f must be homogeneous";
+	require Degree(f) eq 10: "f must be of degree smaller than 10";
+	
+	IdxInv := [idx : idx in [1..#FdCov] | FdCov[idx]`order eq 0];
+	List_invariants := [GetCovariant(FdCov[IdxInv[i]], FdCov, f) : i in [1..#IdxInv]];
+	return [List_invariants[i][2] : i in [1..#IdxInv]], [List_invariants[i][1] : i in [1..#IdxInv]];
+
+end intrinsic;
+
+
+intrinsic InvariantsGenus4Curves(C::CrvHyp) -> SeqEnum, SeqEnum
+	{Given a hyperelliptic curve of genus 4, return its invariants.}
+	
+	require Genus(C) eq 4: "Curve must be of genus 4.";
+
+    K := BaseField(C);
+    R := PolynomialRing(K); x := R.1;
+    f0, h0 := HyperellipticPolynomials(C);
+
+	require (Degree(h0) le 5) and (Degree(f0) le 10): "The polynomials h and f must have degree at most 5 and 10, respectively.";
+
+	f := (h0/2)^2+f0;
+
+	IdxInv := [idx : idx in [1..#FdCov] | FdCov[idx]`order eq 0];
+	List_invariants := [GetCovariant(FdCov[IdxInv[i]], FdCov, f) : i in [1..#IdxInv]];
+	return [List_invariants[i][2] : i in [1..#IdxInv]], [List_invariants[i][1] : i in [1..#IdxInv]];
+
+end intrinsic;
+
+/*
+function IsIsomorphic(Q1, C1, Q2, C2)
+	I1 := ;
+	I2 := ;
 end function;
+*/
 
-C<X> := PolynomialRing(Rationals());   
-time InvariantsGenus4HyperellipticCurves(X^10);
-
-
-QQ := Rationals();
-Rtest<x,y,z,w> := PolynomialRing(QQ, [1,1,1,1]);
-Quadric1:=-10*x^2 - x*y + 8*x*z + 3*x*w - 9*y*z + y*w - 6*z^2 - 5*z*w - 5*w^2;
-Cubic1:=-x^2*y - x^2*z - 5*x^2*w - 6*x*y^2 - 2*x*y*z - 9*x*y*w + 7*x*z^2 + 3*x*z*w -
-    8*x*w^2 - 10*y^3 + 3*y^2*z - y^2*w - 3*y*z^2 - 7*y*w^2 - z^3 + z^2*w -
-    10*z*w^2 + 3*w^3;
-time I1 := InvariantsGenus4Curves(Quadric1, Cubic1);
-f1 := CubicNewBasis(Quadric1,Cubic1);
-R<x, y, u, v> := PolynomialRing(BaseRing(Parent(f1)), 4);
-f1 := Evaluate(f1, [x*u, x*v, y*u, y*v]);
-time I2 := InvariantsGenus4CurvesRank4(f1);
-same_wps(list_invariants, I1, I2);
-
-
-
-time I2 := InvariantsGenus4Curves_test(f1);
-
-function normal_form(f1)
-	R := Parent(f1);
-	a33 := MonomialCoefficient(f1, R.1^3*R.3^3);
-	a32 := MonomialCoefficient(f1, R.1^3*R.3^2*R.4);
-	a31 := MonomialCoefficient(f1, R.1^3*R.3*R.4^2);  
-	a30 := MonomialCoefficient(f1, R.1^3*R.4^3);  
-	a := Roots(a30*x0^3-a31*x0^2+a32*x0-a33)[1][1];
-	f2 := Evaluate(f1, [R.1, R.2, R.3, R.4-a*R.3]);
-	//f2;
-	alpha := Roots(x0^8-MonomialCoefficient(f2, R.1^2*R.2*R.3^3)/MonomialCoefficient(f2, R.1^3*R.3^2*R.4)^3)[1][1];
-	beta := 1/(alpha^3*MonomialCoefficient(f2, R.1^3*R.3^2*R.4));
-	f3 := Evaluate(f2, [alpha*R.1, 1/alpha*R.2, beta*R.3, 1/beta*R.4]);
-	f4 := Evaluate(f3, [R.1-MonomialCoefficient(f3, R.1*R.2^2*R.3^3)/2*R.2, R.2, R.3, R.4]);
-	f5 := Evaluate(f4, [R.1, R.2, R.3-MonomialCoefficient(f4, R.1^2*R.2*R.3^2*R.4)/3*R.4, R.4]);
-	return f5;
-end function;
-
-f1 := Evaluate(f1, [x*u, y*u, x*v, y*v]);
-f1 := f1/Sqrt(K!Evaluate(Transvectant(f1, f1, 3, 3), [0,0,0,0]));
-I1 := eval_inv(list_invariants, f1);
-f2 := normal_form(f1);
-I2 := eval_inv(list_invariants, f1);
-
-
-
-
-
-
-
-
-
-//Field of definition
-function Check(L)
-	for i in [1..Floor(#L/2)] do
-		if L[2*i] ne 0 then
-			return false;
-		end if;
-	end for;
-	return true;
-end function;
-
-QQ := Rationals();
-//R1<a3000, a2100, a2010, a2001, a1200, a1110, a1101, a1020, a1011, a0300, a0210, a0201, a0120, a0111, a0030, a0021, A, B, D1, D2> := PolynomialRing(QQ, [1 : i in [1..20]]);
-R1<a3000, a2100, a2010, a2001, a1200, a1110, a1101, a1020, a1011, a0300, a0210, a0201, a0120, a0111, a0030, a0021, D1, D2> := PolynomialRing(QQ, [1 : i in [1..18]]);
-R<X, Y, Z, T> := PolynomialRing(FieldOfFractions(R1), [1,1,1,1]);
-A := 10;
-B := 12;
-//P := Transpose(Matrix(R, [[1/(2*A),0,0,1/(2*A*D1)],[0,-1/(2*B),-1/(2*B*D2),0],[0,1/2,-1/(2*D2),0],[1/2,0,0,-1/(2*D1)]]));
-P := Transpose(Matrix(R, [[D1,0,0,1],[0,-D2,-1,0],[0,D2,-1,0],[D1,0,0,-1]]));
-S := ElementToSequence(P*Matrix([[X], [Y], [Z], [T]]));
-C := 0*X^3+2*X^2*Y+3*X^2*Z+a2001*X^2*T+a1200*X*Y^2+a1110*X*Y*Z+a1101*X*Y*T+a1020*X*Z^2+a1011*X*Z*T+a0300*Y^3+a0210*Y^2*Z+a0201*Y^2*T+a0120*Y*Z^2+a0111*Y*Z*T+a0030*Z^3+Z^2*T;
-C := Evaluate(C, S);
-S<x, y, u, v> := PolynomialRing(FieldOfFractions(R1), [1,1,1,1]);
-f0 := Evaluate(C, [x*u, x*v, y*u, y*v]); 
-for i in [1..#list_invariants] do
-	time inv := R1!Evaluation(list_invariants[i], f0);
-	DegreeOrder(list_invariants[i])[1];
-	Check(Terms(inv, D1));
-	Check(Terms(inv, D2));
-end for;
 
 
 
