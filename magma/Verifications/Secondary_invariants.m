@@ -104,14 +104,14 @@ end function;
 // To compute the invariants of a certain degree that come from the HSOP
 function InvariantsValuedHSOP(L, list_valued, forms, d, borne)
 	liste_deg := [DegreeOrder(L[i])[1] : i in [1..#L]];
-	anciens := degre_m(liste_deg, d);
+	anciens := Degree_m(liste_deg, d);
 	m := #anciens;
 	res_sym := ZeroMatrix(K, borne, m);
 	res_non_sym := ZeroMatrix(K, borne, m);
 	for i in [1..m] do
 		g := anciens[i];
 		for j in [1..borne] do
-			el := evaluation_non_sym(g, j, list_valued);
+			el := EvaluationSecondaryInvariantsNormalized(g, j, list_valued);
 			res_sym[j, i] := el[1];
 			res_non_sym[j, i] := el[2];
 		end for;
@@ -122,7 +122,7 @@ end function;
 
 function InvariantsValuedOthers(hsop, list_valued_hsop, inv_sec, liste_autres, list_valued_others, forms, d, n, borne)//pour evaluer en meme temps les hsop et les secondaires deja trouvés, puis on les multiplie
 	liste_deg_hsop := [DegreeOrder(hsop[i])[1] : i in [1..#hsop]];
-	anciens_hsop := degre_m(liste_deg_hsop, d);
+	anciens_hsop := Degree_m(liste_deg_hsop, d);
 	m_hsop := #anciens_hsop;
 	anciens_autres := [];
 	for i in [1..#inv_sec] do
@@ -140,9 +140,9 @@ function InvariantsValuedOthers(hsop, list_valued_hsop, inv_sec, liste_autres, l
 	for i in [1..m_hsop] do
 		g := anciens_hsop[i];
 		for j in [1..borne] do
-			res_int := evaluation_non_sym(g, j, list_valued_hsop)[1];
+			res_int := EvaluationSecondaryInvariantsNormalized(g, j, list_valued_hsop)[1];
 			for k in [1..m_autres] do
-				el := evaluation_non_sym(inv_sec[anciens_autres[k]], j, list_valued_others);
+				el := EvaluationSecondaryInvariantsNormalized(inv_sec[anciens_autres[k]], j, list_valued_others);
 				res_sym[j, m_autres*(i-1)+k] := res_int*el[1];
 				res_non_sym[j, m_autres*(i-1)+k] := res_int*el[2];
 			end for;
@@ -151,7 +151,7 @@ function InvariantsValuedOthers(hsop, list_valued_hsop, inv_sec, liste_autres, l
 	return res_sym, res_non_sym;
 end function;
 
-function to_sec(l, L)
+function ToSec(l, L)
 	res := L[l[1]];
 	for i in [2..#l] do
 		res cat:= L[l[i]];
@@ -160,7 +160,7 @@ function to_sec(l, L)
 end function;
 
 
-function eval_inv(L, forms)
+function EvaluationListInvariants(L, forms)
 	list_valued := [[[Evaluation(L[i], l[1]), Evaluation(L[i], l[2])] : i in [1..#L]] : l in forms];
 	return list_valued;
 end function;
@@ -204,19 +204,19 @@ function invariants_secondaires_non_sym(inv_sec, liste_hsop, liste_autres, forms
 		end for;
 		Append(~deg, s);
 	end for;
-	nouveaux_sec := degre_m(deg, n);
+	nouveaux_sec := Degree_m(deg, n);
 	for g in nouveaux_sec do
-		V_sym := Matrix(K, [[evaluation_non_sym(g, j, list_valued_inv_sec)[1] : j in [1..m+10]]]);
-		V_non_sym := Matrix(K, [[evaluation_non_sym(g, j, list_valued_inv_sec)[2] : j in [1..m+10]]]);
+		V_sym := Matrix(K, [[EvaluationSecondaryInvariantsNormalized(g, j, list_valued_inv_sec)[1] : j in [1..m+10]]]);
+		V_non_sym := Matrix(K, [[EvaluationSecondaryInvariantsNormalized(g, j, list_valued_inv_sec)[2] : j in [1..m+10]]]);
 		p_sym := Vector(M_sym_ortho*Transpose(V_sym));
 		p_non_sym := Vector(M_non_sym_ortho*Transpose(V_non_sym));
 		if NNZEntries(p_sym) ne 0 then
 			M_sym_ortho := UpdateDual(M_sym_ortho, p_sym);
-			Append(~res_sym, to_sec(g, inv_sec));
+			Append(~res_sym, ToSec(g, inv_sec));
 		end if;
 		if NNZEntries(p_non_sym) ne 0 then
 			M_non_sym_ortho := UpdateDual(M_non_sym_ortho, p_non_sym);
-			Append(~res_non_sym, to_sec(g, inv_sec));
+			Append(~res_non_sym, ToSec(g, inv_sec));
 		end if;
 		if NumberOfRows(M_sym_ortho)+NumberOfRows(M_non_sym_ortho)-20 le L[n+1] then
 			break g;
@@ -240,9 +240,9 @@ inv_sec := [ [ 1 ], [ 56 ], [ 2 ], [ 3 ], [ 57 ], [ 4 ], [ 5 ], [ 6 ], [ 7 ], [ 
 
 
 forms := generateur_formes2(L1[53]+10);
-list_valued_hsop := eval_inv(hsop, forms);
-list_valued_others := eval_inv(inv_non_hsop, forms);
-list_valued_inv_sec := [[evaluation(g, j, list_valued_others) : g in inv_sec] : j in [1..#forms]];
+list_valued_hsop := EvaluationListInvariants(hsop, forms);
+list_valued_others := EvaluationListInvariants(inv_non_hsop, forms);
+list_valued_inv_sec := [[EvaluationSecondaryInvariants(g, j, list_valued_others) : g in inv_sec] : j in [1..#forms]];
 
 for i in [22..25] do
 	"degre", 2*i;
