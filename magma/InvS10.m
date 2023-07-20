@@ -92,24 +92,3 @@ function GetCovariant(Cov, FdCov, form)
     return [*U_cov, U_deg, U_ord*];
 
 end function;
-
-
-/*
-// Invariants
-load "./gordan-10.dat";
-IdxInv := [idx : idx in [1..#FdCov] | FdCov[idx]`order eq 0];
-
-// Number of invariants
-"There are", #IdxInv, "invariants";
-
-// Tests on a formal form 
-d := 10;
-Qd := FunctionField(RationalField(), d+1);
-AssignNames(~Qd, ["a" cat IntegerToString(i) : i in [0..d]]);
-_<X> := PolynomialRing(Qd);
-
-Form := &+[Name(Qd, i+1)*X^i : i in [0..d]];
-
-I := GetCovariant(FdCov[IdxInv[1]], FdCov, Form);
-"The first one is, in full generality,", I;
-*/
