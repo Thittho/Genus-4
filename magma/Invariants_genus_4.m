@@ -386,7 +386,7 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 		Wgt, Inv := InvariantsGenus4CurvesRank4(f_bic);
 		
 		if normalize then
-			return WPSNormalize(Wgt, Inv);
+			return Wgt, WPSNormalize(Wgt, Inv);
 		end if;
 
 		return Wgt, Inv;
