@@ -72,6 +72,8 @@ function CubicNewBasis(Q, C)
 end function;
 
 function InvariantsGenus4CurvesRank4(f)
+	K := BaseRing(Parent(f));
+
 	// Covariants
 	// Degree 2
 	f2 := Transvectant(f, f, 0, 0);
@@ -152,16 +154,16 @@ function InvariantsGenus4CurvesRank4(f)
 	J101 := Transvectant(Transvectant(Transvectant(C71H, f, 1, 1), f, 1, 1), f, 3, 3 : invariant :=  true);
 	J121 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C73H1, f, 1, 1), f, 2, 2), f, 0, 0), f, 3, 3), f, 3, 3 : invariant :=  true);
 	J141 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C62H2, f, 1, 1), f, 2, 2), f, 2, 2), f, 1, 1), f, 2, 2), H, 0, 0), f, 3, 3 : invariant :=  true);
-	invHSOP := [J2, J4H, J4, J6H, J61, J8H, J81, J101, J121, J141];
+	invHSOP := [K | J2, J4H, J4, J6H, J61, J8H, J81, J101, J121, J141];
 
 	// Degree 6
 	J62 := Transvectant(Transvectant(Transvectant(f3, f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	inv6 := [J62];
+	inv6 := [K | J62];
 
 	// Degree 8
 	J82 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C35H, f, 2, 2), f, 0, 0), f, 2, 2), f, 3, 3), f, 3, 3 : invariant :=  true);
 	J83 := Transvectant(Transvectant(C66H, f, 3, 3), f, 3, 3 : invariant :=  true);
-	inv8 := [J82, J83];
+	inv8 := [K | J82, J83];
 	
 	// Degree 10
 	J102 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C42H2, f, 0, 0), f, 0, 0), f, 2, 2), f, 3, 3), f, 2, 2), f, 3, 3 : invariant :=  true);
@@ -170,7 +172,7 @@ function InvariantsGenus4CurvesRank4(f)
 	J105 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C35, f, 1, 1), f, 3, 3), f, 0, 0), f, 0, 0), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
 	J106 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44H1, f, 3, 3), f, 0, 0), f, 1, 1), f, 2, 2), f, 2, 2), f, 3, 3 : invariant :=  true);
 	J107 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C42H2, f, 1, 1), f, 2, 2), f, 2, 2), f, 0, 0), f, 2, 2), f, 3, 3 : invariant :=  true);
-	inv10 := [J102, J103, J104, J105, J106, J107];
+	inv10 := [K | J102, J103, J104, J105, J106, J107];
 
 	// Degree 12
 	J122 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44f, f, 3, 3), f, 0, 0), f, 3, 3), f, 0, 0), f, 1, 1), f, 2, 2), f, 2, 2), f, 3, 3 : invariant :=  true); 
@@ -182,7 +184,7 @@ function InvariantsGenus4CurvesRank4(f)
 	J128 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(f4, f, 2, 2), f, 2, 2), f, 1, 1), f, 1, 1), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
 	J129 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C48f, f, 0, 0), f, 3, 3), f, 2, 2), f, 2, 2), f, 3, 3), f, 0, 0), f, 3, 3), f, 3, 3 : invariant :=  true);
 	J1210 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C79H, f, 1, 1), f, 3, 3), f, 3, 3), f, 2, 2), f, 3, 3);
-	inv12 := [J122, J123, J124, J125, J126, J127, J128, J129, J1210];
+	inv12 := [K | J122, J123, J124, J125, J126, J127, J128, J129, J1210];
 
 	// Degree 14
 	J142 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44H1, f, 0, 0), f, 2, 2), f, 0, 0), f, 2, 2), f, 0, 0), f, 2, 2), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
@@ -197,7 +199,7 @@ function InvariantsGenus4CurvesRank4(f)
 	J1411 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C513f, f, 0, 0), f, 1, 1), f, 2, 2), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
 	J1412 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C55, f, 2, 2), f, 3, 3), f, 1, 1), f, 0, 0), f, 0, 0), f, 3, 3), f, 1, 1), f, 3, 3), f, 3, 3 : invariant :=  true);
 	J1413 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C33f, f, 0, 0), f, 0, 0), f, 3, 3), f, 0, 0), f, 1, 1), f, 2, 2), f, 3, 3), f, 2, 2), f, 2, 2), f, 2, 2), f, 3, 3 : invariant :=  true);
-	inv14 := [J142, J143, J144, J145, J146, J147, J148, J149, J1410, J1411, J1412, J1413];
+	inv14 := [K | J142, J143, J144, J145, J146, J147, J148, J149, J1410, J1411, J1412, J1413];
 
 	// Degree 16
 	J161 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C551, f, 1, 1), f, 2, 2), f, 2, 2), f, 0, 0), f, 1, 1), f, 0, 0), f, 3, 3), f, 3, 3), f, 2, 2), f, 2, 2), f, 3, 3 : invariant :=  true);
@@ -214,7 +216,7 @@ function InvariantsGenus4CurvesRank4(f)
 	J1612 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C57, f, 1, 1), f, 3, 3), f, 1, 1), f, 1, 1), f, 1, 1), f, 3, 3), f, 1, 1), f, 0, 0), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
 	J1613 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C421, f, 0, 0), f, 1, 1), f, 0, 0), f, 0, 0), f, 2,2), f, 3, 3), f, 1, 1), f, 0, 0), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
 	J1614 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C62H2, f, 0, 0), f, 1, 1), f, 2, 2), f, 2, 2), f, 1, 1), f, 3, 3), f, 2, 2), f, 1, 1), f, 1, 1), f, 3, 3 : invariant :=  true);
-	inv16 := [J161, J162, J163, J164, J165, J166, J167, J168, J169, J1610, J1611, J1612, J1613, J1614];
+	inv16 := [K | J161, J162, J163, J164, J165, J166, J167, J168, J169, J1610, J1611, J1612, J1613, J1614];
 
 	// Degree 18
 	J181 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C71H, f, 0, 0), f, 0, 0), f, 0, 0), f, 2, 2), f, 3, 3), f, 0, 0), f, 3, 3), f, 1, 1), f, 3, 3), f, 2, 2), f, 3, 3 : invariant :=  true);
@@ -228,13 +230,15 @@ function InvariantsGenus4CurvesRank4(f)
 	J189 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C35H, f, 2, 2), f, 2, 2), f, 0, 0), f, 2, 2), f, 3, 3), f, 1, 1), f, 0, 0), f, 3, 3), f, 2, 2), f, 0, 0), f, 2, 2), f, 3, 3), f, 0, 0), f, 2, 2), f, 3, 3 : invariant :=  true);
 	J1810 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C421, f, 0, 0), f, 2, 2),f, 1, 1), f, 1, 1), f, 1, 1), f, 1, 1), f, 2, 2), f, 2, 2), f, 3, 3), f, 1, 1), f, 0, 0), f, 3, 3), f, 2, 2), f, 3, 3 : invariant :=  true);
 	J1811 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C48, f, 0, 0), f, 0, 0),f, 3, 3), f, 0, 0), f, 1, 1), f, 3, 3), f, 3, 3), f, 1, 1), f, 1, 1), f, 3, 3), f, 1, 1), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	inv18 := [J181, J182, J183, J184, J185, J186, J187, J188, J189, J1810, J1811];
+	inv18 := [K | J181, J182, J183, J184, J185, J186, J187, J188, J189, J1810, J1811];
 
 	return 	[2,4,4,6,6,8,8,10,12,14,6,8,8,10,10,10,10,10,10,12,12,12,12,12,12,12,12,12,14,14,14,14,14,14,14,14,14,14,14,14,16,16,16,16,16,16,16,16,16,16,16,16,16,16,18,18,18,18,18,18,18,18,18,18,18], invHSOP cat inv6 cat inv8 cat inv10 cat inv12 cat inv14 cat inv16 cat inv18;
 end function;
 
 
 function InvariantsGenus4CurvesRank3(f, v)
+	K := BaseRing(Parent(f));
+
 	// Covariants of f
 	h24 := Transvectant(f, f, 4);
 	h28 := Transvectant(f, f, 2);
@@ -265,29 +269,29 @@ function InvariantsGenus4CurvesRank3(f, v)
 	J6f := Evaluate(Transvectant(h32, h32, 2), [0,0]);
 	J10f := Evaluate(Transvectant(h32^3, f, 6), [0,0]);
 	J15f := Evaluate(Transvectant(h38, h32^4, 8), [0,0]);
-	invf := [J2f, J4f, J6f, J10f, J15f];
+	invf := [K | J2f, J4f, J6f, J10f, J15f];
 
 	// Invariants of v
 	J2v := Evaluate(Transvectant(v, v, 4), [0,0]);
 	J3v := Evaluate(Transvectant(k24, v, 4), [0,0]);
-	invv := [J2v, J3v];
+	invv := [K | J2v, J3v];
  
 	//  Joint degree 3
 	J3 := Evaluate(Transvectant(h24, v, 4), [0,0]);
-	inv3 := [J3];
+	inv3 := [K | J3];
 
 	//  Joint degree 4
 	J41 := Evaluate(Transvectant(h28, v^2, 8), [0,0]);
 	J42 := Evaluate(Transvectant(h24, k24, 4), [0,0]);
 	J43 := Evaluate(Transvectant(k36, f, 6), [0,0]);
-	inv4 := [J41, J42, J43];
+	inv4 := [K | J41, J42, J43];
 
 	// Joint degree 5
 	J51 := Evaluate(Transvectant(h38, v^2, 8), [0,0]);
 	J52 := Evaluate(Transvectant(h44, v, 4), [0,0]);
 	J53 := Evaluate(Transvectant(h28, v*k24, 8), [0,0]);
 	J54 := Evaluate(Transvectant(f^2, v^3, 12), [0,0]);
-	inv5 := [J51, J52, J53, J54];
+	inv5 := [K | J51, J52, J53, J54];
 
 	// Joint degree 6
 	J61 := Evaluate(Transvectant(h38, v*k24, 8), [0,0]);
@@ -298,7 +302,7 @@ function InvariantsGenus4CurvesRank3(f, v)
 	J66 := Evaluate(Transvectant(h54, v, 4), [0,0]);
 	J67 := Evaluate(Transvectant(h44, k24, 4), [0,0]);
 	J68 := Evaluate(Transvectant(h32*f, v^2, 8), [0,0]);
-	inv6 := [J61, J62, J63, J64, J65, J66, J67, J68];
+	inv6 := [K | J61, J62, J63, J64, J65, J66, J67, J68];
 
 	// Joint degree 7
 	J71 := Evaluate(Transvectant(h32^2, v, 4), [0,0]);
@@ -310,7 +314,7 @@ function InvariantsGenus4CurvesRank3(f, v)
 	J77 := Evaluate(Transvectant(h46, k36, 6), [0,0]);
 	J78 := Evaluate(Transvectant(h312, v^2*k24, 12), [0,0]);
 	J79 := Evaluate(Transvectant(h38, k24^2, 8), [0,0]);
-	inv7 := [J71, J72, J73, J74, J75, J76, J77, J78, J79];
+	inv7 := [K | J71, J72, J73, J74, J75, J76, J77, J78, J79];
 
 	// Joint degree 8
 	J81 := Evaluate(Transvectant(h32*h24, k36, 6), [0,0]);
@@ -322,7 +326,7 @@ function InvariantsGenus4CurvesRank3(f, v)
 	J87 := Evaluate(Transvectant(f*h36, v^2*k24, 12), [0,0]);
 	J88 := Evaluate(Transvectant(h32*f, k24^2, 8), [0,0]);
 	J89 := Evaluate(Transvectant(h58, v*k24, 8), [0,0]);
-	inv8 := [J81, J82, J83, J84, J85, J86, J87, J88, J89];
+	inv8 := [K | J81, J82, J83, J84, J85, J86, J87, J88, J89];
 
 	// Joint degree 9
 	J91 := Evaluate(Transvectant(h74, k24, 4), [0,0]);
@@ -333,33 +337,33 @@ function InvariantsGenus4CurvesRank3(f, v)
 	J96 := Evaluate(Transvectant(f*h46, v^2*k24, 12), [0,0]);
 	J97 := Evaluate(Transvectant(h36^2, v^3, 12), [0,0]);
 	J98 := Evaluate(Transvectant(h32*h46, v^2, 8), [0,0]);
-	inv9 := [J91, J92, J93, J94, J95, J96, J97, J98];
+	inv9 := [K | J91, J92, J93, J94, J95, J96, J97, J98];
 
 	// Joint degree 10
 	J101 := Evaluate(Transvectant(h94, v, 4), [0,0]);
 	J102 := Evaluate(Transvectant(h32*h28, k24*k36, 10), [0,0]);
 	J103 := Evaluate(Transvectant(h52*h36, v^2, 8), [0,0]);
 	J104 := Evaluate(Transvectant(f*h661, v^3, 12), [0,0]);
-	inv10 := [J101, J102, J103, J104];
+	inv10 := [K | J101, J102, J103, J104];
 
 	// Joint degree 11
 	J111 := Evaluate(Transvectant(h52^2, v, 4), [0,0]);
 	J112 := Evaluate(Transvectant(f*h662, v^2*k24, 12), [0,0]);
 	J113 := Evaluate(Transvectant(h32*h661, v^2, 8), [0,0]);
-	inv11 := [J111, J112, J113];
+	inv11 := [K | J111, J112, J113];
 
 	// Joint degree 12
 	J121 := Evaluate(Transvectant(h32*h82, v, 4), [0,0]);
 	J122 := Evaluate(Transvectant(h32*h662, v*k24, 8), [0,0]);
-	inv12 := [J121, J122];
+	inv12 := [K | J121, J122];
 
 	// Joint degree 13
 	J13 := Evaluate(Transvectant(h82*h36, v^2, 8), [0,0]);
-	inv13 := [J13];
+	inv13 := [K | J13];
 
 	// Joint degree 14
 	J14 := Evaluate(Transvectant(h32*h102, v, 4), [0,0]);
-	inv14 := [J14];
+	inv14 := [K | J14];
 
 	return [2,4,6,10,15,2,3,3,4,4,4,5,5,5,5,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,9,9,9,9,9,9,9,9,10,10,10,10,11,11,11,12,12,13,14], invf cat invv cat inv3 cat inv4 cat inv5 cat inv6 cat inv7 cat inv8 cat inv9 cat inv10 cat inv11 cat inv12 cat inv13 cat inv14;
 end function;
