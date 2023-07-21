@@ -3,7 +3,7 @@
     tools.m
     Verifications
     {
-        ProofHSOP.m
+        Proof_HSOP.m
         Secondary_invariants.m
     }
 }
