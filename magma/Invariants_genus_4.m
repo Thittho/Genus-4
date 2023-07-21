@@ -18,7 +18,7 @@ function NewBasis(Q)
 		return D, t;
 	elif t eq 4 then
 		L := [-D[4][4]/D[1][1], -D[3][3]/D[2][2]];
-		if not Category(K) eq FldCom then //we take a bigger field to be sure that the change of variable is well defined, and AlgebraicClosure(ComplexField()) returns an error
+		if not Category(K) eq FldCom and not Category(K) eq FldAC then //we take a bigger field to be sure that the change of variable is well defined, and AlgebraicClosure(ComplexField()) returns an error
 			S := AlgebraicClosure(K);
 			//[[Sqrt(S!L[i]), S!L[i]] : i in [1..2]]; // this is useful to know which square roots we are adding
 		else

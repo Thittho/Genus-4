@@ -7,15 +7,15 @@ Cubic1:=-x^2*y - x^2*z - 5*x^2*w - 6*x*y^2 - 2*x*y*z - 9*x*y*w + 7*x*z^2 + 3*x*z
     10*z*w^2 + 3*w^3;
 time Wgt, I1 := InvariantsGenus4Curves(Quadric1, Cubic1 : normalize := true);
 
-Quadric2 := Evaluate(Quadric1, [2*y+3*x, x-2*y, 3*z, -3*w]);
-Cubic2 := Evaluate(Cubic1, [2*y+3*x, x-2*y, 3*z, -3*w]);
+Rtest<x,y,z,w> := ChangeRing(Rtest, Parent(I1[1]));
+Quadric2 := Evaluate(Rtest!Quadric1, [2*y+3*x, x-2*y, 3*z, -3*w]);
+Cubic2 := Evaluate(Rtest!Cubic1, [2*y+3*x, x-2*y, 3*z, -3*w]);
 time Wgt, I2 := InvariantsGenus4Curves(Quadric2, Cubic2 : normalize := true);
-I2 eq I1;
+
+IsIsomorphic(Q1, C1, Q2, C2);
 
 
-
-
-/* Test hypeelliptic */
+/* Test hyperelliptic */
 C<X> := PolynomialRing(Rationals());   
 time Wgt, I := InvariantsGenus4HyperellipticCurves(X^10+5*X^8-7X+1);
 
