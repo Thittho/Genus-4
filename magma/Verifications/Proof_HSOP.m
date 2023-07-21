@@ -1,3 +1,4 @@
+import "~/Genus-4/magma/tools.m": 
 function InvariantsHSOP(f, d)
 	// Covariants
 	// Degree 2
