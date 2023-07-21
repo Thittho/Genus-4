@@ -480,13 +480,34 @@ intrinsic InvariantsGenus4Curves(C::CrvHyp : normalize := false) -> SeqEnum, Seq
 end intrinsic;
 
 intrinsic IsIsomorphic(Q1::RngMPolElt, C1::RngMPolElt, Q2::RngMPolElt, C2::RngMPolElt : epsilon := 0) -> Bool
-	{Given two non-hyperelliptic curves of genus 4, returns if their invariants are the same up to espilon}
+	{Given two non-hyperelliptic curves of genus 4, returns true if their invariants are the same up to espilon, false otherwise.}
 
 	Wgt1, I1 := InvariantsGenus4Curves(Q1, C1 : normalize := true);
 	Wgt2, I2 := InvariantsGenus4Curves(Q2, C2 : normalize := true);
 
 	require Wgt1 eq Wgt2 : "Curves must have a quadric of the same rank 3 or 4";
 	
+	for i in [1..#I1] do
+		if Abs(I1[i]-I2[i]) gt epsilon then
+			return false;
+		end if;
+	end for;
+	return true;
+
+end intrinsic;
+
+
+intrinsic IsIsomorphic(Q1::RngMPolElt, C1::RngMPolElt, Q2::RngMPolElt, C2::RngMPolElt, K::Rng : epsilon := 0) -> Bool
+	{Given two non-hyperelliptic curves of genus 4, returns true if their invariants are the same up to espilon, false otherwise.}
+
+	Wgt1, I1 := InvariantsGenus4Curves(Q1, C1 : normalize := true);
+	Wgt2, I2 := InvariantsGenus4Curves(Q2, C2 : normalize := true);
+
+	require Wgt1 eq Wgt2 : "Curves must have a quadric of the same rank 3 or 4";
+
+	ChangeUniverse(~I1, K);
+	ChangeUniverse(~I2, K);
+
 	for i in [1..#I1] do
 		if Abs(I1[i]-I2[i]) gt epsilon then
 			return false;
