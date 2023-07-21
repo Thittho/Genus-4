@@ -20,13 +20,17 @@ intrinsic Transvectant(f::RngMPolElt, g::RngMPolElt, r::RngIntElt, s::RngIntElt 
 		end for;
     end for;
     
-    m1 := Degree(Evaluate(f, [P.1, P.2, 1, 2]));
-	n1 := Degree(Evaluate(f, [1, 2, P.3, P.4]));
-	m2 := Degree(Evaluate(g, [P.1, P.2, 1, 2]));
-	n2 := Degree(Evaluate(g, [1, 2, P.3, P.4]));
-    cfg := Factorial(m1-r)*Factorial(m2-r)*Factorial(n1-s)*Factorial(n2-s)/(Factorial(m1)*Factorial(m2)*Factorial(n1)*Factorial(n2));
-    
-    if invariant then 
+	if Characteristic(BaseRing(P)) eq 0 then
+		m1 := Degree(Evaluate(f, [P.1, P.2, 1, 2]));
+		n1 := Degree(Evaluate(f, [1, 2, P.3, P.4]));
+		m2 := Degree(Evaluate(g, [P.1, P.2, 1, 2]));
+		n2 := Degree(Evaluate(g, [1, 2, P.3, P.4]));
+		cfg := Factorial(m1-r)*Factorial(m2-r)*Factorial(n1-s)*Factorial(n2-s)/(Factorial(m1)*Factorial(m2)*Factorial(n1)*Factorial(n2));
+	else
+		cfg := 1;
+	end if;	
+	
+	if invariant then 
 		return cfg*Evaluate(Tfg, [0,0,0,0]);
 	else
 		return cfg*Tfg;

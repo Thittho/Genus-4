@@ -197,13 +197,13 @@ intrinsic ProofLemma() -> Str
 
 	f0 := a33*x^3*u^3+a32*x^3*u^2*v+a31*x^3*u*v^2+a30*x^3*v^3+a23*x^2*y*u^3+a22*x^2*y*u^2*v+a21*x^2*y*u*v^2+a20*x^2*y*v^3+a13*x*y^2*u^3+a12*x*y^2*u^2*v+a11*x*y^2*u*v^2+a10*x*y^2*v^3+a03*y^3*u^3+a02*y^3*u^2*v+a01*y^3*u*v^2+a00*y^3*v^3;
 	MH := CoefficientMatrix(Transvectant(f0, f0, 2, 2));
-	inv2 := Transvectant(f0, f0, 3, 3);
+	inv2 := Transvectant(f0, f0, 3, 3 : invariant := true);
 	I := Ideal([inv2, MH[1][1], MH[2][1], MH[3][1], MH[1][2], MH[2][2], MH[3][2], MH[1][3], MH[2][3], MH[3][3]]);
 
 	"The invariants which come from J_{1,3} vanish:";
 	s := Transvectant(f0, f0, 1, 3);
-	"(J_{1,3}, J_{1,3})_4 = 0", IsInRadical(R1!Transvectant(s, s, 4, 0), I);
-	"((J_{1,3}, J_{1,3})_2, J_{1,3})_4 = 0", IsInRadical(R1!Transvectant(Transvectant(s, s, 2, 0), s, 4, 0), I);"";
+	"(J_{1,3}, J_{1,3})_4 = 0", IsInRadical(R1!Transvectant(s, s, 4, 0 : invariant := true), I);
+	"((J_{1,3}, J_{1,3})_2, J_{1,3})_4 = 0", IsInRadical(R1!Transvectant(Transvectant(s, s, 2, 0), s, 4, 0 : invariant := true), I);"";
 
 	"If we take into account that y^3 divides J_{1,3}:";
 	liste_f0 := [a30*x^3*v^3+a22*x^2*y*u^2*v+a21*x^2*y*u*v^2+a20*x^2*y*v^3+a13*x*y^2*u^3+a12*x*y^2*u^2*v+a11*x*y^2*u*v^2+a10*x*y^2*v^3+a03*y^3*u^3+a02*y^3*u^2*v+a01*y^3*u*v^2+a00*y^3*v^3,
@@ -219,7 +219,7 @@ intrinsic ProofLemma() -> Str
 		Mat;"";
 		M := [R1!MonomialCoefficient(Transvectant(f0, f0, 1, 3),x^(4-i)*y^(i)) : i in [0..4]];
 		MH := CoefficientMatrix(Transvectant(f0, f0, 2, 2));
-		inv2 := Transvectant(f0, f0, 3, 3);
+		inv2 := Transvectant(f0, f0, 3, 3 : invariant := true);
 		I := Ideal([inv2, M[1], M[2], M[3], MH[1][1], MH[2][1], MH[3][1], MH[1][2], MH[2][2], MH[3][2], MH[1][3], MH[2][3], MH[3][3]]);
 
 		"f must be of one of the following forms:";"";
@@ -233,7 +233,7 @@ intrinsic ProofLemma() -> Str
 	f0 := liste_f0[5];
 	M := [R1!MonomialCoefficient(Transvectant(f0, f0, 1, 3),x^(4-i)*y^(i)) : i in [0..4]];
 	MH := CoefficientMatrix(Transvectant(f0, f0, 2, 2));
-	inv2 := Transvectant(f0, f0, 3, 3);
+	inv2 := Transvectant(f0, f0, 3, 3 : invariant := true);
 	I := Ideal([inv2, M[1], M[2], M[3], MH[1][1], MH[2][1], MH[3][1], MH[1][2], MH[2][2], MH[3][2], MH[1][3], MH[2][3], MH[3][3]]);
 	f1 := R!(Evaluate(f0, [x+a31/2*y, y, u-a31/2*v, v]));
 	Gb := RadicalDecomposition(I);
