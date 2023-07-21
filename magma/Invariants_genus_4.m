@@ -405,14 +405,14 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C:RngMPolElt) -> SeqEnum, SeqEnu
 
 end intrinsic;
 
+import "gordan-10.dat" : FdCov;
+import "InvS10.m" : GetCovariant;
 
 intrinsic InvariantsGenus4Curves(f::RngUPolElt) -> SeqEnum, SeqEnum
 	{Compute the invariants of a univariate polynomial of degree smaller than 10 as a binary form of degree 10.}
 
 	require Degree(f) le 10: "f must be of degree smaller than 10";
 
-	load "~/Genus-4/magma/gordan-10.dat";
-	load "~/Genus-4/magma/InvS10.m";
 	IdxInv := [idx : idx in [1..#FdCov] | FdCov[idx]`order eq 0];
 	List_invariants := [GetCovariant(FdCov[IdxInv[i]], FdCov, f) : i in [1..#IdxInv]];
 	return [List_invariants[i][2] : i in [1..#IdxInv]], [List_invariants[i][1] : i in [1..#IdxInv]];
