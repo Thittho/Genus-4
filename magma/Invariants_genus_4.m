@@ -302,15 +302,15 @@ function InvariantsGenus4CurvesRank3(f, v)
 
 	// Joint degree 7
 	J71 := Evaluate(Transvectant(h32^2, v, 4), [0,0]);
-	J71 := Evaluate(Transvectant(h54, k24, 4), [0,0]);
-	J72 := Evaluate(Transvectant(h58, v^2, 8), [0,0]);
-	J73 := Evaluate(Transvectant(f*h36, v^3, 12), [0,0]);
-	J74 := Evaluate(Transvectant(f^2, v*k24^2, 12), [0,0]);
-	J75 := Evaluate(Transvectant(h32*f, v*k24, 8), [0,0]);
-	J76 := Evaluate(Transvectant(h46, k36, 6), [0,0]);
-	J76 := Evaluate(Transvectant(h312, v^2*k24, 12), [0,0]);
-	J77 := Evaluate(Transvectant(h38, k24^2, 8), [0,0]);
-	inv7 := [J71, J72, J73, J74, J75, J76, J77];
+	J72 := Evaluate(Transvectant(h54, k24, 4), [0,0]);
+	J73 := Evaluate(Transvectant(h58, v^2, 8), [0,0]);
+	J74 := Evaluate(Transvectant(f*h36, v^3, 12), [0,0]);
+	J75 := Evaluate(Transvectant(f^2, v*k24^2, 12), [0,0]);
+	J76 := Evaluate(Transvectant(h32*f, v*k24, 8), [0,0]);
+	J77 := Evaluate(Transvectant(h46, k36, 6), [0,0]);
+	J78 := Evaluate(Transvectant(h312, v^2*k24, 12), [0,0]);
+	J79 := Evaluate(Transvectant(h38, k24^2, 8), [0,0]);
+	inv7 := [J71, J72, J73, J74, J75, J76, J77, J78, J79];
 
 	// Joint degree 8
 	J81 := Evaluate(Transvectant(h32*h24, k36, 6), [0,0]);
@@ -361,7 +361,7 @@ function InvariantsGenus4CurvesRank3(f, v)
 	J14 := Evaluate(Transvectant(h32*h102, v, 4), [0,0]);
 	inv14 := [J14];
 
-	return [2,4,6,8,10,2,3,3,4,4,4,5,5,5,5,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,9,9,9,9,9,9,9,9,10,10,10,10,11,11,11,12,12,13,14], invf cat invv cat inv3 cat inv4 cat inv5 cat inv6 cat inv7 cat inv8 cat inv9 cat inv10 cat inv11 cat inv12 cat inv13 cat inv14;
+	return [2,4,6,10,15,2,3,3,4,4,4,5,5,5,5,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,9,9,9,9,9,9,9,9,10,10,10,10,11,11,11,12,12,13,14], invf cat invv cat inv3 cat inv4 cat inv5 cat inv6 cat inv7 cat inv8 cat inv9 cat inv10 cat inv11 cat inv12 cat inv13 cat inv14;
 end function;
 
 intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C:RngMPolElt) -> SeqEnum, SeqEnum
@@ -427,8 +427,10 @@ intrinsic InvariantsGenus4Curves(f::RngMPolElt) -> SeqEnum, SeqEnum
 	require IsHomogeneous(f): "f must be homogeneous";
 	require Degree(f) eq 10: "f must be of degree smaller than 10";
 	
+	C<x> := PolynomialRing(BaseRing(Parent(f)));
+	F := C!Evaluate(f, [x, 1]);
 	IdxInv := [idx : idx in [1..#FdCov] | FdCov[idx]`order eq 0];
-	List_invariants := [GetCovariant(FdCov[IdxInv[i]], FdCov, f) : i in [1..#IdxInv]];
+	List_invariants := [GetCovariant(FdCov[IdxInv[i]], FdCov, F) : i in [1..#IdxInv]];
 	return [List_invariants[i][2] : i in [1..#IdxInv]], [List_invariants[i][1] : i in [1..#IdxInv]];
 
 end intrinsic;

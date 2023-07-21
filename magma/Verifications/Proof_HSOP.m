@@ -43,16 +43,16 @@ function InvariantsHSOP(f, d)
 
 	// Invariants
 	// HSOP
-	J2 := Transvectant(f, f, 3, 3);
-	J4H := Transvectant(H, H, 2, 2);
-	J4 := Transvectant(C33, f, 3, 3);	
-	J6H := Transvectant(H, CH, 2, 2);
-	J61 := Transvectant(C53H, f, 3, 3);
-	J8H := Transvectant(CH, CH, 2, 2);
-	J81 := Transvectant(C73H1, f, 3, 3);
-	J101 := Transvectant(Transvectant(Transvectant(C71H, f, 1, 1), f, 1, 1), f, 3, 3);
-	J121 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C73H1, f, 1, 1), f, 2, 2), f, 0, 0), f, 3, 3), f, 3, 3);
-	J141 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C62H2, f, 1, 1), f, 2, 2), f, 2, 2), f, 1, 1), f, 2, 2), H, 0, 0), f, 3, 3);
+	J2 := Transvectant(f, f, 3, 3 : invariant := true);
+	J4H := Transvectant(H, H, 2, 2 : invariant := true);
+	J4 := Transvectant(C33, f, 3, 3 : invariant := true);	
+	J6H := Transvectant(H, CH, 2, 2 : invariant := true);
+	J61 := Transvectant(C53H, f, 3, 3 : invariant := true);
+	J8H := Transvectant(CH, CH, 2, 2 : invariant := true);
+	J81 := Transvectant(C73H1, f, 3, 3 : invariant := true);
+	J101 := Transvectant(Transvectant(Transvectant(C71H, f, 1, 1), f, 1, 1), f, 3, 3 : invariant := true);
+	J121 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C73H1, f, 1, 1), f, 2, 2), f, 0, 0), f, 3, 3), f, 3, 3 : invariant := true);
+	J141 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C62H2, f, 1, 1), f, 2, 2), f, 2, 2), f, 1, 1), f, 2, 2), H, 0, 0), f, 3, 3 : invariant := true);
 	return [J2, MH[1][1], MH[2][1], MH[3][1], MH[2][2], MH[d][2], J4, J61, J81, J101, J121, J141];
 end function;
 
