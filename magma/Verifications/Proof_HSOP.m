@@ -46,8 +46,8 @@ function InvariantsHSOP(f, d)
 	return [J2, MH[1][1], MH[2][1], MH[3][1], MH[2][2], MH[d][2], J4, J61, J81, J101, J121, J141];
 end function;
 
-// Proof of the theorem 
-intrinsic ProofHsop() -> Str
+intrinsic ProofHsop(a::RngMPolElt) -> Str
+	{Does the proof of the HSOP theorem.}
 	K := Rationals();
 	R1<a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33, X> := PolynomialRing(K, [1 : i in [1..17]]);
 	R<x, y, u, v> := PolynomialRing(R1, 4);
@@ -179,8 +179,8 @@ intrinsic ProofHsop() -> Str
 	return "Done!";	
 end intrinsic;
 
-// Proof of lemma
-intrinsic ProofLemma() -> Str
+intrinsic ProofLemma(a::RngMPolElt) -> Str
+	{Does the proof of the HSOP lemma.}
 	K := Rationals();
 	R1<a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33, X> := PolynomialRing(K, [1 : i in [1..17]]);
 	R<x, y, u, v> := PolynomialRing(R1, 4);
@@ -231,4 +231,4 @@ intrinsic ProofLemma() -> Str
 	Matrix([[NormalForm(Matrice_f1[i][j], Gb[1]) : j in [1..4]] : i in [1..4]]);"";"";
 
 	return "Done!";
-end function;
+end intrinsic;
