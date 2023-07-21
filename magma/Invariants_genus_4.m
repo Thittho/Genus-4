@@ -364,8 +364,8 @@ function InvariantsGenus4CurvesRank3(f, v)
 	return [2,4,6,10,15,2,3,3,4,4,4,5,5,5,5,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,9,9,9,9,9,9,9,9,10,10,10,10,11,11,11,12,12,13,14], invf cat invv cat inv3 cat inv4 cat inv5 cat inv6 cat inv7 cat inv8 cat inv9 cat inv10 cat inv11 cat inv12 cat inv13 cat inv14;
 end function;
 
-intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C:RngMPolElt) -> SeqEnum, SeqEnum
-	{Given a homogeneous quadric and a homogeneous cubic in 4 variables, returns its invariants.}
+intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C:RngMPolElt : normalize := false) -> SeqEnum, SeqEnum
+	{Given a homogeneous quadric and a homogeneous cubic in 4 variables, returns its invariants. This depends on the }
 
 	require (Parent(Q) eq Parent(C)): "Q and C must have the same parent";
 	require (Rank(Parent(Q)) eq 4): "Q and C must be polynomials in 4 variables";
@@ -383,7 +383,13 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C:RngMPolElt) -> SeqEnum, SeqEnu
 		R<x, y, u, v> := PolynomialRing(BaseRing(Parent(f0)), 4);
 		f_bic := Evaluate(f0, [x*u, y*u, x*v, y*v]);
 		
-		return InvariantsGenus4CurvesRank4(f_bic);
+		Wgt, Inv := InvariantsGenus4CurvesRank4(f_bic);
+		
+		if normalize then
+			return WPSNormalize(Wgt, Inv);
+		end if;
+
+		return Wgt, Inv;
 
 	elif t eq 3 then
 		//ChangeOfBasis(Q, P);
@@ -400,7 +406,14 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C:RngMPolElt) -> SeqEnum, SeqEnu
 		f_weighted := Evaluate(f_weighted, [s, t, w-ExactQuotient(Terms(f_weighted, w)[3], 3*w^2)]);
 
 		S<[x]> := PolynomialRing(BaseRing(Parent(f_weighted)), 2);
-		return InvariantsGenus4CurvesRank3(S!Evaluate(f_weighted, [x[1], x[2], 0]), S!Evaluate(ExactQuotient(Terms(f_weighted, w)[2], w), [x[1], x[2], 0]));
+
+		Wgt, Inv := InvariantsGenus4CurvesRank3(S!Evaluate(f_weighted, [x[1], x[2], 0]), S!Evaluate(ExactQuotient(Terms(f_weighted, w)[2], w), [x[1], x[2], 0]));
+		
+		if normalize then
+			return WPSNormalize(Wgt, Inv);
+		end if;
+
+		return Wgt, Inv;
 	end if;
 
 end intrinsic;
@@ -408,7 +421,7 @@ end intrinsic;
 import "gordan-10.dat" : FdCov;
 import "InvS10.m" : GetCovariant;
 
-intrinsic InvariantsGenus4Curves(f::RngUPolElt) -> SeqEnum, SeqEnum
+intrinsic InvariantsGenus4Curves(f::RngUPolElt : normalize := false) -> SeqEnum, SeqEnum
 	{Compute the invariants of a univariate polynomial of degree smaller than 10 as a binary form of degree 10.}
 
 	require Degree(f) le 10: "f must be of degree smaller than 10";
@@ -420,7 +433,7 @@ intrinsic InvariantsGenus4Curves(f::RngUPolElt) -> SeqEnum, SeqEnum
 end intrinsic;
 
 
-intrinsic InvariantsGenus4Curves(f::RngMPolElt) -> SeqEnum, SeqEnum
+intrinsic InvariantsGenus4Curves(f::RngMPolElt : normalize := false) -> SeqEnum, SeqEnum
 	{Compute the invariants of a bivariate homogeneous polynomial of degree 10.}
 
 	require Rank(Parent(f)) eq 2: "f must be a bivariate polynomial";
@@ -429,14 +442,18 @@ intrinsic InvariantsGenus4Curves(f::RngMPolElt) -> SeqEnum, SeqEnum
 	
 	C<x> := PolynomialRing(BaseRing(Parent(f)));
 	F := C!Evaluate(f, [x, 1]);
-	IdxInv := [idx : idx in [1..#FdCov] | FdCov[idx]`order eq 0];
-	List_invariants := [GetCovariant(FdCov[IdxInv[i]], FdCov, F) : i in [1..#IdxInv]];
-	return [List_invariants[i][2] : i in [1..#IdxInv]], [List_invariants[i][1] : i in [1..#IdxInv]];
+	
+	Wgt, Inv := InvariantsGenus4Curves(f);
 
+	if normalize then
+		return WPSNormalize(Wgt, Inv);
+	end if;
+
+	return Wgt, Inv;
 end intrinsic;
 
 
-intrinsic InvariantsGenus4Curves(C::CrvHyp) -> SeqEnum, SeqEnum
+intrinsic InvariantsGenus4Curves(C::CrvHyp : normalize := false) -> SeqEnum, SeqEnum
 	{Given a hyperelliptic curve of genus 4, return its invariants.}
 	
 	require Genus(C) eq 4: "Curve must be of genus 4.";
@@ -449,18 +466,31 @@ intrinsic InvariantsGenus4Curves(C::CrvHyp) -> SeqEnum, SeqEnum
 
 	f := (h0/2)^2+f0;
 
-	IdxInv := [idx : idx in [1..#FdCov] | FdCov[idx]`order eq 0];
-	List_invariants := [GetCovariant(FdCov[IdxInv[i]], FdCov, f) : i in [1..#IdxInv]];
-	return [List_invariants[i][2] : i in [1..#IdxInv]], [List_invariants[i][1] : i in [1..#IdxInv]];
+	Wgt, Inv := InvariantsGenus4Curves(f);
 
+	if normalize then
+		return WPSNormalize(Wgt, Inv);
+	end if;
+
+	return Wgt, Inv;
 end intrinsic;
 
-/*
-function IsIsomorphic(Q1, C1, Q2, C2)
-	I1 := ;
-	I2 := ;
-end function;
-*/
+intrinsic IsIsomorphic(Q1::RngMPolElt, C1::RngMPolElt, Q2::RngMPolElt, C2::RngMPolElt : epsilon := 0) -> Bool
+	{Given two non-hyperelliptic curves of genus 4, returns if their invariants are the same up to espilon}
+
+	Wgt1, I1 := InvariantsGenus4Curves(Q1, C1 : normalize := true);
+	Wgt2, I2 := InvariantsGenus4Curves(Q2, C2 : normalize := true);
+	
+	require Wgt1 eq Wgt2 : "Curves must have a quadric of the same rank 3 or 4";
+	
+	for i in [1..#I1] do
+		if abs(I1[i]-I2[i]) gt epsilon then
+			return false;
+		end if;
+	end for;
+	return true;
+
+end intrinsic;
 
 
 
