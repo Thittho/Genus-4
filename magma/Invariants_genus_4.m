@@ -2,9 +2,11 @@ function QuadraticFormToMatrix(Q)
 	R := Parent(Q);
 	K := CoefficientRing(R);
 	Q_mat := Matrix(K, [[MonomialCoefficient(Q, R.i*R.j)/2 : j in [1..4]] : i in [1..4]]);
+
 	for i in [1..4] do
 		Q_mat[i][i] := 2*Q_mat[i][i];
 	end for;
+
 	return Q_mat;
 end function;
 
@@ -13,39 +15,46 @@ function NewBasis(Q)
 	K := BaseRing(Parent(Q));
 	M1 := KMatrixSpace(K,4,4);
 	D, P, t := OrthogonalizeGram(Q_mat);
+
 	if t lt 3 then
 		"The quadric is not of rank 3 or 4";
 		return D, t;
+
 	elif t eq 4 then
 		L := [-D[4][4]/D[1][1], -D[3][3]/D[2][2]];
-		if not Category(K) eq FldCom and not Category(K) eq FldAC then //we take a bigger field to be sure that the change of variable is well defined, and AlgebraicClosure(ComplexField()) returns an error
+
+		if Category(K) ne FldCom and Category(K) ne FldAC then
 			S := AlgebraicClosure(K);
-			//[[Sqrt(S!L[i]), S!L[i]] : i in [1..2]]; // this is useful to know which square roots we are adding
 		else
 			S := K;
 		end if;
+
 		M2 := KMatrixSpace(S,4,4);
 		P := ChangeRing(P, S);
 		P_fin := (M2![1/(2*D[1][1]),0,0,1/(2*D[1][1]*Sqrt(S!L[1])),0,-1/(2*D[2][2]),-1/(2*D[2][2]*Sqrt(S!L[2])),0,0,1/2,-1/(2*Sqrt(S!L[2])),0,1/2,0,0,-1/(2*Sqrt(S!L[1]))])*P;
 		return P_fin, 4;
+
 	else
 		i := 1;
 		while D[i][i] ne 0 do
 			i := i+1;
 		end while;
-		L := [1,2,3,4];
-		L[i] := 4;
-		L[4] := i;
-		P_swap := PermutationMatrix(K, L);
+
+		L_swap := [1,2,3,4];
+		L_swap[i] := 4;
+		L_swap[4] := i;
+		P_swap := PermutationMatrix(K, L_swap);
+		
 		D := P_swap*D*P_swap;
 		P := P_swap*P;
 		L := [-D[3][3]/D[1][1], -D[2][2]];
-		if not Category(K) eq FldCom then // we take a bigger field to be sure that the change of variable is well defined, and AlgebraicClosure(ComplexField()) returns an error
+		
+		if Category(K) ne FldCom and Category(K) ne FldAC then
 			S := AlgebraicClosure(K);
-			// [[Sqrt(S!L[i]), S!L[i]] : i in [1..2]]; // this is useful to know which square roots we are adding
 		else
 			S := K;
 		end if;
+		
 		M2 := KMatrixSpace(S,4,4);
 		P := ChangeRing(P, S);
 		P_fin := (M2![1/(2*D[1][1]),0,1/(2*D[1][1]*Sqrt(S!L[1])),0,0,1/(Sqrt(S!L[2])),0,0,1/2,0,-1/(2*Sqrt(S!L[1])),0,0,0,0,1])*P;
