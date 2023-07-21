@@ -1,4 +1,9 @@
 {
     Invariants_genus_4.m
     tools.m
+    Verifications
+    {
+        ProofHSOP.m
+        Secondary_invariants.m
+    }
 }
