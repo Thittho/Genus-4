@@ -364,7 +364,7 @@ function InvariantsGenus4CurvesRank3(f, v)
 	return [2,4,6,10,15,2,3,3,4,4,4,5,5,5,5,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,9,9,9,9,9,9,9,9,10,10,10,10,11,11,11,12,12,13,14], invf cat invv cat inv3 cat inv4 cat inv5 cat inv6 cat inv7 cat inv8 cat inv9 cat inv10 cat inv11 cat inv12 cat inv13 cat inv14;
 end function;
 
-intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C:RngMPolElt : normalize := false) -> SeqEnum, SeqEnum
+intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := false) -> SeqEnum, SeqEnum
 	{Given a homogeneous quadric and a homogeneous cubic in 4 variables, returns its invariants. This depends on the }
 
 	require (Parent(Q) eq Parent(C)): "Q and C must have the same parent";
@@ -410,7 +410,7 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C:RngMPolElt : normalize := fals
 		Wgt, Inv := InvariantsGenus4CurvesRank3(S!Evaluate(f_weighted, [x[1], x[2], 0]), S!Evaluate(ExactQuotient(Terms(f_weighted, w)[2], w), [x[1], x[2], 0]));
 		
 		if normalize then
-			return WPSNormalize(Wgt, Inv);
+			return Wgt, WPSNormalize(Wgt, Inv);
 		end if;
 
 		return Wgt, Inv;
@@ -446,7 +446,7 @@ intrinsic InvariantsGenus4Curves(f::RngMPolElt : normalize := false) -> SeqEnum,
 	Wgt, Inv := InvariantsGenus4Curves(f);
 
 	if normalize then
-		return WPSNormalize(Wgt, Inv);
+		return Wgt, WPSNormalize(Wgt, Inv);
 	end if;
 
 	return Wgt, Inv;
@@ -469,7 +469,7 @@ intrinsic InvariantsGenus4Curves(C::CrvHyp : normalize := false) -> SeqEnum, Seq
 	Wgt, Inv := InvariantsGenus4Curves(f);
 
 	if normalize then
-		return WPSNormalize(Wgt, Inv);
+		return Wgt, WPSNormalize(Wgt, Inv);
 	end if;
 
 	return Wgt, Inv;
@@ -480,11 +480,11 @@ intrinsic IsIsomorphic(Q1::RngMPolElt, C1::RngMPolElt, Q2::RngMPolElt, C2::RngMP
 
 	Wgt1, I1 := InvariantsGenus4Curves(Q1, C1 : normalize := true);
 	Wgt2, I2 := InvariantsGenus4Curves(Q2, C2 : normalize := true);
-	
+
 	require Wgt1 eq Wgt2 : "Curves must have a quadric of the same rank 3 or 4";
 	
 	for i in [1..#I1] do
-		if abs(I1[i]-I2[i]) gt epsilon then
+		if Abs(I1[i]-I2[i]) gt epsilon then
 			return false;
 		end if;
 	end for;

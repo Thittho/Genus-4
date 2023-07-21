@@ -1,8 +1,8 @@
 // Exact equations of Bring's curve
 R1<X,Y,Z,T> := PolynomialRing(Rationals(), 4);
-Q := X^2+Y^2+Z^2+T^2+(X+Y+Z+T)^2;
-C := X^3+Y^3+Z^3+T^3-(X+Y+Z+T)^3;
-Wgt, J1 :=  InvariantsGenus4Curves(Q, C : normalize := true);
+Q1 := X^2+Y^2+Z^2+T^2+(X+Y+Z+T)^2;
+C1 := X^3+Y^3+Z^3+T^3-(X+Y+Z+T)^3;
+Wgt, J1 :=  InvariantsGenus4Curves(Q1, C1 : normalize := true);
 
 // An approximation (up to 10^-9) of Bring's curve
 K<I> := ComplexField();
