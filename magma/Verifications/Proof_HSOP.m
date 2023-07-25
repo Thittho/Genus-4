@@ -1,6 +1,12 @@
 function CoefficientMatrix(f)
 	P := Parent(f);
-	R<a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33, X> := CoefficientRing(P);
+	R1 := CoefficientRing(P);
+	
+	if Rank(R1) eq 17 then
+		R<a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33, X> := CoefficientRing(P);
+	elif Rank(R1) eq 9 then
+		R<b00, b01, b02, b10, b11, b12, b20, b21, b22> := CoefficientRing(P);
+	end if;
 
 	m := Degree(Evaluate(f, [P.1, P.2, 1, 2]));	
 	n := Degree(Evaluate(f, [1, 2, P.3, P.4]));
@@ -55,6 +61,58 @@ function InvariantsHSOP(f, d)
 	J141 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C62H2, f, 1, 1), f, 2, 2), f, 2, 2), f, 1, 1), f, 2, 2), H, 0, 0), f, 3, 3 : invariant := true);
 	return [J2, MH[1][1], MH[2][1], MH[3][1], MH[2][2], MH[d][2], J4, J61, J81, J101, J121, J141];
 end function;
+
+function InvariantsHSOPW2(q);
+	H := Transvectant(q, q, 1, 1);
+	return [Transvectant(q, q, 2, 2 : invariant := true), Transvectant(q, H, 2, 2 : invariant := true), Transvectant(H, H, 2, 2 : invariant := true)];
+end function;
+
+intrinsic ProofHsopW2() -> Str
+	K := Rationals();
+	R1<b00, b01, b02, b10, b11, b12, b20, b21, b22> := PolynomialRing(K, [1 : i in [1..9]]);
+	R<x, y, u, v> := PolynomialRing(R1, 4);
+
+	"Case 1:";"";
+	q := b20*x^2*v^2+b11*x*y*u*v+b10*x*y*v^2+b02*y^2*u^2+b01*y^2*u*v+b00*y^2*v^2;
+	Mat := CoefficientMatrix(q);
+	Mat;"";
+	"q must be one of the following:";"";
+	I := Ideal(InvariantsHSOPW2(q));
+	Gb := RadicalDecomposition(I);
+	for bas in Gb do
+		Matrix([[NormalForm(Mat[i][j], bas) : j in [1..3]] : i in [1..3]]);"";
+	end for;"";"";"";
+
+	"Case 2::";"";
+	q := b20*x^2*v^2+x*y*u^2+b10*x*y*v^2+b01*y^2*u*v+b00*y^2*v^2;
+	Mat := CoefficientMatrix(q);
+	Mat;"";
+	"q must be one of the following:";"";
+	I := Ideal(InvariantsHSOPW2(q));
+	Gb := RadicalDecomposition(I);
+	for bas in Gb do
+		Matrix([[NormalForm(Mat[i][j], bas) : j in [1..3]] : i in [1..3]]);"";
+	end for;"";"";"";
+
+
+	"Case 3:";"";
+	q := x^2*u*v+b20*x^2*v^2+x*y*u^2+b10*x*y*v^2+b01*y^2*u*v+b00*y^2*v^2;
+	Mat := CoefficientMatrix(q);
+	Mat;"";
+	"q must be one of the following:";"";
+	I := Ideal(InvariantsHSOPW2(q));
+	Gb := RadicalDecomposition(I);
+	for bas in Gb do
+		Matrix([[NormalForm(Mat[i][j], bas) : j in [1..3]] : i in [1..3]]);"";
+	end for;"";"";"";
+
+	"In the first case, we do a suitable change of variables and get:";
+	q1 := R!(Evaluate(q, [x+b20*y, y, u-b20*v, v]));
+	Matrix_q1 := CoefficientMatrix(q1);
+	Matrix([[NormalForm(Matrix_q1[i][j], Gb[1]) : j in [1..3]] : i in [1..3]]);"";
+	return "Done!"
+end intrinsic;
+
 
 intrinsic ProofHsop() -> Str
 	{Does the proof of the HSOP theorem.}
@@ -237,8 +295,8 @@ intrinsic ProofLemma() -> Str
 	I := Ideal([inv2, M[1], M[2], M[3], MH[1][1], MH[2][1], MH[3][1], MH[1][2], MH[2][2], MH[3][2], MH[1][3], MH[2][3], MH[3][3]]);
 	f1 := R!(Evaluate(f0, [x+a31/2*y, y, u-a31/2*v, v]));
 	Gb := RadicalDecomposition(I);
-	Matrice_f1 := CoefficientMatrix(f1);
-	Matrix([[NormalForm(Matrice_f1[i][j], Gb[1]) : j in [1..4]] : i in [1..4]]);"";"";
+	Matrix_f1 := CoefficientMatrix(f1);
+	Matrix([[NormalForm(Matrix_f1[i][j], Gb[1]) : j in [1..4]] : i in [1..4]]);"";"";
 
 	return "Done!";
 end intrinsic;
