@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-intrinsic Transvectant(f::RngMPolElt, g::RngMPolElt, r::RngIntElt, s::RngIntElt : 
-    invariant := false) -> RngMPolElt
-
-
-=======
 Exported intrinsics
 --
 
