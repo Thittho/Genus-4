@@ -47,4 +47,4 @@ intrinsic ProofHsopW2() -> Str
 intrinsic ProofLemma() -> Str
 intrinsic CheckSecondaryInvariants(n::RngIntElt) -> SeqEnum, SeqEnum
 ```
->>>>>>> 17cfc1237a795d2814e7e88b29381dbba3e6cab5
+
