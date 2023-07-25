@@ -13,7 +13,7 @@ Installation
 
 You can enable the functionality of this package in Magma by attaching the Genus-4/magma/spec file with AttachSpec. To make this independent of the directory in which you find yourself, and to active this on startup by default, you may want to indicate the relative path in your ~/.magmarc file, by adding a line like
 ```
-AttachSpec("~/Programs/Genus-4/magma/spec");
+AttachSpec("~/Genus-4/magma/spec");
 ```
 
 Usage
@@ -21,8 +21,6 @@ Usage
 
 Examples that test the routines in this package can be found in the directory
 [`examples`](examples) (a full list of intrinsics is [here](intrinsics.md)).
-
-ADD VERBOSE
 
 Basic use of the package is as follows.
 
