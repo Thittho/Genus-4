@@ -68,8 +68,8 @@ function InvariantsHSOPW2(q);
 end function;
 
 intrinsic ProofHsopW2() -> Str
-	K := Rationals();
-	R1<b00, b01, b02, b10, b11, b12, b20, b21, b22> := PolynomialRing(K, [1 : i in [1..9]]);
+	{Does the proof of the theorem of section 4.4.1}
+	R1<b00, b01, b02, b10, b11, b12, b20, b21, b22> := PolynomialRing(Rationals(), [1 : i in [1..9]]);
 	R<x, y, u, v> := PolynomialRing(R1, 4);
 
 	"Case 1:";"";
@@ -110,12 +110,13 @@ intrinsic ProofHsopW2() -> Str
 	q1 := R!(Evaluate(q, [x+b20*y, y, u-b20*v, v]));
 	Matrix_q1 := CoefficientMatrix(q1);
 	Matrix([[NormalForm(Matrix_q1[i][j], Gb[1]) : j in [1..3]] : i in [1..3]]);"";
-	return "Done!"
+
+	return "Done!";
 end intrinsic;
 
 
 intrinsic ProofHsop() -> Str
-	{Does the proof of the HSOP theorem.}
+	{Does the proof of the HSOP theorem from section 4.5}
 	K := Rationals();
 	R1<a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33, X> := PolynomialRing(K, [1 : i in [1..17]]);
 	R<x, y, u, v> := PolynomialRing(R1, 4);
@@ -248,7 +249,7 @@ intrinsic ProofHsop() -> Str
 end intrinsic;
 
 intrinsic ProofLemma() -> Str
-	{Does the proof of the HSOP lemma.}
+	{Does the proof of the HSOP lemma from section 4.5}
 	K := Rationals();
 	R1<a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33, X> := PolynomialRing(K, [1 : i in [1..17]]);
 	R<x, y, u, v> := PolynomialRing(R1, 4);
