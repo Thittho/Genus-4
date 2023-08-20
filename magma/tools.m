@@ -25,7 +25,8 @@ intrinsic Transvectant(f::RngMPolElt, g::RngMPolElt, r::RngIntElt, s::RngIntElt 
 		n1 := Degree(Evaluate(f, [1, 2, P.3, P.4]));
 		m2 := Degree(Evaluate(g, [P.1, P.2, 1, 2]));
 		n2 := Degree(Evaluate(g, [1, 2, P.3, P.4]));
-		cfg := Factorial(m1-r)*Factorial(m2-r)*Factorial(n1-s)*Factorial(n2-s)/(Factorial(m1)*Factorial(m2)*Factorial(n1)*Factorial(n2));
+		//cfg := Factorial(m1-r)*Factorial(m2-r)*Factorial(n1-s)*Factorial(n2-s)/(Factorial(m1)*Factorial(m2)*Factorial(n1)*Factorial(n2));
+		cfg := 1;
 	else
 		cfg := 1;
 	end if;	
