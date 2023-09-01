@@ -17,6 +17,5 @@ time Wgt, J2 := InvariantsGenus4Curves(Quadric2, Cubic2 : normalize := true);
 
 
 /* Test hyperelliptic */
-C<X> := PolynomialRing(Rationals());   
+C<X> := PolynomialRing(Rationals());
 time Wgt, I := InvariantsGenus4HyperellipticCurves(X^10+5*X^8-7X+1);
-

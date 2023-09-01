@@ -56,7 +56,9 @@ function InvariantsHSOP(f, d)
 	J61 := Transvectant(C53H, f, 3, 3 : invariant := true);
 	J8H := Transvectant(CH, CH, 2, 2 : invariant := true);
 	J81 := Transvectant(C73H1, f, 3, 3 : invariant := true);
-	J101 := Transvectant(Transvectant(Transvectant(C71H, f, 1, 1), f, 1, 1), f, 3, 3 : invariant := true);
+	//J101 := Transvectant(Transvectant(Transvectant(C71H, f, 1, 1), f, 1, 1), f, 3, 3 : invariant := true);
+	//J81 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(f, f, 1, 1), f, 1, 1), f, 2, 2), f, 3, 3), C31H, 1, 1 : invariant := true);
+	J101 := Transvectant(f, C31H^3, 3, 3 : invariant := true);
 	J121 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C73H1, f, 1, 1), f, 2, 2), f, 0, 0), f, 3, 3), f, 3, 3 : invariant := true);
 	J141 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C62H2, f, 1, 1), f, 2, 2), f, 2, 2), f, 1, 1), f, 2, 2), H, 0, 0), f, 3, 3 : invariant := true);
 	return [J2, MH[1][1], MH[2][1], MH[3][1], MH[2][2], MH[d][2], J4, J61, J81, J101, J121, J141];
@@ -129,6 +131,7 @@ intrinsic ProofHsop() -> Str
 	Mat;"";
 	"f must be one of the following:";"";
 	I := Ideal(InvariantsHSOP(f0, 1));
+
 	Gb := RadicalDecomposition(I);
 	for bas in Gb do
 		Matrix([[NormalForm(Mat[i][j], bas) : j in [1..4]] : i in [1..4]]);"";

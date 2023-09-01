@@ -80,168 +80,192 @@ function CubicNewBasis(Q, C)
 	return ChangeOfBasis(C1, P);
 end function;
 
-function InvariantsGenus4CurvesRank4(f)
+function InvariantsGenus4CurvesRank4(f : normalize := false)
 	K := BaseRing(Parent(f));
-
-	// Covariants
-	// Degree 2
-	f2 := Transvectant(f, f, 0, 0);
+	
 	Jac := Transvectant(f, f, 1, 1);
 	H := Transvectant(f, f, 2, 2);
 
+	// Covariants
 	// Degree 3
-	C31 := Transvectant(Jac, f, 3, 3);
-	C33 := Transvectant(Jac, f, 2, 2);
-	C35 := Transvectant(Jac, f, 1, 1);
-	C37 := Transvectant(Jac, f, 0, 0);
+	c31 := Transvectant(H, f, 2, 2);
 
-	C31H := Transvectant(H, f, 2, 2);
-	C33H := Transvectant(H, f, 1, 1);
-	C35H := Transvectant(H, f, 0, 0);
-
-	f3 := Transvectant(f2, f, 0, 0);
-	C37f := Transvectant(f2, f, 1, 1);
-	C35f := Transvectant(f2, f, 2, 2);
-	C33f := Transvectant(f2, f, 3, 3);
+	c331 := Transvectant(Jac, f, 2, 2);
+	c332 := Transvectant(H, f, 1, 1);
 
 	// Degree 4
-	CH := Transvectant(H, H, 1, 1);
-	C42H := Transvectant(C31H, f, 1, 1);
-	C44H := Transvectant(C31H, f, 0, 0);
-	C44H1 := Transvectant(C33H, f, 1, 1);
-	C42H1 := Transvectant(C33H, f, 2, 2);
-	C42H2 := Transvectant(C35H, f, 3, 3);
-	C46H := Transvectant(C33H, f, 0, 0);
+	c421 := Transvectant(H, H, 1, 1);
+	c422 := Transvectant(c31, f, 1, 1);
+	c423 := Transvectant(c332, f, 2, 2);
 
-	C42 := Transvectant(C33, f, 2, 2);
-	C421 := Transvectant(C31, f, 1, 1);
-	C44 := Transvectant(C33, f, 1, 1);
-	C441 := Transvectant(C35, f, 2, 2);
-	C46 := Transvectant(f3, f, 3, 3);
-	C48 := Transvectant(f3, f, 2, 2);
-	C48f := Transvectant(C35f, f, 0, 0);
-	C46f := Transvectant(C37f, f, 2, 2);
-	C44f := Transvectant(C33f, f, 1, 1);
-	C44f2 := Transvectant(C37f, f, 3, 3);
-
-	f4 := Transvectant(f3, f, 0, 0);
+	c441 := Transvectant(c332, f, 1, 1);
+	c442 := Transvectant(Transvectant(Jac, f, 1, 1), f, 2, 2);
 
 	// Degree 5
-	C51H := Transvectant(C42H, f, 2, 2);
-	C53H := Transvectant(C42H, f, 1, 1);
-	C55H := Transvectant(C44H, f, 1, 1);
-	C53H1 := Transvectant(C42H1, f, 1, 1);
+	c511 := Transvectant(c422, f, 2, 2);
+	c512 := Transvectant(c441, f, 3, 3);
+	c513 := Transvectant(c442, f, 3, 3);
 
-	C55f := Transvectant(C46f, f, 2, 2);
-	C513f := Transvectant(f4, f, 1, 1);
-
-	C55 := Transvectant(C42H, f, 0, 0);
-	C551 := Transvectant(C42, f, 0, 0);
-
-	C57 := Transvectant(C441, f, 0, 0);
+	c531 := Transvectant(c422, f, 1, 1);
+	c532 := Transvectant(c423, f, 1, 1);
+	c533 := Transvectant(Transvectant(f^3, f, 3, 3), f, 3, 3);
 
 	// Degree 6
-	C62H := Transvectant(C53H, f, 2, 2);
-	C62H1 := Transvectant(C53H1, f, 2, 2);
-	C62H2 := Transvectant(C51H, f, 1, 1);
-	C66H := Transvectant(C55H, f, 1, 1);
+	c621 := Transvectant(c531, f, 2, 2);
+	c622 := Transvectant(c532, f, 2, 2);
+	c623 := Transvectant(c511, f, 1, 1);
 
 	// Degree 7
-	C71H := Transvectant(C62H, f, 2, 2);
-	C73H1 := Transvectant(C62H1, f, 1, 1);
-	C79H := Transvectant(C66H, f, 0, 0);
+	c711 := Transvectant(c621, f, 2, 2);
+	c712 := Transvectant(c511, Transvectant(f, f, 2, 2), 1, 1);
+	c713 := Transvectant(c512, Transvectant(f, f, 2, 2), 1, 1);
+    
+	c731 := Transvectant(c622, f, 1, 1);
+	c732 := Transvectant(c623, f, 1, 1);
+
+	// Degree 8 
+	c821 := Transvectant(c711, f, 1, 1);
+	c822 := Transvectant(c732, f, 2, 2);
+
+	c84 := Transvectant(c731, f, 1, 1);
+
+	// Degree 9
+	c91 := Transvectant(c822, f, 2, 2);
+	
+	c931 := Transvectant(c821, f, 1, 1);
+	c932 := Transvectant(c84, f, 2, 2);
+
+	// Degree 10
+	c102 := Transvectant(c91, f, 1, 1);
+
+	// Degree 11
+	c111 := Transvectant(c102, f, 2, 2);
+
+	c113 := Transvectant(c932*f, f, 3, 3);
 
 	// Invariants
 	// HSOP
-	J2 := Transvectant(f, f, 3, 3 : invariant :=  true);
-	J4H := Transvectant(H, H, 2, 2 : invariant :=  true);
-	J4 := Transvectant(C33, f, 3, 3 : invariant :=  true);	
-	J6H := Transvectant(H, CH, 2, 2 : invariant :=  true);
-	J61 := Transvectant(C53H, f, 3, 3 : invariant :=  true);
-	J8H := Transvectant(CH, CH, 2, 2 : invariant :=  true);
-	J81 := Transvectant(C73H1, f, 3, 3 : invariant :=  true);
-	J101 := Transvectant(Transvectant(Transvectant(C71H, f, 1, 1), f, 1, 1), f, 3, 3 : invariant :=  true);
-	J121 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C73H1, f, 1, 1), f, 2, 2), f, 0, 0), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J141 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C62H2, f, 1, 1), f, 2, 2), f, 2, 2), f, 1, 1), f, 2, 2), H, 0, 0), f, 3, 3 : invariant :=  true);
-	invHSOP := [K | J2, J4H, J4, J6H, J61, J8H, J81, J101, J121, J141];
+	I2 := Transvectant(f, f, 3, 3 : invariant := true);
+	I41 := Transvectant(H, H, 2, 2 : invariant := true);
+	I42 := Transvectant(c331, f, 3, 3 : invariant := true);	
+	I61 := Transvectant(H, c421, 2, 2 : invariant := true);
+	I62 := Transvectant(c533, f, 3, 3 : invariant :=  true);
+	I81 := Transvectant(c421, c421, 2, 2 : invariant := true);
+	I82 := Transvectant(c731, f, 3, 3 : invariant := true);
+	//I10 := Transvectant(c931, f, 3, 3 : invariant := true);
+	//I82 := Transvectant(c31, c513, 1, 1 : invariant := true);
+	I10 := Transvectant(f, c31^3, 3, 3 : invariant := true);
+	I12 := Transvectant(c113, f, 3, 3 : invariant := true);
+	I14 := Transvectant(c111*H, f, 3, 3 : invariant := true);
+	invHSOP := [K | I2,I41,I42,I61,I62,I81,I82,I10,I12,I14];
 
 	// Degree 6
-	J62 := Transvectant(Transvectant(Transvectant(f3, f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	inv6 := [K | J62];
+	j61 := Transvectant(c31, c31, 1, 1 : invariant := true);
+	inv6 := [K | j61];
 
 	// Degree 8
-	J82 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C35H, f, 2, 2), f, 0, 0), f, 2, 2), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J83 := Transvectant(Transvectant(C66H, f, 3, 3), f, 3, 3 : invariant :=  true);
-	inv8 := [K | J82, J83];
+	j81 := Transvectant(c31, c511, 1, 1 : invariant := true);
+	j82 := Transvectant(c31, c512, 1, 1 : invariant := true);
+    //J84 := Transvectant(c31, c513, 1, 1 : invariant := true);
+	inv8 := [K | j81,j82];
 	
 	// Degree 10
-	J102 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C42H2, f, 0, 0), f, 0, 0), f, 2, 2), f, 3, 3), f, 2, 2), f, 3, 3 : invariant :=  true);
-	J103 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C48f, f, 2, 2), f, 1, 1), f, 1, 1), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J104 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C48f, f, 3, 3), f, 2, 2), f, 3, 3), f, 1, 1), f, 1, 1), f, 3, 3 : invariant :=  true);
-	J105 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C35, f, 1, 1), f, 3, 3), f, 0, 0), f, 0, 0), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J106 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44H1, f, 3, 3), f, 0, 0), f, 1, 1), f, 2, 2), f, 2, 2), f, 3, 3 : invariant :=  true);
-	J107 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C42H2, f, 1, 1), f, 2, 2), f, 2, 2), f, 0, 0), f, 2, 2), f, 3, 3 : invariant :=  true);
-	inv10 := [K | J102, J103, J104, J105, J106, J107];
+	j101 := Transvectant(c511, c511, 1, 1 : invariant := true);
+    j102 := Transvectant(c511, c512, 1, 1 : invariant := true);
+    j103 := Transvectant(c511, c513, 1, 1 : invariant := true);
+    j104 := Transvectant(c512, c512, 1, 1 : invariant := true);
+    j105 := Transvectant(c512, c513, 1, 1 : invariant := true);
+    j106 := Transvectant(c513, c513, 1, 1 : invariant := true);
+    //J108 := Transvectant(f, c31^3, 3, 3 : invariant := true);
+    //J109 := Transvectant(c711, c31, 1, 1 : invariant := true);
+    //J1010 := Transvectant(c712, c31, 1, 1 : invariant := true);
+	inv10 := [K | j101,j102,j103,j104,j105,j106];
 
-	// Degree 12
-	J122 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44f, f, 3, 3), f, 0, 0), f, 3, 3), f, 0, 0), f, 1, 1), f, 2, 2), f, 2, 2), f, 3, 3 : invariant :=  true); 
-	J123 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C37f, f, 1, 1), f, 2, 2), f, 2, 2), f, 0, 0), f, 1, 1), f, 3, 3), f, 3, 3), f, 2, 2), f, 3, 3 : invariant :=  true); 
-	J124 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C55f, f, 3, 3), f, 1, 1), f, 0, 0), f, 3, 3), f, 1, 1), f, 2, 2), f, 3, 3 : invariant :=  true);
-	J125 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C513f, f, 3, 3), f, 2, 2), f, 1, 1), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J126 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44, f, 3, 3), f, 1, 1), f, 0, 0), f, 1, 1), f, 2, 2), f, 1, 1), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J127 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44f, f, 0, 0), f, 1, 1), f, 1, 1), f, 2, 2), f, 1, 1), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J128 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(f4, f, 2, 2), f, 2, 2), f, 1, 1), f, 1, 1), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J129 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C48f, f, 0, 0), f, 3, 3), f, 2, 2), f, 2, 2), f, 3, 3), f, 0, 0), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J1210 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C79H, f, 1, 1), f, 3, 3), f, 3, 3), f, 2, 2), f, 3, 3);
-	inv12 := [K | J122, J123, J124, J125, J126, J127, J128, J129, J1210];
+	// Degree 12	
+    j121 := Transvectant(c711, c511, 1, 1 : invariant := true);
+    j122 := Transvectant(c711, c512, 1, 1 : invariant := true);
+    j123 := Transvectant(c711, c513, 1, 1 : invariant := true);
+    j124 := Transvectant(c712, c511, 1, 1 : invariant := true);
+    j125 := Transvectant(c712, c512, 1, 1 : invariant := true);
+    j126 := Transvectant(c712, c513, 1, 1 : invariant := true);
+    j127 := Transvectant(f, c511*c31^2, 3, 3 : invariant := true);
+    j128 := Transvectant(f, c512*c31^2, 3, 3 : invariant := true);
+    j129 := Transvectant(f, c513*c31^2, 3, 3 : invariant := true);
+	inv12 := [K | j121,j122,j123,j124,j125,j126,j127,j128,j129];
 
 	// Degree 14
-	J142 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44H1, f, 0, 0), f, 2, 2), f, 0, 0), f, 2, 2), f, 0, 0), f, 2, 2), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J143 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C48, f, 1, 1), f, 2, 2), f, 1, 1), f, 0, 0), f, 2, 2), f, 2, 2), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J144 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44H, f, 0, 0), f, 3, 3), f, 2, 2), f, 2, 2), f, 2, 2), f, 0, 0), f, 0, 0), f, 2, 2), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J145 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C35, f, 3, 3), f, 2, 2), f, 0, 0), f, 1, 1), f, 1, 1), f, 3, 3), f, 0, 0), f, 1, 1), f, 3, 3), f, 2, 2), f, 3, 3 : invariant :=  true);
-	J146 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44f2, f, 1, 1), f, 2, 2), f, 0, 0), f, 3, 3), f, 0, 0), f, 3, 3), f, 3, 3), f, 0, 0), f, 2, 2), f, 3, 3 : invariant :=  true);
-	J147 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44, f, 1, 1), f, 1, 1), f, 0, 0), f, 1, 1), f, 1, 1), f, 2, 2), f, 3, 3), f, 3, 3), f, 2, 2), f, 3, 3 : invariant :=  true);
-	J148 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44f2, f, 3, 3), f, 1, 1), f, 0, 0), f, 1, 1), f, 0, 0), f, 1, 1), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J149 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C35f, f, 1, 1), f, 0, 0), f, 0, 0), f, 2, 2), f, 3, 3), f, 2, 2), f, 3, 3), f, 1, 1), f, 1, 1), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J1410 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C37, f, 0, 0), f, 3, 3), f, 2, 2), f, 0, 0), f, 2, 2), f, 0, 0), f, 1, 1), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J1411 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C513f, f, 0, 0), f, 1, 1), f, 2, 2), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J1412 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C55, f, 2, 2), f, 3, 3), f, 1, 1), f, 0, 0), f, 0, 0), f, 3, 3), f, 1, 1), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J1413 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C33f, f, 0, 0), f, 0, 0), f, 3, 3), f, 0, 0), f, 1, 1), f, 2, 2), f, 3, 3), f, 2, 2), f, 2, 2), f, 2, 2), f, 3, 3 : invariant :=  true);
-	inv14 := [K | J142, J143, J144, J145, J146, J147, J148, J149, J1410, J1411, J1412, J1413];
+	j141 := Transvectant(c711, c711, 1, 1 : invariant := true);
+    j142 := Transvectant(c711, c712, 1, 1 : invariant := true);
+	j143 := Transvectant(c711, c713, 1, 1 : invariant := true);
+    j144 := Transvectant(c712, c713, 1, 1 : invariant := true);
+	j145 := Transvectant(c713, c713, 1, 1 : invariant := true);
+    //j144 := Transvectant(c712, c712, 1, 1 : invariant := true);
+    j146 := Transvectant(f, c511*c511*c31, 3, 3 : invariant := true);
+    j147 := Transvectant(f, c511*c512*c31, 3, 3 : invariant := true);
+    j148 := Transvectant(f, c511*c513*c31, 3, 3 : invariant := true);
+    j149 := Transvectant(f, c512*c512*c31, 3, 3 : invariant := true);
+    j1410 := Transvectant(f, c512*c513*c31, 3, 3 : invariant := true);
+    j1411 := Transvectant(f, c513*c513*c31, 3, 3 : invariant := true);
+    j1412 := Transvectant(f, c711*c31*c31, 3, 3 : invariant := true);
+    //j1413 := Transvectant(f, c712*c31*c31, 3, 3 : invariant := true);
+	inv14 := [K | j141,j142,j143,j144,j145,j146,j147,j148,j149,j1410,j1411,j1412];
 
 	// Degree 16
-	J161 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C551, f, 1, 1), f, 2, 2), f, 2, 2), f, 0, 0), f, 1, 1), f, 0, 0), f, 3, 3), f, 3, 3), f, 2, 2), f, 2, 2), f, 3, 3 : invariant :=  true);
-	J162 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44f2, f, 0, 0), f, 3, 3), f, 1, 1), f, 1, 1), f, 1,1), f, 1, 1), f, 2, 2), f, 1, 1), f, 3, 3), f, 2, 2), f, 2, 2), f, 3, 3 : invariant :=  true);
-	J163 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C55, f, 0, 0), f, 1, 1), f, 0, 0), f, 2, 2), f, 2, 2), f, 0, 0), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J164 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C46H, f, 1, 1), f, 3, 3), f, 2, 2), f, 2, 2), f, 0,0), f, 2, 2), f, 3, 3), f, 0, 0), f, 0, 0), f, 3, 3), f, 2, 2), f, 3, 3 : invariant :=  true);
-	J165 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44H, f, 3, 3), f, 1, 1), f, 1, 1), f, 0, 0), f, 2,2), f, 2, 2), f, 3, 3), f, 1, 1), f, 0, 0), f, 2, 2), f, 2, 2), f, 3, 3 : invariant :=  true);
-	J166 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44H, f, 2, 2), f, 1, 1), f, 3, 3), f, 0, 0), f, 3,3), f, 1, 1), f, 0, 0), f, 0, 0), f, 1, 1), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J167 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C35, f, 0, 0), f, 3, 3), f, 1, 1), f,1, 1), f, 2, 2), f, 3, 3), f, 2, 2), f, 2, 2), f, 0, 0), f, 3, 3), f, 0, 0), f, 2, 2), f, 3, 3 : invariant :=  true);
-	J168 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C33, f, 0, 0), f, 0, 0), f, 0, 0), f,0, 0), f, 2, 2), f, 1, 1), f, 0, 0), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J169 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C441, f, 1, 1), f, 1, 1), f, 0, 0), f, 3, 3), f, 1,1), f, 0, 0), f, 1, 1), f, 2, 2), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J1610 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C44H1, f, 2, 2), f, 1, 1), f, 1, 1), f, 1, 1), f, 1,1), f, 3, 3), f, 1, 1), f, 0, 0), f, 3, 3), f, 2, 2), f, 2, 2), f, 3, 3 : invariant :=  true);
-	J1611 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C37f, f, 0, 0), f, 0, 0), f, 1, 1), f,0, 0), f, 2, 2), f, 2, 2), f, 2, 2), f, 1, 1), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J1612 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C57, f, 1, 1), f, 3, 3), f, 1, 1), f, 1, 1), f, 1, 1), f, 3, 3), f, 1, 1), f, 0, 0), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J1613 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C421, f, 0, 0), f, 1, 1), f, 0, 0), f, 0, 0), f, 2,2), f, 3, 3), f, 1, 1), f, 0, 0), f, 3, 3), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J1614 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C62H2, f, 0, 0), f, 1, 1), f, 2, 2), f, 2, 2), f, 1, 1), f, 3, 3), f, 2, 2), f, 1, 1), f, 1, 1), f, 3, 3 : invariant :=  true);
-	inv16 := [K | J161, J162, J163, J164, J165, J166, J167, J168, J169, J1610, J1611, J1612, J1613, J1614];
+	j161 := Transvectant(f, c711*c511*c31, 3, 3 : invariant := true);
+    j162 := Transvectant(f, c711*c512*c31, 3, 3 : invariant := true);
+    j163 := Transvectant(f, c711*c513*c31, 3, 3 : invariant := true);
+    j164 := Transvectant(f, c712*c511*c31, 3, 3 : invariant := true);
+    j165 := Transvectant(f, c511*c511*c511, 3, 3 : invariant := true);
+    j166 := Transvectant(f, c511*c511*c512, 3, 3 : invariant := true);
+    j167 := Transvectant(f, c511*c511*c513, 3, 3 : invariant := true);
+    j168 := Transvectant(f, c511*c512*c512, 3, 3 : invariant := true);
+    j169 := Transvectant(f, c511*c512*c513, 3, 3 : invariant := true);
+    j1610 := Transvectant(f, c511*c513*c513, 3, 3 : invariant := true);
+    j1611 := Transvectant(f, c512*c512*c512, 3, 3 : invariant := true);
+    j1612 := Transvectant(f, c512*c512*c513, 3, 3 : invariant := true);
+    j1613 := Transvectant(f, c512*c513*c513, 3, 3 : invariant := true);
+    j1614 := Transvectant(f, c513*c513*c513, 3, 3 : invariant := true);
+	//j1616 := Transvectant(f, c712*c512*c31, 3, 3 : invariant := true);
+    //j1617 := Transvectant(f, c712*c513*c31, 3, 3 : invariant := true);
+	//j1618 := Transvectant(f, c713*c511*c31, 3, 3 : invariant := true);
+    //j1619 := Transvectant(f, c713*c512*c31, 3, 3 : invariant := true);
+    //j1620 := Transvectant(f, c713*c513*c31, 3, 3 : invariant := true);
+    inv16 := [K | j161,j162,j163,j164,j165,j166,j167,j168,j169,j1610,j1611,j1612,j1613,j1614];
 
+   
 	// Degree 18
-	J181 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C71H, f, 0, 0), f, 0, 0), f, 0, 0), f, 2, 2), f, 3, 3), f, 0, 0), f, 3, 3), f, 1, 1), f, 3, 3), f, 2, 2), f, 3, 3 : invariant :=  true);
-	J182 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C55f, f, 0, 0), f, 0, 0), f, 0, 0), f,0, 0), f, 3, 3), f, 0, 0), f, 3, 3), f, 3, 3), f, 2, 2), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J183 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C79H, f, 3, 3), f, 1, 1), f, 1, 1), f, 1, 1), f, 1, 1), f, 2, 2), f, 1, 1), f, 2, 2), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J184 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(f3, f, 1, 1), f, 2, 2), f, 3, 3), f, 1, 1), f, 3, 3), f, 1, 1), f, 0, 0), f, 1, 1), f, 3, 3), f, 2, 2), f, 1, 1), f, 0, 0), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J185 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C57, f, 0, 0), f, 2, 2), f, 1, 1), f,2, 2), f, 3, 3), f, 1, 1), f, 3, 3), f, 3, 3), f, 0, 0), f, 0, 0), f, 2, 2), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J186 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C46H, f, 2, 2), f, 0, 0),f, 1, 1), f, 3, 3), f, 0, 0), f, 1, 1), f, 2, 2), f, 3, 3), f, 2, 2), f, 2, 2), f, 1, 1), f, 3, 3), f, 1, 1), f, 3, 3 : invariant :=  true);
-	J187 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C551, f, 0, 0), f, 0, 0), f, 2, 2), f,2, 2), f, 2, 2), f, 3, 3), f, 1, 1), f, 0, 0), f, 1, 1), f, 3, 3), f, 2, 2), f, 3, 3), f, 3, 3 : invariant :=  true);
-	J188 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C31, f, 0, 0), f, 0, 0), f, 1, 1), f, 1, 1), f, 0, 0), f, 3, 3), f, 2, 2), f, 3, 3), f, 2, 2), f, 3, 3), f, 1, 1), f, 2, 2), f, 1, 1), f, 1, 1), f, 3, 3 : invariant :=  true);
-	J189 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C35H, f, 2, 2), f, 2, 2), f, 0, 0), f, 2, 2), f, 3, 3), f, 1, 1), f, 0, 0), f, 3, 3), f, 2, 2), f, 0, 0), f, 2, 2), f, 3, 3), f, 0, 0), f, 2, 2), f, 3, 3 : invariant :=  true);
-	J1810 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C421, f, 0, 0), f, 2, 2),f, 1, 1), f, 1, 1), f, 1, 1), f, 1, 1), f, 2, 2), f, 2, 2), f, 3, 3), f, 1, 1), f, 0, 0), f, 3, 3), f, 2, 2), f, 3, 3 : invariant :=  true);
-	J1811 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(C48, f, 0, 0), f, 0, 0),f, 3, 3), f, 0, 0), f, 1, 1), f, 3, 3), f, 3, 3), f, 1, 1), f, 1, 1), f, 3, 3), f, 1, 1), f, 3, 3), f, 3, 3), f, 3, 3 : invariant :=  true);
-	inv18 := [K | J181, J182, J183, J184, J185, J186, J187, J188, J189, J1810, J1811];
+	j181 := Transvectant(f, c711*c711*c31, 3, 3 : invariant := true);
+	j182 := Transvectant(f, c711*c511*c511, 3, 3 : invariant := true);
+	j183 := Transvectant(f, c711*c511*c512, 3, 3 : invariant := true);
+	j184 := Transvectant(f, c711*c511*c513, 3, 3 : invariant := true);
+	j185 := Transvectant(f, c711*c512*c512, 3, 3 : invariant := true);
+    j186 := Transvectant(f, c711*c512*c513, 3, 3 : invariant := true);
+	j187 := Transvectant(f, c711*c513*c513, 3, 3 : invariant := true);
+	j188 := Transvectant(f, c711*c712*c31, 3, 3 : invariant := true);
+	j189 := Transvectant(f, c712*c712*c31, 3, 3 : invariant := true);
+	//j1810 := Transvectant(f, c712*c511*c511, 3, 3 : invariant := true);
+	j1810 := Transvectant(f, c712*c511*c512, 3, 3 : invariant := true);
+	//j1812 := Transvectant(f, c712*c511*c513, 3, 3 : invariant := true);
+	j1811 := Transvectant(f, c712*c512*c512, 3, 3 : invariant := true);
+    //j1814 := Transvectant(f, c712*c512*c513, 3, 3 : invariant := true);
+	//j1815 := Transvectant(f, c712*c513*c513, 3, 3 : invariant := true);
+	//j1816 := Transvectant(f, c713*c711*c31, 3, 3 : invariant := true);
+	//j1817 := Transvectant(f, c713*c712*c31, 3, 3 : invariant := true);
+	//j1818 := Transvectant(f, c713*c713*c31, 3, 3 : invariant := true);
+	//j1819 := Transvectant(f, c713*c511*c511, 3, 3 : invariant := true);
+	//j1820 := Transvectant(f, c713*c511*c512, 3, 3 : invariant := true);
+	//j1821 := Transvectant(f, c713*c512*c512, 3, 3 : invariant := true);
+	//j1822 := Transvectant(f, c713*c512*c513, 3, 3 : invariant := true);
+	//j1823 := Transvectant(f, c713*c513*c513, 3, 3 : invariant := true);
+	inv18 := [K | j181,j182,j183,j184,j185,j186,j187,j188,j189,j1810,j1811];
 
-	return invHSOP cat inv6 cat inv8 cat inv10 cat inv12 cat inv14 cat inv16 cat inv18, [2,4,4,6,6,8,8,10,12,14,6,8,8,10,10,10,10,10,10,12,12,12,12,12,12,12,12,12,14,14,14,14,14,14,14,14,14,14,14,14,16,16,16,16,16,16,16,16,16,16,16,16,16,16,18,18,18,18,18,18,18,18,18,18,18];
+	Wgt := [2,4,4,6,6,8,8,10,12,14,6,8,8,10,10,10,10,10,10,12,12,12,12,12,12,12,12,12,14,14,14,14,14,14,14,14,14,14,14,14,16,16,16,16,16,16,16,16,16,16,16,16,16,16,18,18,18,18,18,18,18,18,18,18,18];
+	Inv := invHSOP cat inv6 cat inv8 cat inv10 cat inv12 cat inv14 cat inv16 cat inv18;
+	if normalize then
+		return WPSNormalize(Wgt, Inv), Wgt;
+	end if;
+
+	return Inv, Wgt;
 end function;
 
 
