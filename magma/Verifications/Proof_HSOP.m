@@ -117,10 +117,10 @@ intrinsic ProofHsopW2() -> Str
 end intrinsic;
 
 
-intrinsic ProofHsop() -> Str
-	{Does the proof of the HSOP theorem from section 4.5}
+function ProofHsop()
+	//Proves the HSOP theorem from section 4.5
 	K := Rationals();
-	R1<a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33, X> := PolynomialRing(K, [1 : i in [1..17]]);
+	R1<a30, a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a31, a32, a33, X> := PolynomialRing(K, [1 : i in [1..17]]);
 	R<x, y, u, v> := PolynomialRing(R1, 4);
 
 
@@ -213,7 +213,7 @@ intrinsic ProofHsop() -> Str
 	I := Ideal(InvariantsHSOP(f0, 3) cat [MH[1][2]*X-1]);
 	"a30 vanishes:", IsInRadical(a30, I);"";"";"";
 
-	"Case 3 for f, with the assumption a21 = 1 (always possible if a21 doest not vanish):";"";
+	"Case 3 for f, with the assumption a21 = 1 (always possible if a21 does not vanish):";"";
 	f0 := x^3*u^2*v+a31*x^3*u*v^2+a30*x^3*v^3+x^2*y*u*v^2+a20*x^2*y*v^3+a13*x*y^2*u^3+a12*x*y^2*u^2*v+a11*x*y^2*u*v^2+a10*x*y^2*v^3+a03*y^3*u^3+a02*y^3*u^2*v+a01*y^3*u*v^2+a00*y^3*v^3;
 	CoefficientMatrix(f0);"";
 	MH := CoefficientMatrix(Transvectant(f0, f0, 2, 2));
@@ -249,10 +249,10 @@ intrinsic ProofHsop() -> Str
 	"a30 vanishes:", IsInRadical(a30, I);"";"";
 	
 	return "Done!";	
-end intrinsic;
+end function;
 
-intrinsic ProofLemma() -> Str
-	{Does the proof of the HSOP lemma from section 4.5}
+function ProofLemma() 
+	// Proves the HSOP lemma from section 4.5
 	K := Rationals();
 	R1<a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33, X> := PolynomialRing(K, [1 : i in [1..17]]);
 	R<x, y, u, v> := PolynomialRing(R1, 4);
@@ -303,4 +303,4 @@ intrinsic ProofLemma() -> Str
 	Matrix([[NormalForm(Matrix_f1[i][j], Gb[1]) : j in [1..4]] : i in [1..4]]);"";"";
 
 	return "Done!";
-end intrinsic;
+end function;

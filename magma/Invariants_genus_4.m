@@ -31,7 +31,8 @@ function NewBasis(Q)
 
 		M2 := KMatrixSpace(S,4,4);
 		P := ChangeRing(P, S);
-		P_fin := (M2![1/(2*D[1][1]),0,0,1/(2*D[1][1]*Sqrt(S!L[1])),0,-1/(2*D[2][2]),-1/(2*D[2][2]*Sqrt(S!L[2])),0,0,1/2,-1/(2*Sqrt(S!L[2])),0,1/2,0,0,-1/(2*Sqrt(S!L[1]))])*P;
+		P_fin := (M2![S!1/(2*D[1][1]),0,0,S!1/(2*D[1][1]*Sqrt(S!L[1])),0,S!-1/(2*D[2][2]),S!-1/(2*D[2][2]*Sqrt(S!L[2])),0,0,S!1/2,S!-1/(2*Sqrt(S!L[2])),0,S!1/2,0,0,S!-1/(2*Sqrt(S!L[1]))])*P;
+		
 		return P_fin, 4;
 
 	else
@@ -57,7 +58,7 @@ function NewBasis(Q)
 		
 		M2 := KMatrixSpace(S,4,4);
 		P := ChangeRing(P, S);
-		P_fin := (M2![1/(2*D[1][1]),0,1/(2*D[1][1]*Sqrt(S!L[1])),0,0,1/(Sqrt(S!L[2])),0,0,1/2,0,-1/(2*Sqrt(S!L[1])),0,0,0,0,1])*P;
+		P_fin := (M2![S!1/(2*D[1][1]),0,S!1/(2*D[1][1]*Sqrt(S!L[1])),0,0,S!1/(Sqrt(S!L[2])),0,0,S!1/2,0,S!-1/(2*Sqrt(S!L[1])),0,0,0,0,S!1])*P;
 		return P_fin, 3;
 	end if;
 end function;
@@ -83,12 +84,15 @@ end function;
 function InvariantsGenus4CurvesRank4(f : normalize := false)
 	K := BaseRing(Parent(f));
 	
+    GCD_hsop := [288, 12288, 746496, 12582912, 1741425868800, 19327352832, 764411904, 144, 570630428688384, 4076863488];
+	GCD_others := [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 144, 144, 144, 1, 1, 1, 1, 1, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144 ];
+
 	Jac := Transvectant(f, f, 1, 1);
 	H := Transvectant(f, f, 2, 2);
 
 	// Covariants
 	// Degree 3
-	c31 := Transvectant(H, f, 2, 2);
+	c31 := ExactQuotient(Transvectant(H, f, 2, 2), 1536);
 
 	c331 := Transvectant(Jac, f, 2, 2);
 	c332 := Transvectant(H, f, 1, 1);
@@ -102,9 +106,9 @@ function InvariantsGenus4CurvesRank4(f : normalize := false)
 	c442 := Transvectant(Transvectant(Jac, f, 1, 1), f, 2, 2);
 
 	// Degree 5
-	c511 := Transvectant(c422, f, 2, 2);
-	c512 := Transvectant(c441, f, 3, 3);
-	c513 := Transvectant(c442, f, 3, 3);
+	c511 := ExactQuotient(Transvectant(c422, f, 2, 2), 144);
+	c512 := ExactQuotient(Transvectant(c441, f, 3, 3), 995328);
+	c513 := ExactQuotient(Transvectant(c442, f, 3, 3), 1492992);
 
 	c531 := Transvectant(c422, f, 1, 1);
 	c532 := Transvectant(c423, f, 1, 1);
@@ -116,9 +120,9 @@ function InvariantsGenus4CurvesRank4(f : normalize := false)
 	c623 := Transvectant(c511, f, 1, 1);
 
 	// Degree 7
-	c711 := Transvectant(c621, f, 2, 2);
-	c712 := Transvectant(c511, Transvectant(f, f, 2, 2), 1, 1);
-	c713 := Transvectant(c512, Transvectant(f, f, 2, 2), 1, 1);
+	c711 := ExactQuotient(Transvectant(c621, f, 2, 2), 9216);
+	c712 := ExactQuotient(Transvectant(c511, Transvectant(f, f, 2, 2), 1, 1), 32);
+	c713 := ExactQuotient(Transvectant(c512, Transvectant(f, f, 2, 2), 1, 1), 96);
     
 	c731 := Transvectant(c622, f, 1, 1);
 	c732 := Transvectant(c623, f, 1, 1);
@@ -145,122 +149,105 @@ function InvariantsGenus4CurvesRank4(f : normalize := false)
 
 	// Invariants
 	// HSOP
-	I2 := Transvectant(f, f, 3, 3 : invariant := true);
-	I41 := Transvectant(H, H, 2, 2 : invariant := true);
-	I42 := Transvectant(c331, f, 3, 3 : invariant := true);	
-	I61 := Transvectant(H, c421, 2, 2 : invariant := true);
-	I62 := Transvectant(c533, f, 3, 3 : invariant :=  true);
-	I81 := Transvectant(c421, c421, 2, 2 : invariant := true);
-	I82 := Transvectant(c731, f, 3, 3 : invariant := true);
-	//I10 := Transvectant(c931, f, 3, 3 : invariant := true);
-	//I82 := Transvectant(c31, c513, 1, 1 : invariant := true);
-	I10 := Transvectant(f, c31^3, 3, 3 : invariant := true);
-	I12 := Transvectant(c113, f, 3, 3 : invariant := true);
-	I14 := Transvectant(c111*H, f, 3, 3 : invariant := true);
+	I2 := Transvectant(f, f, 3, 3 : invariant := true);//288
+	I41 := Transvectant(H, H, 2, 2 : invariant := true);//12288
+	I42 := Transvectant(c331, f, 3, 3 : invariant := true);//746496
+	I61 := Transvectant(H, c421, 2, 2 : invariant := true);//12582912
+	I62 := Transvectant(c533, f, 3, 3 : invariant :=  true);//1741425868800
+	I81 := Transvectant(c421, c421, 2, 2 : invariant := true);//19327352832
+	I82 := Transvectant(c731, f, 3, 3 : invariant := true);//764411904
+	I10 := Transvectant(f, c31^3, 3, 3 : invariant := true);//432
+	I12 := Transvectant(c113, f, 3, 3 : invariant := true);//570630428688384
+	I14 := Transvectant(c111*H, f, 3, 3 : invariant := true);//4076863488
 	invHSOP := [K | I2,I41,I42,I61,I62,I81,I82,I10,I12,I14];
 
 	// Degree 6
-	j61 := Transvectant(c31, c31, 1, 1 : invariant := true);
+	j61 := Transvectant(c31, c31, 1, 1 : invariant := true);//2
 	inv6 := [K | j61];
 
 	// Degree 8
-	j81 := Transvectant(c31, c511, 1, 1 : invariant := true);
-	j82 := Transvectant(c31, c512, 1, 1 : invariant := true);
-    //J84 := Transvectant(c31, c513, 1, 1 : invariant := true);
+	j81 := Transvectant(c31, c511, 1, 1 : invariant := true);//2
+	j82 := Transvectant(c31, c512, 1, 1 : invariant := true);//2
 	inv8 := [K | j81,j82];
 	
 	// Degree 10
-	j101 := Transvectant(c511, c511, 1, 1 : invariant := true);
-    j102 := Transvectant(c511, c512, 1, 1 : invariant := true);
-    j103 := Transvectant(c511, c513, 1, 1 : invariant := true);
-    j104 := Transvectant(c512, c512, 1, 1 : invariant := true);
-    j105 := Transvectant(c512, c513, 1, 1 : invariant := true);
-    j106 := Transvectant(c513, c513, 1, 1 : invariant := true);
-    //J108 := Transvectant(f, c31^3, 3, 3 : invariant := true);
-    //J109 := Transvectant(c711, c31, 1, 1 : invariant := true);
-    //J1010 := Transvectant(c712, c31, 1, 1 : invariant := true);
+	j101 := Transvectant(c511, c511, 1, 1 : invariant := true);//2
+    j102 := Transvectant(c511, c512, 1, 1 : invariant := true);//2
+    j103 := Transvectant(c511, c513, 1, 1 : invariant := true);//2
+    j104 := Transvectant(c512, c512, 1, 1 : invariant := true);//2
+    j105 := Transvectant(c512, c513, 1, 1 : invariant := true);//2
+    j106 := Transvectant(c513, c513, 1, 1 : invariant := true);//2
 	inv10 := [K | j101,j102,j103,j104,j105,j106];
 
 	// Degree 12	
-    j121 := Transvectant(c711, c511, 1, 1 : invariant := true);
-    j122 := Transvectant(c711, c512, 1, 1 : invariant := true);
-    j123 := Transvectant(c711, c513, 1, 1 : invariant := true);
-    j124 := Transvectant(c712, c511, 1, 1 : invariant := true);
-    j125 := Transvectant(c712, c512, 1, 1 : invariant := true);
-    j126 := Transvectant(c712, c513, 1, 1 : invariant := true);
-    j127 := Transvectant(f, c511*c31^2, 3, 3 : invariant := true);
-    j128 := Transvectant(f, c512*c31^2, 3, 3 : invariant := true);
-    j129 := Transvectant(f, c513*c31^2, 3, 3 : invariant := true);
+    j121 := Transvectant(c711, c511, 1, 1 : invariant := true);//1
+    j122 := Transvectant(c711, c512, 1, 1 : invariant := true);//2
+    j123 := Transvectant(c711, c513, 1, 1 : invariant := true);//1
+    j124 := Transvectant(c712, c511, 1, 1 : invariant := true);//2
+    j125 := Transvectant(c712, c512, 1, 1 : invariant := true);//6
+    j126 := Transvectant(c712, c513, 1, 1 : invariant := true);//2
+    j127 := Transvectant(f, c511*c31^2, 3, 3 : invariant := true);//432
+    j128 := Transvectant(f, c512*c31^2, 3, 3 : invariant := true);//432
+    j129 := Transvectant(f, c513*c31^2, 3, 3 : invariant := true);//432
 	inv12 := [K | j121,j122,j123,j124,j125,j126,j127,j128,j129];
 
 	// Degree 14
-	j141 := Transvectant(c711, c711, 1, 1 : invariant := true);
-    j142 := Transvectant(c711, c712, 1, 1 : invariant := true);
-	j143 := Transvectant(c711, c713, 1, 1 : invariant := true);
-    j144 := Transvectant(c712, c713, 1, 1 : invariant := true);
-	j145 := Transvectant(c713, c713, 1, 1 : invariant := true);
-    //j144 := Transvectant(c712, c712, 1, 1 : invariant := true);
-    j146 := Transvectant(f, c511*c511*c31, 3, 3 : invariant := true);
-    j147 := Transvectant(f, c511*c512*c31, 3, 3 : invariant := true);
-    j148 := Transvectant(f, c511*c513*c31, 3, 3 : invariant := true);
-    j149 := Transvectant(f, c512*c512*c31, 3, 3 : invariant := true);
-    j1410 := Transvectant(f, c512*c513*c31, 3, 3 : invariant := true);
-    j1411 := Transvectant(f, c513*c513*c31, 3, 3 : invariant := true);
-    j1412 := Transvectant(f, c711*c31*c31, 3, 3 : invariant := true);
-    //j1413 := Transvectant(f, c712*c31*c31, 3, 3 : invariant := true);
+	j141 := Transvectant(c711, c711, 1, 1 : invariant := true);//2
+    j142 := Transvectant(c711, c712, 1, 1 : invariant := true);//1
+	j143 := Transvectant(c711, c713, 1, 1 : invariant := true);//2
+    j144 := Transvectant(c712, c713, 1, 1 : invariant := true);//2
+	j145 := Transvectant(c713, c713, 1, 1 : invariant := true);//2
+    j146 := Transvectant(f, c511*c511*c31, 3, 3 : invariant := true);//144
+    j147 := Transvectant(f, c511*c512*c31, 3, 3 : invariant := true);//432
+    j148 := Transvectant(f, c511*c513*c31, 3, 3 : invariant := true);//144
+    j149 := Transvectant(f, c512*c512*c31, 3, 3 : invariant := true);//432
+    j1410 := Transvectant(f, c512*c513*c31, 3, 3 : invariant := true);//432
+    j1411 := Transvectant(f, c513*c513*c31, 3, 3 : invariant := true);//144
+    j1412 := Transvectant(f, c711*c31*c31, 3, 3 : invariant := true);//432
 	inv14 := [K | j141,j142,j143,j144,j145,j146,j147,j148,j149,j1410,j1411,j1412];
 
 	// Degree 16
-	j161 := Transvectant(f, c711*c511*c31, 3, 3 : invariant := true);
-    j162 := Transvectant(f, c711*c512*c31, 3, 3 : invariant := true);
-    j163 := Transvectant(f, c711*c513*c31, 3, 3 : invariant := true);
-    j164 := Transvectant(f, c712*c511*c31, 3, 3 : invariant := true);
-    j165 := Transvectant(f, c511*c511*c511, 3, 3 : invariant := true);
-    j166 := Transvectant(f, c511*c511*c512, 3, 3 : invariant := true);
-    j167 := Transvectant(f, c511*c511*c513, 3, 3 : invariant := true);
-    j168 := Transvectant(f, c511*c512*c512, 3, 3 : invariant := true);
-    j169 := Transvectant(f, c511*c512*c513, 3, 3 : invariant := true);
-    j1610 := Transvectant(f, c511*c513*c513, 3, 3 : invariant := true);
-    j1611 := Transvectant(f, c512*c512*c512, 3, 3 : invariant := true);
-    j1612 := Transvectant(f, c512*c512*c513, 3, 3 : invariant := true);
-    j1613 := Transvectant(f, c512*c513*c513, 3, 3 : invariant := true);
-    j1614 := Transvectant(f, c513*c513*c513, 3, 3 : invariant := true);
-	//j1616 := Transvectant(f, c712*c512*c31, 3, 3 : invariant := true);
-    //j1617 := Transvectant(f, c712*c513*c31, 3, 3 : invariant := true);
-	//j1618 := Transvectant(f, c713*c511*c31, 3, 3 : invariant := true);
-    //j1619 := Transvectant(f, c713*c512*c31, 3, 3 : invariant := true);
-    //j1620 := Transvectant(f, c713*c513*c31, 3, 3 : invariant := true);
+	j161 := Transvectant(f, c711*c511*c31, 3, 3 : invariant := true);//144
+    j162 := Transvectant(f, c711*c512*c31, 3, 3 : invariant := true);//432
+    j163 := Transvectant(f, c711*c513*c31, 3, 3 : invariant := true);//144
+    j164 := Transvectant(f, c712*c511*c31, 3, 3 : invariant := true);//144
+    j165 := Transvectant(f, c511*c511*c511, 3, 3 : invariant := true);//432
+    j166 := Transvectant(f, c511*c511*c512, 3, 3 : invariant := true);//144
+    j167 := Transvectant(f, c511*c511*c513, 3, 3 : invariant := true);//144
+    j168 := Transvectant(f, c511*c512*c512, 3, 3 : invariant := true);//432
+    j169 := Transvectant(f, c511*c512*c513, 3, 3 : invariant := true);//144
+    j1610 := Transvectant(f, c511*c513*c513, 3, 3 : invariant := true);//144
+    j1611 := Transvectant(f, c512*c512*c512, 3, 3 : invariant := true);//432
+    j1612 := Transvectant(f, c512*c512*c513, 3, 3 : invariant := true);//432
+    j1613 := Transvectant(f, c512*c513*c513, 3, 3 : invariant := true);//144
+    j1614 := Transvectant(f, c513*c513*c513, 3, 3 : invariant := true);//432
     inv16 := [K | j161,j162,j163,j164,j165,j166,j167,j168,j169,j1610,j1611,j1612,j1613,j1614];
 
    
 	// Degree 18
-	j181 := Transvectant(f, c711*c711*c31, 3, 3 : invariant := true);
-	j182 := Transvectant(f, c711*c511*c511, 3, 3 : invariant := true);
-	j183 := Transvectant(f, c711*c511*c512, 3, 3 : invariant := true);
-	j184 := Transvectant(f, c711*c511*c513, 3, 3 : invariant := true);
-	j185 := Transvectant(f, c711*c512*c512, 3, 3 : invariant := true);
-    j186 := Transvectant(f, c711*c512*c513, 3, 3 : invariant := true);
-	j187 := Transvectant(f, c711*c513*c513, 3, 3 : invariant := true);
-	j188 := Transvectant(f, c711*c712*c31, 3, 3 : invariant := true);
-	j189 := Transvectant(f, c712*c712*c31, 3, 3 : invariant := true);
-	//j1810 := Transvectant(f, c712*c511*c511, 3, 3 : invariant := true);
-	j1810 := Transvectant(f, c712*c511*c512, 3, 3 : invariant := true);
-	//j1812 := Transvectant(f, c712*c511*c513, 3, 3 : invariant := true);
-	j1811 := Transvectant(f, c712*c512*c512, 3, 3 : invariant := true);
-    //j1814 := Transvectant(f, c712*c512*c513, 3, 3 : invariant := true);
-	//j1815 := Transvectant(f, c712*c513*c513, 3, 3 : invariant := true);
-	//j1816 := Transvectant(f, c713*c711*c31, 3, 3 : invariant := true);
-	//j1817 := Transvectant(f, c713*c712*c31, 3, 3 : invariant := true);
-	//j1818 := Transvectant(f, c713*c713*c31, 3, 3 : invariant := true);
-	//j1819 := Transvectant(f, c713*c511*c511, 3, 3 : invariant := true);
-	//j1820 := Transvectant(f, c713*c511*c512, 3, 3 : invariant := true);
-	//j1821 := Transvectant(f, c713*c512*c512, 3, 3 : invariant := true);
-	//j1822 := Transvectant(f, c713*c512*c513, 3, 3 : invariant := true);
-	//j1823 := Transvectant(f, c713*c513*c513, 3, 3 : invariant := true);
+	j181 := Transvectant(f, c711*c711*c31, 3, 3 : invariant := true);//144
+	j182 := Transvectant(f, c711*c511*c511, 3, 3 : invariant := true);//144
+	j183 := Transvectant(f, c711*c511*c512, 3, 3 : invariant := true);//144
+	j184 := Transvectant(f, c711*c511*c513, 3, 3 : invariant := true);//144
+	j185 := Transvectant(f, c711*c512*c512, 3, 3 : invariant := true);//432
+    j186 := Transvectant(f, c711*c512*c513, 3, 3 : invariant := true);//144
+	j187 := Transvectant(f, c711*c513*c513, 3, 3 : invariant := true);//144
+	j188 := Transvectant(f, c711*c712*c31, 3, 3 : invariant := true);//144
+	j189 := Transvectant(f, c712*c712*c31, 3, 3 : invariant := true);//144
+	j1810 := Transvectant(f, c712*c511*c512, 3, 3 : invariant := true);//144
+	j1811 := Transvectant(f, c712*c512*c512, 3, 3 : invariant := true);//432
 	inv18 := [K | j181,j182,j183,j184,j185,j186,j187,j188,j189,j1810,j1811];
 
+	invOthers := inv6 cat inv8 cat inv10 cat inv12 cat inv14 cat inv16 cat inv18;
+
+	if Type(K) eq RngInt then
+		Inv := [ExactQuotient(invHSOP[i], GCD_hsop[i]) : i in [1..#invHSOP]] cat [ExactQuotient(invOthers[i], GCD_others[i]) : i in [1..#invOthers]];
+	else
+		Inv := [invHSOP[i]/GCD_hsop[i] : i in [1..#invHSOP]] cat [invOthers[i]/GCD_others[i] : i in [1..#invOthers]];
+	end if;
+
 	Wgt := [2,4,4,6,6,8,8,10,12,14,6,8,8,10,10,10,10,10,10,12,12,12,12,12,12,12,12,12,14,14,14,14,14,14,14,14,14,14,14,14,16,16,16,16,16,16,16,16,16,16,16,16,16,16,18,18,18,18,18,18,18,18,18,18,18];
-	Inv := invHSOP cat inv6 cat inv8 cat inv10 cat inv12 cat inv14 cat inv16 cat inv18;
+	
 	if normalize then
 		return WPSNormalize(Wgt, Inv), Wgt;
 	end if;
@@ -516,81 +503,4 @@ intrinsic InvariantsGenus4Curves(C::CrvHyp : normalize := false) -> SeqEnum, Seq
 	end if;
 
 	return Inv, Wgt;
-end intrinsic;
-
-intrinsic IsIsomorphic(Q1::RngMPolElt, C1::RngMPolElt, Q2::RngMPolElt, C2::RngMPolElt : epsilon := 0) -> Bool
-	{Given two non-hyperelliptic curves of genus 4, returns true if their invariants are the same up to espilon, false otherwise.}
-
-	I1, Wgt1 := InvariantsGenus4Curves(Q1, C1 : normalize := true);
-	I2, Wgt2 := InvariantsGenus4Curves(Q2, C2 : normalize := true);
-
-	require Wgt1 eq Wgt2 : "Curves must have a quadric of the same rank 3 or 4";
-	
-	for i in [1..#I1] do
-		if Abs(I1[i]-I2[i]) gt epsilon then
-			return false;
-		end if;
-	end for;
-	return true;
-
-end intrinsic;
-
-
-intrinsic IsIsomorphic(Q1::RngMPolElt, C1::RngMPolElt, Q2::RngMPolElt, C2::RngMPolElt, K::Rng : epsilon := 0) -> Bool
-	{Given two non-hyperelliptic curves of genus 4, returns true if their invariants are the same up to espilon, false otherwise.}
-
-	I1, Wgt1 := InvariantsGenus4Curves(Q1, C1 : normalize := true);
-	I2, Wgt2 := InvariantsGenus4Curves(Q2, C2 : normalize := true);
-
-	require Wgt1 eq Wgt2 : "Curves must have a quadric of the same rank 3 or 4";
-
-	ChangeUniverse(~I1, K);
-	ChangeUniverse(~I2, K);
-
-	for i in [1..#I1] do
-		if Abs(I1[i]-I2[i]) gt epsilon then
-			return false;
-		end if;
-	end for;
-	return true;
-
-end intrinsic;
-
-
-intrinsic IsIsomorphic(f::RngMPolElt, g::RngMPolElt : epsilon := 0) -> Bool
-	{Given two non-hyperelliptic curves of genus 4, returns true if their invariants are the same up to espilon, false otherwise.}
-
-	I1, Wgt1 := InvariantsGenus4Curves(f : normalize := true);
-	I2, Wgt2 := InvariantsGenus4Curves(g : normalize := true);
-
-	require Wgt1 eq Wgt2 : "Curves must have a quadric of the same rank 3 or 4";
-	
-	for i in [1..#I1] do
-		if Abs(I1[i]-I2[i]) gt epsilon then
-			return false;
-		end if;
-	end for;
-	return true;
-
-end intrinsic;
-
-
-intrinsic IsIsomorphic(f::RngMPolElt, g::RngMPolElt, K::Rng : epsilon := 0) -> Bool
-	{Given two non-hyperelliptic curves of genus 4, returns true if their invariants are the same up to espilon, false otherwise.}
-
-	I1, Wgt1 := InvariantsGenus4Curves(f : normalize := true);
-	I2, Wgt2 := InvariantsGenus4Curves(g : normalize := true);
-
-	require Wgt1 eq Wgt2 : "Curves must have a quadric of the same rank 3 or 4";
-
-	ChangeUniverse(~I1, K);
-	ChangeUniverse(~I2, K);
-
-	for i in [1..#I1] do
-		if Abs(I1[i]-I2[i]) gt epsilon then
-			return false;
-		end if;
-	end for;
-	return true;
-
 end intrinsic;
