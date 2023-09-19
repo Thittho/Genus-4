@@ -280,7 +280,7 @@ function Invariants(f)
 
 	invOthers := inv6 cat inv8 cat inv10 cat inv12 cat inv14 cat inv16 cat inv18;
 
-	return [ExactQuotient(invHSOP[i], GCD_hsop[i]) : i in [1..#invHSOP]] cat [ExactQuotient(invOthers[i], GCD_others[i]) : i in [1..#invOthers]];
+	return [ExactQuotient(invHSOP[i], GCD_hsop[i]) : i in [1..#invHSOP]], [ExactQuotient(invOthers[i], GCD_others[i]) : i in [1..#invOthers]];
 end function;
 	
 
