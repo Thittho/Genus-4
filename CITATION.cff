@@ -1,8 +1,11 @@
-@misc{genus-4,
-  author = {T. Bouchet et al},
-  title = {Genus-4},
-  year = {2023},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/Thittho/Genus-4}}
-}
+cff-version: 1.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Bouchet"
+  given-names: "Thomas"
+- family-names: "et al."
+  given-names: ""
+title: "Genus-4"
+version: 1.0
+date-released: 2023-09-28
+url: "https://github.com/Thittho/Genus-4"
