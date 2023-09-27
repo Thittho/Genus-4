@@ -1,12 +1,9 @@
-cff-version: 1.0
-message: "If you use this software, please cite it as below."
-authors:
-- family-names: "Bouchet"
-  given-names: "Thomas"
-- family-names: "et"
-  given-names: "al."
-title: "Genus 4 package"
-version: 1.0
-doi : 
-date-released: 2023-09-28
-url: "https://github.com/Thittho/Genus-4"
+@misc{genus-4,
+  author = {Bouchet Thomas et al},
+  author = {T. Bouchet et al},
+  title = {Genus-4},
+  year = {2023},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/Thittho/Genus-4}}
+}
