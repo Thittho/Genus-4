@@ -1,6 +1,6 @@
 K := FiniteField(97);
 
-// To generate forms mod 97 which vanish on the invariants of degrees 2,4,4 in the HSOP
+// Returns a list of [f, sigma(f)] with f a bicubic form with coefficients in K, which vanishes on the invariants of degrees 2,4,4 in the HSOP
 function FormsGenerator(n, K)
 	R<x, y, u, v> := PolynomialRing(FieldOfFractions(K), 4);
 	res := [];
@@ -348,14 +348,14 @@ function Invariants(f)
 	J20 := Transvectant(f,f,2,0); 
 	J02 := Transvectant(f,f,0,2);
 
-	CC337 := Transvectant(f2,f,3,1);
-	CC375 := Transvectant(f2,f,1,2);
+	CC337 := Transvectant(f^2,f,3,1);
+	CC375 := Transvectant(f^2,f,1,2);
 
 	CC3371 := J31*f;
 	CC357 := Transvectant(Jac,f,1,0);
 
 	CC359 := J20*f;
-	CC339 := Transvectant(f2,f,3,0);
+	CC339 := Transvectant(f^2,f,3,0);
 
 	CC373 := Transvectant(J02,f,1,1);
 	CC355 := Transvectant(J20,f,0,2);
@@ -376,10 +376,10 @@ function Invariants(f)
 	I103 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(CC359,f,2,1),f,0,3),f,0,2),f,2,2),f,3,3),f,3,1),f,3,3 : invariant :=  true);
 	inv101 := [I101, I102, I103];
 
-	I121 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(f2,f,0,3),f,0,3),f,2,0),f,3,2),f,2,1),f,3,1),f,0,1),f,2,1),f,3,3),f,3,3 : invariant :=  true);
+	I121 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(f^2,f,0,3),f,0,3),f,2,0),f,3,2),f,2,1),f,3,1),f,0,1),f,2,1),f,3,3),f,3,3 : invariant :=  true);
 	I122 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(CC339,f,1,1),f,1,2),f,3,2),f,2,1),f,1,2),f,0,1),f,3,3),f,1,3),f,3,3 : invariant :=  true);
 	I123 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(J02,f,3,0),f,3,0),f,0,1),f,0,2),f,2,0),f,3,3),f,1,1),f,0,3),f,3,3),f,3,3 : invariant :=  true);
-	I124 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(f3,f,0,2),f,0,2),f,1,1),f,3,0),f,2,1),f,3,3),f,3,3),f,3,3),f,3,3 : invariant :=  true);
+	I124 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(f^3,f,0,2),f,0,2),f,1,1),f,3,0),f,2,1),f,3,3),f,3,3),f,3,3),f,3,3 : invariant :=  true);
 	I125 := Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(Transvectant(CC3371,f,2,2),f,2,3),f,1,0),f,2,2),f,1,0),f,2,2),f,0,3),f,2,2),f,3,3 : invariant :=  true);
 	inv121 := [I121, I122, I123, I124, I125];
 
@@ -578,3 +578,30 @@ function CheckSecondaryInvariants(n)
 
 	return res_sym, res_non_sym;
 end function;
+
+
+
+// Proof that the invariants belong to the same field as the field of definition of the non-hyp genus 4 curve in P^3
+// To prove that, we check that the first invariant I2 does not depend on the choice of the square root
+R<a3000,a2100,a2010,a2001,a1200,a1110,a1101,a1020,a1011,a1002,a0300,a0210,a0201,a0120,a0111,a0102,a0030,a0021,a0012,a0003,A,B,D1,D2> := PolynomialRing(Rationals(), 24);
+S<X,Y,Z,T> := PolynomialRing(FieldOfFractions(R), 4);
+C := a3000*X^3+a2100*X^2*Y+a2010*X^2*Z+a2001*X^2*T+a1200*X*Y^2+a1110*X*Y*Z+a1101*X*Y*T+a1020*X*Z^2+a1011*X*Z*T+a1002*X*T^2+a0300*Y^3+a0210*Y^2*Z+a0201*Y^2*T+a0120*Y*Z^2+a0111*Y*Z*T+a0102*Y*T^2+a0030*Z^3+a0021*Z^2*T+a0012*Z*T^2+a0003*T^3;
+Q := A*X^2-A*D1^2*T^2+B*Y^2-B*D2^2*Z^2;
+
+F0 := Evaluate(C, [1/(2*A)*X+1/2*T, -1/(2*B)*Y+1/2*Z, -1/(2*B*D2)*Y-1/(2*D2)*Z, 1/(2*A*D1)*X-1/(2*D1)*T]);
+F1 := Evaluate(C, [1/(2*A)*X+1/2*T, -1/(2*B)*Y+1/2*Z, 1/(2*B*D2)*Y+1/(2*D2)*Z, 1/(2*A*D1)*X-1/(2*D1)*T]); 
+F2 := Evaluate(C, [1/(2*A)*X+1/2*T, -1/(2*B)*Y+1/2*Z, -1/(2*B*D2)*Y-1/(2*D2)*Z, -1/(2*A*D1)*X+1/(2*D1)*T]);
+F3 := Evaluate(C, [1/(2*A)*X+1/2*T, -1/(2*B)*Y+1/2*Z, 1/(2*B*D2)*Y+1/(2*D2)*Z, -1/(2*A*D1)*X+1/(2*D1)*T]); 
+
+_<x,y,u,v> := PolynomialRing(FieldOfFractions(R), 4);
+f0 := Evaluate(F0, [x*u, x*v, y*u, y*v]);
+f1 := Evaluate(F1, [x*u, x*v, y*u, y*v]);
+f2 := Evaluate(F2, [x*u, x*v, y*u, y*v]);
+f3 := Evaluate(F3, [x*u, x*v, y*u, y*v]);
+
+s0 := Transvectant(f0, f0, 3, 3 : invariant := true);
+s1 := Transvectant(f1, f1, 3, 3 : invariant := true);
+s2 := Transvectant(f2, f2, 3, 3 : invariant := true);
+s3 := Transvectant(f3, f3, 3, 3 : invariant := true);
+
+s0 eq s1; s0 eq s2; s0 eq s3;
