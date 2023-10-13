@@ -408,6 +408,7 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 		f_bic := Evaluate(f0, [x*u, y*u, x*v, y*v]);
 		
 		Inv, Wgt := InvariantsGenus4CurvesRank4(f_bic);
+		Inv := ChangeUniverse(Inv, K);
 		
 		if normalize then
 			return  WPSNormalize(Wgt, Inv), Wgt;

@@ -38,36 +38,3 @@ intrinsic Transvectant(f::RngMPolElt, g::RngMPolElt, r::RngIntElt, s::RngIntElt 
 	end if;
 
 end intrinsic;
-
-
-function DegreeOrder(I)
-	if Type(I) ne List then
-		return [1,3,3];
-
-	elif #I eq 1 then
-		return [1,3,3];
-
-	elif #I eq 2 then
-		return DegreeOrder(I[1]);
-	end if;
-
-	c1 := DegreeOrder(I[1]);
-	c2 := DegreeOrder(I[2]);
-	return [c1[1]+c2[1], c1[2]+c2[2]-2*I[3], c1[3]+c2[3]-2*I[4]];
-
-end function;
-
-
-function Evaluation(I, f)
-	if Type(I) ne List then
-		return f;
-
-	elif #I eq 1 then
-		return f;
-
-	elif #I eq 2 then
-		return Evaluation(I[1], f)+Evaluation(I[2], f);
-	end if;
-
-	return Transvectant(Evaluation(I[1], f), Evaluation(I[2], f), I[3], I[4]);
-end function;
