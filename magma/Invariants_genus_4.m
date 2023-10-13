@@ -385,8 +385,10 @@ function InvariantsGenus4CurvesRank3(f, v)
 	J14 := Evaluate(Transvectant(h32*h102, v, 4), [0,0]);
 	inv14 := [K | J14];
 
-	return invf cat invv cat inv3 cat inv4 cat inv5 cat inv6 cat inv7 cat inv8 cat inv9 cat inv10 cat inv11 cat inv12 cat inv13 cat inv14, [2,4,6,10,15,2,3,3,4,4,4,5,5,5,5,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,9,9,9,9,9,9,9,9,10,10,10,10,11,11,11,12,12,13,14];
+	return invf cat invv cat inv3 cat inv4 cat inv5 cat inv6 cat inv7 cat inv8 cat inv9 cat inv10 cat inv11 cat inv12 cat inv13 cat inv14, [6,12,18,30,45,4,6,8,10,10,9,13,14,12,12,15,14,14,15,15,17,16,16,20,19,19,18,16,18,18,17,17,21,19,22,22,23,21,20,20,21,25,26,24,21,23,23,24,25,29,25,28,27,32,29,31,35,33,37,41];
+;
 end function;
+
 
 intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := false) -> SeqEnum, SeqEnum
 	{Given a homogeneous quadratic form and a homogeneous cubic form in 4 variables, returns its invariants as a genus 4 curve. The invariants returned depend on the rank of the quadratic form.}
@@ -435,6 +437,8 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 		S<[x]> := PolynomialRing(BaseRing(Parent(f_weighted)), 2);
 		Inv, Wgt := InvariantsGenus4CurvesRank3(S!Evaluate(f_weighted, [x[1], x[2], 0]), S!Evaluate(ExactQuotient(Terms(f_weighted, w)[2], w), [x[1], x[2], 0]));
 		
+		Inv := ChangeUniverse(Inv, K);
+
 		if normalize then
 			return WPSNormalize(Wgt, Inv), Wgt;
 		end if;
