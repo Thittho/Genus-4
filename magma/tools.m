@@ -5,8 +5,9 @@ intrinsic Transvectant(f::RngMPolElt, g::RngMPolElt, r::RngIntElt, s::RngIntElt 
     require Parent(f) eq Parent(f): "f and g must have the same parent";
 
     P := Parent(f);
+	R<X,Y> := PolynomialRing(P, 2);
 
-    require IsHomogeneous(Evaluate(f, [P.1, P.2, 1, 2])) and IsHomogeneous(Evaluate(f, [1, 2, P.3, P.4])) and IsHomogeneous(Evaluate(g, [P.1, P.2, 1, 2])) and IsHomogeneous(Evaluate(g, [1, 2, P.3, P.4])): "f and g must be bihomogeneous";
+    require IsHomogeneous(Evaluate(f, [P.1, P.2, X, Y])) and IsHomogeneous(Evaluate(f, [X, Y, P.3, P.4])) and IsHomogeneous(Evaluate(g, [P.1, P.2, X, Y])) and IsHomogeneous(Evaluate(g, [X, Y, P.3, P.4])): "f and g must be bihomogeneous";
 
     if f eq 0 or g eq 0 then return P!0; end if;
     
@@ -21,10 +22,10 @@ intrinsic Transvectant(f::RngMPolElt, g::RngMPolElt, r::RngIntElt, s::RngIntElt 
     end for;
     
 	if Characteristic(BaseRing(P)) eq 0 then
-		m1 := Degree(Evaluate(f, [P.1, P.2, 1, 2]));
-		n1 := Degree(Evaluate(f, [1, 2, P.3, P.4]));
-		m2 := Degree(Evaluate(g, [P.1, P.2, 1, 2]));
-		n2 := Degree(Evaluate(g, [1, 2, P.3, P.4]));
+		m1 := Degree(Evaluate(f, [X, Y, P.3, P.4]));
+		n1 := Degree(Evaluate(f, [P.1, P.2, X, Y]));
+		m2 := Degree(Evaluate(g, [X, Y, P.3, P.4]));
+		n2 := Degree(Evaluate(g, [P.1, P.2, X, Y]));
 		//cfg := Factorial(m1-r)*Factorial(m2-r)*Factorial(n1-s)*Factorial(n2-s)/(Factorial(m1)*Factorial(m2)*Factorial(n1)*Factorial(n2));
 		cfg := 1;
 	else
