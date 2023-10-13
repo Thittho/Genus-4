@@ -48,7 +48,7 @@ function NewBasis(Q)
 		
 		D := P_swap*D*P_swap;
 		P := P_swap*P;
-		L := [-D[3][3]/D[1][1], -D[2][2]];
+		L := [-D[3][3]/D[1][1]];
 		
 		if Category(K) ne FldCom and Category(K) ne FldAC then
 			S := AlgebraicClosure(K);
@@ -58,7 +58,7 @@ function NewBasis(Q)
 		
 		M2 := KMatrixSpace(S,4,4);
 		P := ChangeRing(P, S);
-		P_fin := (M2![S!1/(2*D[1][1]),0,S!1/(2*D[1][1]*Sqrt(S!L[1])),0,0,S!1/(Sqrt(S!L[2])),0,0,S!1/2,0,S!-1/(2*Sqrt(S!L[1])),0,0,0,0,S!1])*P;
+		P_fin := (M2![S!-D[2][2]/(2*D[1][1]),0,S!-D[2][2]/(2*D[1][1]*Sqrt(S!L[1])),0,0,1,0,0,S!1/2,0,S!-1/(2*Sqrt(S!L[1])),0,0,0,0,S!1])*P;
 		return P_fin, 3;
 	end if;
 end function;
@@ -389,7 +389,7 @@ function InvariantsGenus4CurvesRank3(f, v)
 end function;
 
 intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := false) -> SeqEnum, SeqEnum
-	{Given a homogeneous quadric and a homogeneous cubic in 4 variables, returns its invariants. This depends on the }
+	{Given a homogeneous quadratic form and a homogeneous cubic form in 4 variables, returns its invariants as a genus 4 curve. The invariants returned depend on the rank of the quadratic form.}
 
 	require (Parent(Q) eq Parent(C)): "Q and C must have the same parent";
 	require (Rank(Parent(Q)) eq 4): "Q and C must be polynomials in 4 variables";
@@ -425,12 +425,13 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 		require MonomialCoefficient(f_weighted, w^3) ne 0: "The curve is not smooth";
 		
 		// we put the curve in normal form
-		alpha := Root(MonomialCoefficient(f_weighted, w^3), 3);
-		f_weighted := Evaluate(f_weighted, [s, t, w/alpha]);        
+		alpha := MonomialCoefficient(f_weighted, w^3);
+		f_weighted /:= alpha;        
 		f_weighted := Evaluate(f_weighted, [s, t, w-ExactQuotient(Terms(f_weighted, w)[3], 3*w^2)]);
 
+		r1 := BaseRing(Parent(f_weighted)).1;
+		f_weighted := Evaluate(f_weighted, [s/r1, t, w]);
 		S<[x]> := PolynomialRing(BaseRing(Parent(f_weighted)), 2);
-
 		Inv, Wgt := InvariantsGenus4CurvesRank3(S!Evaluate(f_weighted, [x[1], x[2], 0]), S!Evaluate(ExactQuotient(Terms(f_weighted, w)[2], w), [x[1], x[2], 0]));
 		
 		if normalize then
