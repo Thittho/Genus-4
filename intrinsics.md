@@ -8,7 +8,7 @@ intrinsic Transvectant(f::RngMPolElt, g::RngMPolElt, r::RngIntElt, s::RngIntElt 
     invariant := false) -> RngMPolElt
 ```
 
-#### Invariants of genus 4 curves
+### Invariants of genus 4 curves
 
 ```
 intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : 
