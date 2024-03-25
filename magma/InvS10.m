@@ -12,27 +12,17 @@ COV_t :=  recformat<
     Primary             // 0 no idea ?, 1 Primary, 2 Secondary
     >;
 
-
-
-function UnivariateTransvectant(F, G, r)
+function MultivariateTransvectant(F, G, r)
 
     Q, Qdeg, n := Explode(F);
     R, Rdeg, m := Explode(G);
 
     n := IntegerRing()!n;
     m := IntegerRing()!m;
-	
+
     K := BaseRing(Parent(Q));
-
-    h := Parent(Q)!0;
-    for k := 0 to r do
-	h +:= (-1)^k
-	    * Binomial(m-k,r-k)  * Derivative(Q, r-k)
-	    * Binomial(n-r+k, k) * Derivative(R, k);
-    end for;
-
-    coef := Factorial(m-r)*Factorial(n-r)/Factorial(m)/Factorial(n);
-    h := (K!coef) * h;
+    
+    h := Transvectant(Q, R, r);
 
     return [* h, Qdeg+Rdeg, n+m-2*r *];
 
@@ -74,7 +64,7 @@ function GetCovariant(Cov, FdCov, form)
 	end for;
 
 	/* Output the transvectant */
-	return UnivariateTransvectant([U_cov, U_deg, U_ord], [V_cov, V_deg, V_ord], Cov`level);
+	return MultivariateTransvectant([U_cov, U_deg, U_ord], [V_cov, V_deg, V_ord], Cov`level);
     end if;
 
     /* First, let us obtain the covariant U_cov */
