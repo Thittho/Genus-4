@@ -12,57 +12,68 @@ end function;
 
 function NewBasis(Q)
 	Q_mat := QuadraticFormToMatrix(Q);
-	K := BaseRing(Parent(Q));
-	M1 := KMatrixSpace(K,4,4);
-	D, P, t := OrthogonalizeGram(Q_mat);
+        K := BaseRing(Parent(Q));
+        D, P, t := OrthogonalizeGram(Q_mat);
 
-	if t lt 3 then
-		"The quadric is not of rank 3 or 4";
-		return D, t;
+        if t lt 3 then
+                "The quadric is not of rank 3 or 4";
+                return D, t, 1;
 
-	elif t eq 4 then
-		L := [-D[4][4]/D[1][1], -D[3][3]/D[2][2]];
+        elif t eq 4 then
+                L := [-D[4][4]/D[1][1], -D[3][3]/D[2][2]];
 
-		if Category(K) ne FldCom and Category(K) ne FldAC then
-			S := AlgebraicClosure(K);
-		else
-			S := K;
-		end if;
+                bool1 := IsPower(L[1], 2);
+                bool2 := IsPower(L[2], 2);
+
+                if bool1 and bool2 then
+                        S := K;
+                        _, sq1 := IsPower(L[1], 2);
+                        _, sq2 := IsPower(L[2], 2);
+                        Sq := [sq1, sq2];
+                else
+                        _<x> := PolynomialRing(K);
+                        S := SplittingField([x^2-L[1], x^2-L[2]]);
+                        Sq := [Sqrt(S!L[1]), Sqrt(S!L[2])];
+                end if;
 
 		M2 := KMatrixSpace(S,4,4);
-		P := ChangeRing(P, S);
-		P_fin := (M2![S!1/(2*D[1][1]),0,0,S!1/(2*D[1][1]*Sqrt(S!L[1])),0,S!-1/(2*D[2][2]),S!-1/(2*D[2][2]*Sqrt(S!L[2])),0,0,S!1/2,S!-1/(2*Sqrt(S!L[2])),0,S!1/2,0,0,S!-1/(2*Sqrt(S!L[1]))])*P;
-		
-		return P_fin, 4;
+                P := ChangeRing(P, S);
+                P_fin := (M2![S!1/(2*D[1][1]),0,0,S!1/(2*D[1][1]*Sq[1]),0,S!-1/(2*D[2][2]),S!-1/(2*D[2][2]*Sq[2]),0,0,S$
 
-	else
-		i := 1;
-		while D[i][i] ne 0 do
-			i := i+1;
-		end while;
+                return P_fin, 4, 1;
 
-		L_swap := [1,2,3,4];
-		L_swap[i] := 4;
-		L_swap[4] := i;
-		P_swap := PermutationMatrix(K, L_swap);
-		
-		D := P_swap*D*P_swap;
-		P := P_swap*P;
-		L := [-D[3][3]/D[1][1]];
-		
-		if Category(K) ne FldCom and Category(K) ne FldAC then
-			S := AlgebraicClosure(K);
-		else
-			S := K;
-		end if;
-		
-		M2 := KMatrixSpace(S,4,4);
-		P := ChangeRing(P, S);
-		P_fin := (M2![S!-D[2][2]/(2*D[1][1]),0,S!-D[2][2]/(2*D[1][1]*Sqrt(S!L[1])),0,0,1,0,0,S!1/2,0,S!-1/(2*Sqrt(S!L[1])),0,0,0,0,S!1])*P;
-		return P_fin, 3;
-	end if;
+        else
+                i := 1;
+                while D[i][i] ne 0 do
+                        i := i+1;
+                end while;
+
+                L_swap := [1,2,3,4];
+                L_swap[i] := 4;
+		 L_swap[4] := i;
+                P_swap := PermutationMatrix(K, L_swap);
+
+                D := P_swap*D*P_swap;
+                P := P_swap*P;
+                l := -D[3][3]/D[1][1];
+
+                bool1 := IsPower(l, 2);
+
+                if bool1 then
+                        S := K;
+                        _, sq := IsPower(l, 2);
+                else
+		        _<x> := PolynomialRing(K);
+                        S := SplittingField(x^2-l);
+                        sq := Sqrt(S!l);
+                end if;
+
+                M2 := KMatrixSpace(S,4,4);
+                P := ChangeRing(P, S);
+                P_fin := (M2![S!-D[2][2]/(2*D[1][1]),0,S!-D[2][2]/(2*D[1][1]*sq),0,0,1,0,0,S!1/2,0,S!-1/(2*sq),0,0,0,0,$
+                return P_fin, 3, sq;
+        end if;
 end function;
-
 
 // given a form and a change of variables (given as a matrix), returns the form after the change of variables
 function ChangeOfBasis(C, P)
@@ -72,13 +83,13 @@ function ChangeOfBasis(C, P)
 	Y := ElementToSequence(P*Matrix([[R.i] : i in [1..Rank(R)]]));
 	return Evaluate(C, Y);
 end function;
-	
+
 function CubicNewBasis(Q, C)
-	R := Parent(C);
-	P := NewBasis(Q);
-	R := ChangeRing(R, BaseRing(Parent(P)));
-	C1 := R!C;
-	return ChangeOfBasis(C1, P);
+        R := Parent(C);
+        P, _, r := NewBasis(Q);
+        R := ChangeRing(R, BaseRing(Parent(P)));
+        C1 := R!C;
+        return ChangeOfBasis(C1, P), r;                                                                                 
 end function;
 
 function InvariantsGenus4CurvesRank4(f : normalize := false)
@@ -420,7 +431,7 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 
 	elif t eq 3 then
 		//ChangeOfBasis(Q, P);
-		f0 := CubicNewBasis(Q,C);
+		f0, r := CubicNewBasis(Q,C);
 		
 		R<s, t, w> := PolynomialRing(BaseRing(Parent(f0)), [1,1,2]);
 		f_weighted := Evaluate(f0, [s^2, s*t, t^2, w]);
@@ -432,8 +443,7 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 		f_weighted /:= alpha;        
 		f_weighted := Evaluate(f_weighted, [s, t, w-ExactQuotient(Terms(f_weighted, w)[3], 3*w^2)]);
 
-		r1 := BaseRing(Parent(f_weighted)).1;
-		f_weighted := Evaluate(f_weighted, [s/r1, t, w]);
+		f_weighted := Evaluate(f_weighted, [s/r, t, w]);
 		S<[x]> := PolynomialRing(BaseRing(Parent(f_weighted)), 2);
 		Inv, Wgt := InvariantsGenus4CurvesRank3(S!Evaluate(f_weighted, [x[1], x[2], 0]), S!Evaluate(ExactQuotient(Terms(f_weighted, w)[2], w), [x[1], x[2], 0]));
 		
