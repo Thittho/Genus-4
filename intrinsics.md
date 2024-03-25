@@ -20,18 +20,7 @@ intrinsic InvariantsGenus4Curves(f::RngMPolElt :
 intrinsic InvariantsGenus4Curves(C::CrvHyp :
     normalize := false) -> SeqEnum, SeqEnum
 
-intrinsic IsIsomorphic(Q1::RngMPolElt, C1::RngMPolElt, Q2::RngMPolElt, C2::RngMPolElt : 
-    epsilon := 0) -> Bool
-intrinsic IsIsomorphic(Q1::RngMPolElt, C1::RngMPolElt, Q2::RngMPolElt, C2::RngMPolElt, K::Rng : 
-    epsilon := 0) -> Bool
+intrinsic IsIsomorphic(Q1::RngMPolElt, C1::RngMPolElt, Q2::RngMPolElt, C2::RngMPolElt) -> Bool
 ```
 
-### Verifications
-
-```
-intrinsic ProofHsop() -> Str
-intrinsic ProofHsopW2() -> Str
-intrinsic ProofLemma() -> Str
-intrinsic CheckSecondaryInvariants(n::RngIntElt) -> SeqEnum, SeqEnum
-```
 
