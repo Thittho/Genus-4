@@ -11,7 +11,7 @@ You need an installation of Magma on your machine.
 Installation
 --
 
-You can enable the functionality of this package in Magma by attaching the Genus-4/magma/spec file with AttachSpec. To make this independent of the directory in which you find yourself, and to active this on startup by default, you may want to indicate the relative path in your ~/.magmarc file, by adding a line like
+You can enable the functionality of this package in Magma by attaching the Genus-4/magma/spec file with AttachSpec. To make this independent of the directory in which you find yourself, and to active this on startup by default, you may want to indicate the relative path in your `~/.magmarc file`, by adding a line like
 ```
 AttachSpec("~/Genus-4/magma/spec");
 ```
@@ -41,3 +41,9 @@ J1, Wgt := InvariantsGenus4Curves(Quadric1, Cubic1 : normalize := true);
 _<X> := PolynomialRing(Rationals());   
 I := InvariantsGenus4Curves(X^10+5*X^8-7*X+1);
 ```
+
+Citing this work
+--
+
+If this repository was helpful to your research, please cite the following preprint:
+Thomas Bouchet, _Invariants of genus 4 curves, 2023_, [arxiv:2310.01158](https://arxiv.org/abs/2310.01158)
