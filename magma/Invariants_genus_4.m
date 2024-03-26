@@ -13,8 +13,9 @@ end function;
 function NewBasis(Q)
 	Q_mat := QuadraticFormToMatrix(Q);
         K := BaseRing(Parent(Q));
-        D, P, t := OrthogonalizeGram(Q_mat);
-
+        D, P := OrthogonalizeGram(Q_mat);
+	t := Rank(D);
+ 
         if t lt 3 then
                 "The quadric is not of rank 3 or 4";
                 return D, t, 1;
