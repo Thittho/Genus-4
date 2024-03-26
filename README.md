@@ -47,3 +47,7 @@ Citing this work
 
 If this repository was helpful to your research, please cite the following preprint:
 Thomas Bouchet, _Invariants of genus 4 curves, 2023_, [arxiv:2310.01158](https://arxiv.org/abs/2310.01158)
+
+Credit
+--
+The skeleton of this README file was copied from [https://github.com/JRSijsling/quartic/blob/main/README.md](https://github.com/JRSijsling/quartic/blob/main/README.md)
