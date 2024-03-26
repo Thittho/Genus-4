@@ -45,7 +45,7 @@ function NewBasis(Q)
 
         else
                 i := 1;
-                while D[i][i] ne 0 do
+                while (D[i][i] ne 0) and (i lt 4) do
                         i := i+1;
                 end while;
 
