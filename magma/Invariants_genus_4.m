@@ -12,8 +12,9 @@ end function;
 
 function NewBasis(Q)
     K := BaseRing(Parent(Q));
-	Q_mat := QuadraticFormToMatrix(Q);
-    D, P := OrthogonalizeGram(Q_mat);
+    D, P := DiagonalForm(Q);
+    D := QuadraticFormToMatrix(D);
+
     if IsExact(K) then
         t := Rank(D);
     else
