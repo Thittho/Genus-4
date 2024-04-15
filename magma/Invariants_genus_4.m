@@ -11,10 +11,19 @@ function QuadraticFormToMatrix(Q)
 end function;
 
 function NewBasis(Q)
+    K := BaseRing(Parent(Q));
 	Q_mat := QuadraticFormToMatrix(Q);
-        K := BaseRing(Parent(Q));
-        D, P := OrthogonalizeGram(Q_mat);
-	t := Rank(D);
+    D, P := OrthogonalizeGram(Q_mat);
+    if IsExact(K) then
+        t := Rank(D);
+    else
+        print "Base ring is precision field; using numerical algorithms";
+        prec := Precision(K);
+        RR := RealField(prec);
+        eps := RR!10^(-prec/3);
+        t := NumericalRank(D : Epsilon:=eps);
+    end if;
+    printf "rank = %o\n", t;
  
         if t lt 3 then
                 "The quadric is not of rank 3 or 4";
@@ -45,9 +54,13 @@ function NewBasis(Q)
 
         else
                 i := 1;
-                while (D[i][i] ne 0) and (i lt 4) do
-                        i := i+1;
-                end while;
+                if IsExact(K) then
+                    while (D[i][i] ne 0) and (i lt 4) do
+                            i := i+1;
+                    end while;
+                else
+                    m, i := Min([Abs(D[j][j]) : j in [1..4]]);
+                end if;
 
                 L_swap := [1,2,3,4];
                 L_swap[i] := 4;
