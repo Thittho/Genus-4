@@ -14,15 +14,14 @@ function NewBasis(Q)
     K := BaseRing(Parent(Q));
     D, P := DiagonalForm(Q);
     D := QuadraticFormToMatrix(D);
-
     if IsExact(K) then
         t := Rank(D);
     else
         print "Base ring is precision field; using numerical algorithms";
         prec := Precision(K);
         RR := RealField(prec);
-        eps := RR!10^(-prec/3);
-        t := NumericalRank(D : Epsilon:=eps);
+        eps := RR!10^(-prec*28/100);
+	t := NumericalRank(D : Epsilon:=eps);
     end if;
     printf "rank = %o\n", t;
  
@@ -49,7 +48,7 @@ function NewBasis(Q)
 
 		M2 := KMatrixSpace(S,4,4);
                 P := ChangeRing(P, S);
-                P_fin := (M2![S!1/(2*D[1][1]),0,0,S!1/(2*D[1][1]*Sq[1]),0,S!-1/(2*D[2][2]),S!-1/(2*D[2][2]*Sq[2]),0,0,S!1/2,S!-1/(2*Sqrt(S!L[2])),0,S!1/2,0,0,S!-1/(2*Sqrt(S!L[1]))])*P;
+                P_fin := (M2![S!1/(2*D[1][1]),0,0,S!1/(2*D[1][1]*Sq[1]),0,S!-1/(2*D[2][2]),S!-1/(2*D[2][2]*Sq[2]),0,0,S!1/2,S!-1/(2*Sq[2]),0,S!1/2,0,0,S!-1/(2*Sq[1])])*P;
 
                 return P_fin, 4, 1;
 
