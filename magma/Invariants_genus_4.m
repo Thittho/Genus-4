@@ -20,7 +20,7 @@ function NewBasis(Q)
         print "Base ring is precision field; using numerical algorithms";
         prec := Precision(K);
         RR := RealField(prec);
-        eps := RR!10^(-prec*28/100);
+        eps := RR!10^(-prec*1/4);
 	t := NumericalRank(D : Epsilon:=eps);
     end if;
     printf "rank = %o\n", t;
@@ -103,12 +103,12 @@ function CubicNewBasis(Q, C)
         P, _, r := NewBasis(Q);
         R := ChangeRing(R, BaseRing(Parent(P)));
         C1 := R!C;
-        return ChangeOfBasis(C1, P), r;                                                                                 
+        return ChangeOfBasis(C1, P), r;
 end function;
 
 function InvariantsGenus4CurvesRank4(f : normalize := false)
 	K := BaseRing(Parent(f));
-	
+
     GCD_hsop := [288, 12288, 746496, 12582912, 1741425868800, 19327352832, 764411904, 144, 570630428688384, 4076863488];
 	GCD_others := [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 144, 144, 144, 1, 1, 1, 1, 1, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144 ];
 
@@ -425,15 +425,30 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 
 	R0<X,Y,Z,T> := Parent(Q);
 	K := BaseRing(R0);
-	P, t := NewBasis(Q);
+
+	if Q eq X*T-Y*Z then
+		f0 := C;
+		f0;
+		t := 4;
+	elif Q eq X*Z-Y^2 then
+		f0 := C;
+		t := 3;
+		r := 1;
+	else
+		P, t := NewBasis(Q);
+		if t eq 4 then
+			f0 := CubicNewBasis(Q,C);
+		elif t eq 3 then
+			f0, r := CubicNewBasis(Q,C);
+		end if;
+	end if;
 
 	if t eq 4 then
-		//ChangeOfBasis(Q, P);
-		f0 := CubicNewBasis(Q,C);
 
 		R<x, y, u, v> := PolynomialRing(BaseRing(Parent(f0)), 4);
 		f_bic := Evaluate(f0, [x*u, y*u, x*v, y*v]);
-		
+		f_bic;
+
 		Inv, Wgt := InvariantsGenus4CurvesRank4(f_bic);
 		Inv := ChangeUniverse(Inv, K);
 		
@@ -444,9 +459,7 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 		return Inv, Wgt;
 
 	elif t eq 3 then
-		//ChangeOfBasis(Q, P);
-		f0, r := CubicNewBasis(Q,C);
-		
+
 		R<s, t, w> := PolynomialRing(BaseRing(Parent(f0)), [1,1,2]);
 		f_weighted := Evaluate(f0, [s^2, s*t, t^2, w]);
 
