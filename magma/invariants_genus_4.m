@@ -1,115 +1,11 @@
-function QuadraticFormToMatrix(Q)
-	R := Parent(Q);
-	K := CoefficientRing(R);
-	Q_mat := Matrix(K, [[MonomialCoefficient(Q, R.i*R.j)/2 : j in [1..4]] : i in [1..4]]);
+declare verbose Genus4, 1;
 
-	for i in [1..4] do
-		Q_mat[i][i] := 2*Q_mat[i][i];
-	end for;
-
-	return Q_mat;
-end function;
-
-function NewBasis(Q)
-    K := BaseRing(Parent(Q));
-    D, P := DiagonalForm(Q);
-    D := QuadraticFormToMatrix(D);
-    if IsExact(K) then
-        t := Rank(D);
-    else
-        print "Base ring is precision field; using numerical algorithms";
-        prec := Precision(K);
-        RR := RealField(prec);
-        eps := RR!10^(-prec*1/4);
-	t := NumericalRank(D : Epsilon:=eps);
-    end if;
-    printf "rank = %o\n", t;
- 
-        if t lt 3 then
-                "The quadric is not of rank 3 or 4";
-                return D, t, 1;
-
-        elif t eq 4 then
-                L := [-D[4][4]/D[1][1], -D[3][3]/D[2][2]];
-
-                bool1 := IsPower(L[1], 2);
-                bool2 := IsPower(L[2], 2);
-
-                if bool1 and bool2 then
-                        S := K;
-                        _, sq1 := IsPower(L[1], 2);
-                        _, sq2 := IsPower(L[2], 2);
-                        Sq := [sq1, sq2];
-                else
-                        _<x> := PolynomialRing(K);
-                        S := SplittingField([x^2-L[1], x^2-L[2]]);
-                        Sq := [Sqrt(S!L[1]), Sqrt(S!L[2])];
-                end if;
-
-		M2 := KMatrixSpace(S,4,4);
-                P := ChangeRing(P, S);
-                P_fin := (M2![S!1/(2*D[1][1]),0,0,S!1/(2*D[1][1]*Sq[1]),0,S!-1/(2*D[2][2]),S!-1/(2*D[2][2]*Sq[2]),0,0,S!1/2,S!-1/(2*Sq[2]),0,S!1/2,0,0,S!-1/(2*Sq[1])])*P;
-
-                return P_fin, 4, 1;
-
-        else
-                i := 1;
-                if IsExact(K) then
-                    while (D[i][i] ne 0) and (i lt 4) do
-                            i := i+1;
-                    end while;
-                else
-                    m, i := Min([Abs(D[j][j]) : j in [1..4]]);
-                end if;
-
-                L_swap := [1,2,3,4];
-                L_swap[i] := 4;
-		 L_swap[4] := i;
-                P_swap := PermutationMatrix(K, L_swap);
-
-                D := P_swap*D*P_swap;
-                P := P_swap*P;
-                l := -D[3][3]/D[1][1];
-
-                bool1 := IsPower(l, 2);
-
-                if bool1 then
-                        S := K;
-                        _, sq := IsPower(l, 2);
-                else
-		        _<x> := PolynomialRing(K);
-                        S := SplittingField(x^2-l);
-                        sq := Sqrt(S!l);
-                end if;
-
-                M2 := KMatrixSpace(S,4,4);
-                P := ChangeRing(P, S);
-                P_fin := (M2![S!-D[2][2]/(2*D[1][1]),0,S!-D[2][2]/(2*D[1][1]*sq),0,0,1,0,0,S!1/2,0,S!-1/(2*sq),0,0,0,0,S!1])*P;
-                return P_fin, 3, sq;
-        end if;
-end function;
-
-// given a form and a change of variables (given as a matrix), returns the form after the change of variables
-function ChangeOfBasis(C, P)
-	R := ChangeRing(Parent(C), Parent(P[1][1]));
-	C := R!C;
-	P := Transpose(Matrix([[R!P[i][j] : j in [1..NumberOfColumns(P)]] : i in [1..NumberOfRows(P)]]));
-	Y := ElementToSequence(P*Matrix([[R.i] : i in [1..Rank(R)]]));
-	return Evaluate(C, Y);
-end function;
-
-function CubicNewBasis(Q, C)
-        R := Parent(C);
-        P, _, r := NewBasis(Q);
-        R := ChangeRing(R, BaseRing(Parent(P)));
-        C1 := R!C;
-        return ChangeOfBasis(C1, P), r;
-end function;
+import "tools.m" : QuadraticFormToMatrix, NewBasis, ChangeOfBasis, CubicNewBasis;
 
 function InvariantsGenus4CurvesRank4(f : normalize := false)
 	K := BaseRing(Parent(f));
 
-    GCD_hsop := [288, 12288, 746496, 12582912, 1741425868800, 19327352832, 764411904, 144, 570630428688384, 4076863488];
+        GCD_hsop := [288, 12288, 746496, 12582912, 1741425868800, 19327352832, 764411904, 144, 570630428688384, 4076863488];
 	GCD_others := [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 144, 144, 144, 1, 1, 1, 1, 1, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144 ];
 
 	Jac := Transvectant(f, f, 1, 1);
@@ -194,7 +90,7 @@ function InvariantsGenus4CurvesRank4(f : normalize := false)
 	j81 := Transvectant(c31, c511, 1, 1 : invariant := true);//2
 	j82 := Transvectant(c31, c512, 1, 1 : invariant := true);//2
 	inv8 := [K | j81,j82];
-	
+
 	// Degree 10
 	j101 := Transvectant(c511, c511, 1, 1 : invariant := true);//2
     j102 := Transvectant(c511, c512, 1, 1 : invariant := true);//2
@@ -204,7 +100,7 @@ function InvariantsGenus4CurvesRank4(f : normalize := false)
     j106 := Transvectant(c513, c513, 1, 1 : invariant := true);//2
 	inv10 := [K | j101,j102,j103,j104,j105,j106];
 
-	// Degree 12	
+	// Degree 12
     j121 := Transvectant(c711, c511, 1, 1 : invariant := true);//1
     j122 := Transvectant(c711, c512, 1, 1 : invariant := true);//2
     j123 := Transvectant(c711, c513, 1, 1 : invariant := true);//1
@@ -248,14 +144,14 @@ function InvariantsGenus4CurvesRank4(f : normalize := false)
     j1614 := Transvectant(f, c513*c513*c513, 3, 3 : invariant := true);//432
     inv16 := [K | j161,j162,j163,j164,j165,j166,j167,j168,j169,j1610,j1611,j1612,j1613,j1614];
 
-   
+
 	// Degree 18
 	j181 := Transvectant(f, c711*c711*c31, 3, 3 : invariant := true);//144
 	j182 := Transvectant(f, c711*c511*c511, 3, 3 : invariant := true);//144
 	j183 := Transvectant(f, c711*c511*c512, 3, 3 : invariant := true);//144
 	j184 := Transvectant(f, c711*c511*c513, 3, 3 : invariant := true);//144
 	j185 := Transvectant(f, c711*c512*c512, 3, 3 : invariant := true);//432
-    j186 := Transvectant(f, c711*c512*c513, 3, 3 : invariant := true);//144
+        j186 := Transvectant(f, c711*c512*c513, 3, 3 : invariant := true);//144
 	j187 := Transvectant(f, c711*c513*c513, 3, 3 : invariant := true);//144
 	j188 := Transvectant(f, c711*c712*c31, 3, 3 : invariant := true);//144
 	j189 := Transvectant(f, c712*c712*c31, 3, 3 : invariant := true);//144
@@ -272,7 +168,7 @@ function InvariantsGenus4CurvesRank4(f : normalize := false)
 	end if;
 
 	Wgt := [2,4,4,6,6,8,8,10,12,14,6,8,8,10,10,10,10,10,10,12,12,12,12,12,12,12,12,12,14,14,14,14,14,14,14,14,14,14,14,14,16,16,16,16,16,16,16,16,16,16,16,16,16,16,18,18,18,18,18,18,18,18,18,18,18];
-	
+
 	if normalize then
 		return WPSNormalize(Wgt, Inv), Wgt;
 	end if;
@@ -320,7 +216,7 @@ function InvariantsGenus4CurvesRank3(f, v)
 	J2v := Evaluate(Transvectant(v, v, 4), [0,0]);
 	J3v := Evaluate(Transvectant(k24, v, 4), [0,0]);
 	invv := [K | J2v, J3v];
- 
+
 	//  Joint degree 3
 	J3 := Evaluate(Transvectant(h24, v, 4), [0,0]);
 	inv3 := [K | J3];
@@ -411,7 +307,7 @@ function InvariantsGenus4CurvesRank3(f, v)
 	inv14 := [K | J14];
 
 	return invf cat invv cat inv3 cat inv4 cat inv5 cat inv6 cat inv7 cat inv8 cat inv9 cat inv10 cat inv11 cat inv12 cat inv13 cat inv14, [6,12,18,30,45,4,6,8,10,10,9,13,14,12,12,15,14,14,15,15,17,16,16,20,19,19,18,16,18,18,17,17,21,19,22,22,23,21,20,20,21,25,26,24,21,23,23,24,25,29,25,28,27,32,29,31,35,33,37,41];
-;
+
 end function;
 
 
@@ -435,23 +331,28 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 		t := 3;
 		r := 1;
 	else
-		P, t := NewBasis(Q);
+		P, t, r := NewBasis(Q);
 		if t eq 4 then
-			f0 := CubicNewBasis(Q,C);
+			vprint Genus4 : "Quadric of rank 4";
+			vprint Genus4 : "Computing basis for the canonical form of the quadric...";
+			f0 := ChangeOfBasis(C,P);
 		elif t eq 3 then
-			f0, r := CubicNewBasis(Q,C);
+			vprint Genus4 : "Quadric of rank 3";
+			vprint Genus4 : "Computing basis for the canonical form of the quadric...";
+			f0 := ChangeOfBasis(C,P);
 		end if;
 	end if;
 
 	if t eq 4 then
 
 		R<x, y, u, v> := PolynomialRing(BaseRing(Parent(f0)), 4);
+		vprint Genus4 : "Computing bicubic form...";
 		f_bic := Evaluate(f0, [x*u, y*u, x*v, y*v]);
-		f_bic;
 
+		vprint Genus4 : "Computing invariants...";
 		Inv, Wgt := InvariantsGenus4CurvesRank4(f_bic);
 		Inv := ChangeUniverse(Inv, K);
-		
+
 		if normalize then
 			return  WPSNormalize(Wgt, Inv), Wgt;
 		end if;
@@ -462,18 +363,19 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 
 		R<s, t, w> := PolynomialRing(BaseRing(Parent(f0)), [1,1,2]);
 		f_weighted := Evaluate(f0, [s^2, s*t, t^2, w]);
-
+		vprint Genus4 : "Computing normal form of the sextic...";
 		require MonomialCoefficient(f_weighted, w^3) ne 0: "The curve is not smooth";
-		
+
 		// we put the curve in normal form
 		alpha := MonomialCoefficient(f_weighted, w^3);
-		f_weighted /:= alpha;        
+		f_weighted /:= alpha;
 		f_weighted := Evaluate(f_weighted, [s, t, w-ExactQuotient(Terms(f_weighted, w)[3], 3*w^2)]);
 
 		f_weighted := Evaluate(f_weighted, [s/r, t, w]);
 		S<[x]> := PolynomialRing(BaseRing(Parent(f_weighted)), 2);
+		vprint Genus4 : "Computing invariants...";
 		Inv, Wgt := InvariantsGenus4CurvesRank3(S!Evaluate(f_weighted, [x[1], x[2], 0]), S!Evaluate(ExactQuotient(Terms(f_weighted, w)[2], w), [x[1], x[2], 0]));
-		
+
 		Inv := ChangeUniverse(Inv, K);
 
 		if normalize then
@@ -485,13 +387,46 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 
 end intrinsic;
 
+intrinsic InvariantsGenus4Curves(C::Crv : normalize := false) -> SeqEnum, SeqEnum
+	{Compute the invariants of a non-hyperelliptic genus 4 curve.}
+
+	require Genus(C) eq 4 : "C must be of genus 4.";
+
+	vprint Genus4 : "Checking if the curve is hyperelliptic...";
+	if Degree(C) ne 6 then
+		t, E := IsHyperelliptic(C);
+		if t then
+			vprint Genus4 : "The curve is hyperelliptic.";
+			return InvariantsGenus4Curves(E : normalize := normalize);
+		end if;
+	else
+		vprint Genus4 : "The curve is non-hyperelliptic, computing equations...";
+
+		Eq := Equations(C);
+		if Sort([Degree(l) : l in Eq]) eq [2,3] then
+			L := Eq;
+		else
+			L := Equations(Image(CanonicalEmbedding(C)));
+		end if;
+		Deg := [Degree(l) : l in L];
+		i := Index(Deg, 2);
+		j := Index(Deg, 3);
+		Q := L[i];
+		E := L[j];
+	end if;
+
+	return InvariantsGenus4Curves(Q, E : normalize := normalize);
+end intrinsic;
+
 import "gordan-10.dat" : FdCov;
-import "InvS10.m" : GetCovariant;
+import "invS10.m" : GetCovariant;
 
-intrinsic InvariantsGenus4Curves(f::RngUPolElt : normalize := false) -> SeqEnum, SeqEnum
-	{Compute the invariants of a univariate polynomial of degree smaller than 10 as a binary form of degree 10.}
+intrinsic InvariantsGenus4Curves(f::RngMPolElt : normalize := false) -> SeqEnum, SeqEnum
+	{Compute the invariants of a multivariate polynomial of degree 10 as a binary form of degree 10.}
 
-	require Degree(f) le 10: "f must be of degree smaller than 10";
+	require Rank(Parent(f)) eq 2: "f must be a bivariate polynomial";
+        require IsHomogeneous(f): "f must be homogeneous";
+        require Degree(f) eq 10: "f must be of degree 10";
 
 	IdxInv := [idx : idx in [1..#FdCov] | FdCov[idx]`order eq 0];
 	List_invariants := [GetCovariant(FdCov[IdxInv[i]], FdCov, f) : i in [1..#IdxInv]];
@@ -506,21 +441,15 @@ intrinsic InvariantsGenus4Curves(f::RngUPolElt : normalize := false) -> SeqEnum,
 end intrinsic;
 
 
-intrinsic InvariantsGenus4Curves(f::RngMPolElt : normalize := false) -> SeqEnum, SeqEnum
-	{Compute the invariants of a bivariate homogeneous polynomial of degree 10.}
+intrinsic InvariantsGenus4Curves(f::RngUPolElt : normalize := false) -> SeqEnum, SeqEnum
+	{Compute the invariants of a univariate homogeneous polynomial of degree smaller than 10.}
 
-	require Rank(Parent(f)) eq 2: "f must be a bivariate polynomial";
-	require IsHomogeneous(f): "f must be homogeneous";
-	require Degree(f) eq 10: "f must be of degree smaller than 10";
-	
-	C<x> := PolynomialRing(BaseRing(Parent(f)));
-	F := C!Evaluate(f, [x, 1]);
-	
-	Inv, Wgt := InvariantsGenus4Curves(f);
+	require Degree(f) le 10: "f must be of degree smaller than 10";
 
-	if normalize then
-		return WPSNormalize(Wgt, Inv), Wgt;
-	end if;
+	C<x,y> := PolynomialRing(BaseRing(Parent(f)), 2);
+	F := C!(x^10*Evaluate(f, y/x));
+
+	Inv, Wgt := InvariantsGenus4Curves(F : normalize := normalize);
 
 	return Inv, Wgt;
 end intrinsic;
@@ -528,22 +457,64 @@ end intrinsic;
 
 intrinsic InvariantsGenus4Curves(C::CrvHyp : normalize := false) -> SeqEnum, SeqEnum
 	{Given a hyperelliptic curve of genus 4, return its invariants.}
-	
+
 	require Genus(C) eq 4: "Curve must be of genus 4.";
 
-    K := BaseField(C);
-    R := PolynomialRing(K); x := R.1;
-    f0, h0 := HyperellipticPolynomials(C);
+        K := BaseField(C);
+        R := PolynomialRing(K); x := R.1;
+        f0, h0 := HyperellipticPolynomials(C);
 
 	require (Degree(h0) le 5) and (Degree(f0) le 10): "The polynomials h and f must have degree at most 5 and 10, respectively.";
 
 	f := (h0/2)^2+f0;
 
-	Inv, Wgt := InvariantsGenus4Curves(f);
-
-	if normalize then
-		return WPSNormalize(Wgt, Inv), Wgt;
-	end if;
+	Inv, Wgt := InvariantsGenus4Curves(f : normalize := normalize);
 
 	return Inv, Wgt;
 end intrinsic;
+
+intrinsic IsIsomorphicG4(C1::Crv, C2::Crv : K := BaseRing(CoordinateRing(C1))) -> bool
+	{Given two curves of genus 4, check if they are isomorphic over K.}
+
+	I1, wgt := InvariantsGenus4Curves(C1);
+	I2 := InvariantsGenus4Curves(C2);
+
+	t := &and[IsCoercible(K, i) : i in I1 cat I2];
+
+	require t : "Not comparable in the ring K.";
+
+	if #I1 eq #I2 then
+		if WPSEqual(wgt, ChangeUniverse(I1, K), ChangeUniverse(I2, K)) then
+			return true;
+		end if;
+	end if;
+	vprint Genus4 : "Curves are not of the same type (different rank of quadric or hyperelliptic).";
+	return false;
+end intrinsic;
+
+intrinsic IsIsomorphicG4(Q1::RngMPolElt, E1::RngMPolElt, Q2::RngMPolElt, E2::RngMPolElt : K := BaseRing(Parent(Q1))) -> bool
+	{Given two curves of genus 4 as the intersection of a quadric and a cubic in P^3, return if they are isomorphic over K.}
+
+        I1, wgt := InvariantsGenus4Curves(Q1, E1);
+        I2 := InvariantsGenus4Curves(Q2, E2);
+
+        t := &and[IsCoercible(K, i) : i in I1 cat I2];
+
+        require t : "Not comparable in the ring K.";
+
+        if #I1 eq #I2 then
+                if WPSEqual(wgt, ChangeUniverse(I1, K), ChangeUniverse(I2, K)) then
+                        return true;
+                end if;
+        end if;
+        vprint Genus4 : "Curves are not of the same type (different rank of quadric or hyperelliptic).";
+        return false;
+end intrinsic;
+
+import "decomposition.m" : DiscriminantFromInvariantsGenus4;
+
+intrinsic DiscG4(I::SeqEnum) -> RngInt
+	{Given a list of invariants of a non-hyperelliptic genus 4 curve, return its discriminant.}
+	return DiscriminantFromInvariantsGenus4(I);
+end intrinsic;
+
