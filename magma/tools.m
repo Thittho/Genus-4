@@ -31,7 +31,6 @@ function NewBasis(Q)
 
         elif t eq 4 then
                 L := [-D[4][4]/D[1][1], -D[3][3]/D[2][2]];
-
                 bool1 := IsPower(L[1], 2);
                 bool2 := IsPower(L[2], 2);
 
@@ -49,7 +48,7 @@ function NewBasis(Q)
                 M2 := KMatrixSpace(S,4,4);
                 P := ChangeRing(P, S);
                 P_fin := (M2![S!1/(2*D[1][1]),0,0,S!1/(2*D[1][1]*Sq[1]),0,S!-1/(2*D[2][2]),S!-1/(2*D[2][2]*Sq[2]),0,0,S!1/2,S!-1/(2*Sq[2]),0,S!1/2,0,0,S!-1/(2*Sq[1])])*P;
-
+                Determinant(P_fin)^2;
                 return P_fin, 4, 1;
 
         else
@@ -70,23 +69,26 @@ function NewBasis(Q)
 
                 D := P_swap*D*P_swap;
                 P := P_swap*P;
-                l := -D[3][3]/D[1][1];
+                L := [-D[3][3]/D[1][1], -D[2][2]];
+                bool1 := IsPower(L[1], 2);
+                bool2 := IsPower(L[2], 2);
 
-                bool1 := IsPower(l, 2);
-
-                if bool1 then
+                if bool1 and bool2 then
                         S := K;
-                        _, sq := IsPower(l, 2);
+                        _, sq1 := IsPower(L[1], 2);
+                        _, sq2 := IsPower(L[2], 2);
+                        Sq := [sq1, sq2];
                 else
                         _<x> := PolynomialRing(K);
-                        S := SplittingField(x^2-l);
-                        sq := Sqrt(S!l);
+                        S := SplittingField([x^2-L[1], x^2-L[2]]);
+                        Sq := [Sqrt(S!L[1]), Sqrt(S!L[2])];
                 end if;
 
                 M2 := KMatrixSpace(S,4,4);
                 P := ChangeRing(P, S);
-                P_fin := (M2![S!-D[2][2]/(2*D[1][1]),0,S!-D[2][2]/(2*D[1][1]*sq),0,0,1,0,0,S!1/2,0,S!-1/(2*sq),0,0,0,0,S!1])*P;
-                return P_fin, 3, sq;
+                P_fin := (M2![S!1/(2*D[1][1]),0,S!1/(2*D[1][1]*Sq[1]),0,0,S!1/Sq[2],0,0,S!1/2,0,S!-1/(2*Sq[1]),0,0,0,0,S!1])*P;
+                Determinant(P_fin)^2;
+                return P_fin, 3, Sq;
         end if;
 end function;
 
@@ -150,3 +152,106 @@ intrinsic Transvectant(f::RngMPolElt, g::RngMPolElt, r::RngIntElt, s::RngIntElt 
 	end if;
 
 end intrinsic;
+
+
+function MacMatrix(list_poly)
+	R := Parent(list_poly[1]);
+    n := #list_poly;
+	if (Rank(R) ne n) or (#[l : l in list_poly | l eq 0] ne 0) then
+        "The number of polynomials in the list must be the number of variables.";
+        return ZeroMatrix(BaseRing(R), 1, 1), ZeroMatrix(BaseRing(R), 1, 1);
+    end if;
+	list_deg := [Degree(p) : p in list_poly]; // the polynomials must be only polynomials in list_var only
+    nu := &+list_deg - n + 1;
+
+	list_mon := Set(MonomialsOfDegree(R, nu));
+	dodu := []; // list of integers that give the submatrix
+	Base := []; // list of monomials that index the matrix 
+	list_poly_mat := []; // the list of polynomials of the matrix
+
+	for i in [1..n-1] do // i corresponds to the variable var[i] 
+		s := MonomialsOfDegree(R, nu-list_deg[i]);
+		tt := [s[j]*(R.i)^list_deg[i] : j in [1..#s] | s[j]*(R.i)^(list_deg[i]) in list_mon];
+		for j in [1..#tt] do
+			Append(~list_poly_mat, R!(list_poly[i]*tt[j]/(R.i)^(list_deg[i])));
+			for k in [1..n] do 
+                if Rank(R) ge 2 then
+    				if (k ne i) and (Degree(tt[j], R.k) ge list_deg[k]) then
+    					Append(~dodu, j+#Base);
+                    end if;
+                else 
+                    if (k ne i) and (Degree(tt[j]) ge list_deg[k]) then
+    					Append(~dodu, j+#Base);
+                    end if;
+				end if; 
+			end for;
+		end for;
+		list_mon := list_mon diff Set(tt);
+		Base cat:= tt;
+	end for;
+
+    tt := SetToSequence(list_mon);
+	
+    for j in [1..#tt] do
+		Append(~list_poly_mat, R!(list_poly[n]*tt[j]/(R.n)^list_deg[n]));
+	end for;
+	
+    Base cat:= tt;
+	dodu := Sort(Setseq(Set(dodu)));
+	N := #list_poly_mat;
+	M := ZeroMatrix(BaseRing(R), N, N);
+	
+    for i in [1..N] do
+		for j in [1..N] do
+			M[j,i] := MonomialCoefficient(list_poly_mat[i], Base[j]);
+		end for;
+	end for;
+	
+    return M, Submatrix(M,dodu,dodu);
+end function;
+
+function FirstNonZero(P)
+    C := Coefficients(P);
+    n := #C;
+    i := 0;
+    while i lt n and C[i+1] eq 0 do
+        i +:= 1;
+    end while;
+    return i;
+end function;
+
+function MacaulayResultant(list_poly)
+	M, N := MacMatrix(list_poly);
+    dn := Determinant(N);
+    if dn eq 0 then 
+        return "Not precise enough, try adding new variables";
+    else
+        dm := Determinant(M);
+        return dm/dn;
+    end if;
+end function;
+
+function Jaco(f, g, i, j)
+    return (Derivative(f, i)*Derivative(g, j) - Derivative(f, j)*Derivative(g, i));
+end function;
+
+function DiscriminantTernary(f, g)
+    R<x,y,z> := Parent(f);
+    vars := Matrix([[x], [y], [z]]);
+    R0 := BaseRing(R);
+    jac2 := Jaco(f, g, 1, 2);
+    d1 := MacaulayResultant([f, g, jac2]);
+    d2 := MacaulayResultant([f, g, Parent(f).3]);
+    for i in [1..100] do
+        if (Type(d1) eq MonStgElt) or (Type(d2) eq MonStgElt) or (d2 eq 0) then
+            M := ChangeRing(RandomSLnZ(3, 5, 5), R);
+            f := Evaluate(f, Eltseq(M*vars));
+            g := Evaluate(g, Eltseq(M*vars));
+            d1 := MacaulayResultant([f, g, jac2]);
+            d2 := MacaulayResultant([f, g, Parent(f).3]);
+        else
+            return d1/d2;
+        end if;    
+    end for;
+    return "";
+end function;

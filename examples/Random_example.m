@@ -1,4 +1,4 @@
-/* Test rank 3 */
+/* example  rank 3 */
 QQ := Rationals();
 P3 := ProjectiveSpace(QQ, 3);
 Rtest<x,y,z,w> := CoordinateRing(P3);

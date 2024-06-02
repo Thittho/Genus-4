@@ -5,7 +5,7 @@ import "tools.m" : QuadraticFormToMatrix, NewBasis, ChangeOfBasis, CubicNewBasis
 function InvariantsGenus4CurvesRank4(f : normalize := false)
 	K := BaseRing(Parent(f));
 
-        GCD_hsop := [288, 12288, 746496, 12582912, 1741425868800, 19327352832, 764411904, 144, 570630428688384, 4076863488];
+    GCD_hsop := [288, 12288, 746496, 12582912, 1741425868800, 19327352832, 764411904, 144, 570630428688384, 4076863488];
 	GCD_others := [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 144, 144, 144, 1, 1, 1, 1, 1, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144 ];
 
 	Jac := Transvectant(f, f, 1, 1);
@@ -324,11 +324,12 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 
 	if Q eq X*T-Y*Z then
 		f0 := C;
-		f0;
+		P := IdentityMatrix(K, 4);
 		t := 4;
 	elif Q eq X*Z-Y^2 then
 		f0 := C;
 		t := 3;
+		P := IdentityMatrix(K, 4);
 		r := 1;
 	else
 		P, t, r := NewBasis(Q);
@@ -336,10 +337,12 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 			vprint Genus4 : "Quadric of rank 4";
 			vprint Genus4 : "Computing basis for the canonical form of the quadric...";
 			f0 := ChangeOfBasis(C,P);
+			ChangeOfBasis(Q,P);
 		elif t eq 3 then
 			vprint Genus4 : "Quadric of rank 3";
 			vprint Genus4 : "Computing basis for the canonical form of the quadric...";
 			f0 := ChangeOfBasis(C,P);
+			ChangeOfBasis(Q,P);
 		end if;
 	end if;
 
@@ -351,6 +354,7 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 
 		vprint Genus4 : "Computing invariants...";
 		Inv, Wgt := InvariantsGenus4CurvesRank4(f_bic);
+		Inv := WPSMultiply(Wgt, Inv, 1/Determinant(P));
 		Inv := ChangeUniverse(Inv, K);
 
 		if normalize then
@@ -371,11 +375,12 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 		f_weighted /:= alpha;
 		f_weighted := Evaluate(f_weighted, [s, t, w-ExactQuotient(Terms(f_weighted, w)[3], 3*w^2)]);
 
-		f_weighted := Evaluate(f_weighted, [s/r, t, w]);
+		f_weighted := Evaluate(f_weighted, [s, t, w]);
+
 		S<[x]> := PolynomialRing(BaseRing(Parent(f_weighted)), 2);
 		vprint Genus4 : "Computing invariants...";
 		Inv, Wgt := InvariantsGenus4CurvesRank3(S!Evaluate(f_weighted, [x[1], x[2], 0]), S!Evaluate(ExactQuotient(Terms(f_weighted, w)[2], w), [x[1], x[2], 0]));
-
+		Inv := WPSMultiply(Wgt, Inv, 1/Determinant(P));
 		Inv := ChangeUniverse(Inv, K);
 
 		if normalize then
@@ -393,7 +398,7 @@ intrinsic InvariantsGenus4Curves(C::Crv : normalize := false) -> SeqEnum, SeqEnu
 	require Genus(C) eq 4 : "C must be of genus 4.";
 
 	vprint Genus4 : "Checking if the curve is hyperelliptic...";
-	if Degree(C) ne 6 then
+	if Degree(C) gt 6 then
 		t, E := IsHyperelliptic(C);
 		if t then
 			vprint Genus4 : "The curve is hyperelliptic.";
@@ -430,8 +435,8 @@ intrinsic InvariantsGenus4Curves(f::RngMPolElt : normalize := false) -> SeqEnum,
 
 	IdxInv := [idx : idx in [1..#FdCov] | FdCov[idx]`order eq 0];
 	List_invariants := [GetCovariant(FdCov[IdxInv[i]], FdCov, f) : i in [1..#IdxInv]];
-	Inv := [List_invariants[i][1] : i in [1..#IdxInv]];
-	Wgt := [List_invariants[i][2] : i in [1..#IdxInv]];
+	Inv := [Evaluate(List_invariants[i][1], [0,0]) : i in [1..#IdxInv]];
+	Wgt := [Integers()!List_invariants[i][2] : i in [1..#IdxInv]];
 
 	if normalize then
 		return WPSNormalize(Wgt, Inv), Wgt;
@@ -511,10 +516,18 @@ intrinsic IsIsomorphicG4(Q1::RngMPolElt, E1::RngMPolElt, Q2::RngMPolElt, E2::Rng
         return false;
 end intrinsic;
 
-import "decomposition.m" : DiscriminantFromInvariantsGenus4;
+import "decomposition_disc_rk4.m" : DiscriminantRk4;
+import "decomposition_disc_rk3.m" : DiscriminantRk3;
 
-intrinsic DiscG4(I::SeqEnum) -> RngInt
+intrinsic DiscriminantFromInvariantsGenus4(I::SeqEnum) -> RngInt
 	{Given a list of invariants of a non-hyperelliptic genus 4 curve, return its discriminant.}
-	return DiscriminantFromInvariantsGenus4(I);
+	if #I eq 60 then 
+		return DiscriminantRk3(I);
+	elif #I eq 65 then
+		return DiscriminantRk4(I);
+	else	
+		"Not coded for hyperelliptic curves";
+	end if;
+	return 0;
 end intrinsic;
 
