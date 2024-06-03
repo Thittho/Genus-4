@@ -533,6 +533,7 @@ end intrinsic;
 
 
 intrinsic Normalize(invs::SeqEnum, wgt::SeqEnum) -> SeqEnum
+	{Normalize invariants}
     prec := Precision(Parent(invs[1]));
     _, i0 := Max([Abs(invs[i]^(1/wgt[i])) : i in [1..#invs]]);
     invs0 := WPSMultiply(wgt, invs, invs[i0]^(-1/wgt[i0]));
