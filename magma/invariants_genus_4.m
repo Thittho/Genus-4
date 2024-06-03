@@ -534,7 +534,7 @@ intrinsic InvariantsGenus4Curves(C::CrvHyp : normalize := false) -> SeqEnum, Seq
 
 	return Inv, Wgt;
 end intrinsic;
-=======
+
 declare verbose Genus4, 1;
 
 import "tools.m" : QuadraticFormToMatrix, NewBasis, ChangeOfBasis, CubicNewBasis;
@@ -1069,7 +1069,8 @@ intrinsic DiscriminantFromInvariantsGenus4(I::SeqEnum) -> RngInt
 end intrinsic;
 
 
-function Normalize(invs, wgt)
+intrinsic Normalize(invs::SeqEnum, wgt::SeqEnum) -> Any
+  {Normalize invs in weighted projective space given by wgt}
     prec := Precision(Parent(invs[1]));
     _, i0 := Max([Abs(invs[i]^(1/wgt[i])) : i in [1..#invs]]);
     invs0 := WPSMultiply(wgt, invs, invs[i0]^(-1/wgt[i0]));
@@ -1084,4 +1085,4 @@ function Normalize(invs, wgt)
     i0 := Index([i : i in [1..#invs1] | invs1[i] ne 0]);
     invs_norm := ChangeUniverse(WPSNormalize(wgt, WPSMultiply(wgt, invs1, invs1[i0]^(-1/wgt[i0]))), ComplexFieldExtra(Floor(prec/3)));
     return invs_norm;
-end function;
+end intrinsic;
