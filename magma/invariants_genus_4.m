@@ -531,3 +531,20 @@ intrinsic DiscriminantFromInvariantsGenus4(I::SeqEnum) -> RngInt
 	return 0;
 end intrinsic;
 
+
+intrinsic Normalize(invs::SeqEnum, wgt::SeqEnum) -> SeqEnum
+    prec := Precision(Parent(invs[1]));
+    _, i0 := Max([Abs(invs[i]^(1/wgt[i])) : i in [1..#invs]]);
+    invs0 := WPSMultiply(wgt, invs, invs[i0]^(-1/wgt[i0]));
+
+    invs1 := invs;
+    for i in [1..#invs0] do
+        if Abs(invs0[i]) le 10^(-prec/3) then
+            invs1[i] := 0;
+        end if;
+    end for;
+
+    i0 := Index([i : i in [1..#invs1] | invs1[i] ne 0]);
+    invs_norm := ChangeUniverse(WPSNormalize(wgt, WPSMultiply(wgt, invs1, invs1[i0]^(-1/wgt[i0]))), ComplexFieldExtra(Floor(prec/3)));
+    return invs_norm;
+end intrinsic;
