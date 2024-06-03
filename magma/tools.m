@@ -153,6 +153,19 @@ intrinsic Transvectant(f::RngMPolElt, g::RngMPolElt, r::RngIntElt, s::RngIntElt 
 
 end intrinsic;
 
+function FirstNonZero(P)
+    C := Coefficients(P);
+    n := #C;
+    i := 0;
+    while i lt n and C[i+1] eq 0 do
+        i +:= 1;
+    end while;
+    return i;
+end function;
+
+/*
+The following functions were developed with the help and software of Laurent Bus\'e (https://www-sop.inria.fr/members/Laurent.Buse/index.html)
+*/
 
 function MacMatrix(list_poly)
 	R := Parent(list_poly[1]);
@@ -208,16 +221,6 @@ function MacMatrix(list_poly)
 	end for;
 	
     return M, Submatrix(M,dodu,dodu);
-end function;
-
-function FirstNonZero(P)
-    C := Coefficients(P);
-    n := #C;
-    i := 0;
-    while i lt n and C[i+1] eq 0 do
-        i +:= 1;
-    end while;
-    return i;
 end function;
 
 function MacaulayResultant(list_poly)

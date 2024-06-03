@@ -1,3 +1,7 @@
+/*
+Developed with the help and software of Laurent Bus\'e (https://www-sop.inria.fr/members/Laurent.Buse/index.html)
+*/
+
 import "tools.m" : Jaco, MacaulayResultant, DiscriminantTernary;
 
 intrinsic DiscriminantGenus4(Q::RngMPolElt, E::RngMPolElt) -> RngInt

@@ -71,3 +71,6 @@ Thomas Bouchet, _Invariants of genus 4 curves, 2023_, [arxiv:2310.01158](https:/
 Credit
 --
 The skeleton of this README file was copied from [https://github.com/JRSijsling/quartic/blob/main/README.md](https://github.com/JRSijsling/quartic/blob/main/README.md)
+Special thanks to Laurent Bus{\'e} for providing helpful code and comments for computing discriminants of non-hyperelliptic genus 4 curves (https://www-sop.inria.fr/members/Laurent.Buse/index.html).
+If the discriminant function was helpful, please cite the following paper:
+Laurent Bus{\'e} and Ibrahim Nonkan{\'e}, _Discriminants of complete intersection space curves_, [Proceedings of the 2017 ACM International Symposium on Symbolic and Algebraic Computation (ISSAC)](https://inria.hal.science/hal-01455679)
