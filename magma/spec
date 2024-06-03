@@ -1,4 +1,5 @@
 {
-    Invariants_genus_4.m
+    invariants_genus_4.m
     tools.m
+    discriminant.m
 }
