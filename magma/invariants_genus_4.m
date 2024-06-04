@@ -545,7 +545,7 @@ intrinsic Normalize(invs::SeqEnum, wgt::SeqEnum) -> SeqEnum
         end if;
     end for;
 
-    i0 := Index([i : i in [1..#invs1] | invs1[i] ne 0]);
+    i0 := Min([i : i in [1..#invs1] | invs1[i] ne 0]);
     invs_norm := ChangeUniverse(WPSNormalize(wgt, WPSMultiply(wgt, invs1, invs1[i0]^(-1/wgt[i0]))), ComplexFieldExtra(Floor(prec/3)));
     return invs_norm;
 end intrinsic;
