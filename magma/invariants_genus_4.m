@@ -311,8 +311,8 @@ function InvariantsGenus4CurvesRank3(f, v)
 end function;
 
 
-intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := false) -> SeqEnum, SeqEnum
-	{Given a homogeneous quadratic form and a homogeneous cubic form in 4 variables, returns its invariants as a genus 4 curve. The invariants returned depend on the rank of the quadratic form.}
+intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := false) -> SeqEnum, SeqEnum, RngInt
+	{Given a homogeneous quadratic form and a homogeneous cubic form in 4 variables, returns its invariants (and the weights associated) as a genus 4 curve. The invariants returned depend on the rank of the quadratic form. The last output is useful only for the exact computation of the discriminant from the invariants.}
 
 	require (Parent(Q) eq Parent(C)): "Q and C must have the same parent";
 	require (Rank(Parent(Q)) eq 4): "Q and C must be polynomials in 4 variables";
@@ -337,12 +337,10 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 			vprint Genus4 : "Quadric of rank 4";
 			vprint Genus4 : "Computing basis for the canonical form of the quadric...";
 			f0 := ChangeOfBasis(C,P);
-			ChangeOfBasis(Q,P);
 		elif t eq 3 then
 			vprint Genus4 : "Quadric of rank 3";
 			vprint Genus4 : "Computing basis for the canonical form of the quadric...";
 			f0 := ChangeOfBasis(C,P);
-			ChangeOfBasis(Q,P);
 		end if;
 	end if;
 
@@ -354,14 +352,15 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 
 		vprint Genus4 : "Computing invariants...";
 		Inv, Wgt := InvariantsGenus4CurvesRank4(f_bic);
-		Inv := WPSMultiply(Wgt, Inv, 1/Determinant(P));
+		Inv := WPSMultiply(Wgt, Inv, 1/Determinant(P)^3);
+
 		Inv := ChangeUniverse(Inv, K);
 
 		if normalize then
 			return  WPSNormalize(Wgt, Inv), Wgt;
 		end if;
 
-		return Inv, Wgt;
+		return Inv, Wgt, 1/Determinant(P)^60;
 
 	elif t eq 3 then
 
@@ -380,20 +379,21 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 		S<[x]> := PolynomialRing(BaseRing(Parent(f_weighted)), 2);
 		vprint Genus4 : "Computing invariants...";
 		Inv, Wgt := InvariantsGenus4CurvesRank3(S!Evaluate(f_weighted, [x[1], x[2], 0]), S!Evaluate(ExactQuotient(Terms(f_weighted, w)[2], w), [x[1], x[2], 0]));
-		Inv := WPSMultiply(Wgt, Inv, 1/Determinant(P));
+		Inv := WPSMultiply(Wgt, Inv, alpha/Determinant(P)^3);
+
 		Inv := ChangeUniverse(Inv, K);
 
 		if normalize then
 			return WPSNormalize(Wgt, Inv), Wgt;
 		end if;
 
-		return Inv, Wgt;
+		return Inv, Wgt, (alpha^13/Determinant(P)^69)^2;
 	end if;
 
 end intrinsic;
 
-intrinsic InvariantsGenus4Curves(C::Crv : normalize := false) -> SeqEnum, SeqEnum
-	{Compute the invariants of a non-hyperelliptic genus 4 curve.}
+intrinsic InvariantsGenus4Curves(C::Crv : normalize := false) -> SeqEnum, SeqEnum, RngInt
+	{Compute the invariants of a non-hyperelliptic genus 4 curve and its weights. The last output is useful only for the exact computation of the discriminant from the invariants.}
 
 	require Genus(C) eq 4 : "C must be of genus 4.";
 
@@ -519,12 +519,12 @@ end intrinsic;
 import "decomposition_disc_rk4.m" : DiscriminantRk4;
 import "decomposition_disc_rk3.m" : DiscriminantRk3;
 
-intrinsic DiscriminantFromInvariantsGenus4(I::SeqEnum) -> RngInt
-	{Given a list of invariants of a non-hyperelliptic genus 4 curve, return its discriminant.}
+intrinsic DiscriminantFromInvariantsGenus4(I::SeqEnum : norm := 1) -> RngInt
+	{Given a list of invariants of a non-hyperelliptic genus 4 curve, return its discriminant. If norm is set to be the third output of InvariantsGenus4Curves, the value returned is the exact one (not up to a constant).}
 	if #I eq 60 then 
-		return DiscriminantRk3(I);
+		return DiscriminantRk3(I)/norm;
 	elif #I eq 65 then
-		return DiscriminantRk4(I);
+		return DiscriminantRk4(I)/norm;
 	else	
 		"Not coded for hyperelliptic curves";
 	end if;

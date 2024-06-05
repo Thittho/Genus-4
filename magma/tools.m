@@ -48,7 +48,7 @@ function NewBasis(Q)
                 M2 := KMatrixSpace(S,4,4);
                 P := ChangeRing(P, S);
                 P_fin := (M2![S!1/(2*D[1][1]),0,0,S!1/(2*D[1][1]*Sq[1]),0,S!-1/(2*D[2][2]),S!-1/(2*D[2][2]*Sq[2]),0,0,S!1/2,S!-1/(2*Sq[2]),0,S!1/2,0,0,S!-1/(2*Sq[1])])*P;
-                Determinant(P_fin)^2;
+                //Determinant(P_fin)^2;
                 return P_fin, 4, 1;
 
         else
@@ -87,7 +87,7 @@ function NewBasis(Q)
                 M2 := KMatrixSpace(S,4,4);
                 P := ChangeRing(P, S);
                 P_fin := (M2![S!1/(2*D[1][1]),0,S!1/(2*D[1][1]*Sq[1]),0,0,S!1/Sq[2],0,0,S!1/2,0,S!-1/(2*Sq[1]),0,0,0,0,S!1])*P;
-                Determinant(P_fin)^2;
+                //Determinant(P_fin)^2;
                 return P_fin, 3, Sq;
         end if;
 end function;
