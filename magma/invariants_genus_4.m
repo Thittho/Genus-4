@@ -348,16 +348,16 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 
 		R<x, y, u, v> := PolynomialRing(BaseRing(Parent(f0)), 4);
 		vprint Genus4 : "Computing bicubic form...";
-		f_bic := Evaluate(f0, [x*u, y*u, x*v, y*v]);
+		f_bic := 1/Determinant(P)^3*Evaluate(f0, [x*u, y*u, x*v, y*v]);
 
 		vprint Genus4 : "Computing invariants...";
 		Inv, Wgt := InvariantsGenus4CurvesRank4(f_bic);
-		Inv := WPSMultiply(Wgt, Inv, 1/Determinant(P)^3);
+		//Inv := WPSMultiply(Wgt, Inv, 1/Determinant(P)^3);
 
 		Inv := ChangeUniverse(Inv, K);
 
 		if normalize then
-			return  WPSNormalize(Wgt, Inv), Wgt;
+			return WPSNormalize(Wgt, Inv), Wgt;
 		end if;
 
 		return Inv, Wgt, 1/Determinant(P)^60;
