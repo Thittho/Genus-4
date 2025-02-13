@@ -383,7 +383,7 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 		S<[x]> := PolynomialRing(BaseRing(Parent(f_weighted)), 2);
 		vprint Genus4 : "Computing invariants...";
 		Inv, Wgt := InvariantsGenus4CurvesRank3(S!Evaluate(f_weighted, [x[1], x[2], 0]), S!Evaluate(ExactQuotient(Terms(f_weighted, w)[2], w), [x[1], x[2], 0]));
-		return Inv, Wgt;
+		//return Inv, Wgt;
 		//Inv[1];
 		//Wgt[1];
 		//Inv[1]*alpha^6/Determinant(P)^18;
