@@ -20,7 +20,7 @@ function NewBasis(Q)
         vprint Genus4 : "Base ring is precision field; using numerical algorithms";
         prec := Precision(K);
         RR := RealField(prec);
-        eps := RR!10^(-prec*1/4);
+        eps := RR!10^(-prec*7/8);
         t := NumericalRank(D : Epsilon:=eps);
     end if;
     vprint Genus4 : "rank =", t;
@@ -41,7 +41,7 @@ function NewBasis(Q)
                         Sq := [sq1, sq2];
                 else
                         _<x> := PolynomialRing(K);
-                        S := SplittingField([x^2-L[1], x^2-L[2]]);
+                        S := SplittingField((x^2-L[1])*(x^2-L[2]));
                         Sq := [Sqrt(S!L[1]), Sqrt(S!L[2])];
                 end if;
 
@@ -58,14 +58,15 @@ function NewBasis(Q)
                             i := i+1;
                     end while;
                 else
-                    m, i := Min([Abs(D[j][j]) : j in [1..4]]);
-
+                    _, i := Min([Abs(D[j][j]) : j in [1..4]]);
+                    //"min", i;
                 end if;
 
                 L_swap := [1,2,3,4];
                 L_swap[i] := 4;
-                 L_swap[4] := i;
+                L_swap[4] := i;
                 P_swap := PermutationMatrix(K, L_swap);
+                //P_swap;
 
                 D := P_swap*D*P_swap;
                 P := P_swap*P;
@@ -77,10 +78,12 @@ function NewBasis(Q)
                         S := K;
                         _, sq1 := IsPower(L[1], 2);
                         _, sq2 := IsPower(L[2], 2);
+                        //sq1^2, L[1];
+                        //sq2^2, L[2];
                         Sq := [sq1, sq2];
                 else
                         _<x> := PolynomialRing(K);
-                        S := SplittingField([x^2-L[1], x^2-L[2]]);
+                        S := SplittingField((x^2-L[1])*(x^2-L[2]));
                         Sq := [Sqrt(S!L[1]), Sqrt(S!L[2])];
                 end if;
 
@@ -135,10 +138,10 @@ intrinsic Transvectant(f::RngMPolElt, g::RngMPolElt, r::RngIntElt, s::RngIntElt 
     end for;
     
 	if Characteristic(BaseRing(P)) eq 0 then
-		m1 := Degree(Evaluate(f, [X, Y, P.3, P.4]));
-		n1 := Degree(Evaluate(f, [P.1, P.2, X, Y]));
-		m2 := Degree(Evaluate(g, [X, Y, P.3, P.4]));
-		n2 := Degree(Evaluate(g, [P.1, P.2, X, Y]));
+		//m1 := Degree(Evaluate(f, [X, Y, P.3, P.4]));
+		//n1 := Degree(Evaluate(f, [P.1, P.2, X, Y]));
+		//m2 := Degree(Evaluate(g, [X, Y, P.3, P.4]));
+		//n2 := Degree(Evaluate(g, [P.1, P.2, X, Y]));
 		//cfg := Factorial(m1-r)*Factorial(m2-r)*Factorial(n1-s)*Factorial(n2-s)/(Factorial(m1)*Factorial(m2)*Factorial(n1)*Factorial(n2));
 		cfg := 1;
 	else

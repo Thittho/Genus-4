@@ -151,7 +151,7 @@ function InvariantsGenus4CurvesRank4(f : normalize := false)
 	j183 := Transvectant(f, c711*c511*c512, 3, 3 : invariant := true);//144
 	j184 := Transvectant(f, c711*c511*c513, 3, 3 : invariant := true);//144
 	j185 := Transvectant(f, c711*c512*c512, 3, 3 : invariant := true);//432
-        j186 := Transvectant(f, c711*c512*c513, 3, 3 : invariant := true);//144
+    j186 := Transvectant(f, c711*c512*c513, 3, 3 : invariant := true);//144
 	j187 := Transvectant(f, c711*c513*c513, 3, 3 : invariant := true);//144
 	j188 := Transvectant(f, c711*c712*c31, 3, 3 : invariant := true);//144
 	j189 := Transvectant(f, c712*c712*c31, 3, 3 : invariant := true);//144
@@ -179,6 +179,8 @@ end function;
 
 function InvariantsGenus4CurvesRank3(f, v)
 	K := BaseRing(Parent(f));
+
+	//return Parent(f)!(K.Rank(K)^3*f), Parent(f)!(K.Rank(K)^2*v);
 
 	// Covariants of f
 	h24 := Transvectant(f, f, 4);
@@ -371,18 +373,26 @@ intrinsic InvariantsGenus4Curves(Q::RngMPolElt, C::RngMPolElt : normalize := fal
 
 		// we put the curve in normal form
 		alpha := MonomialCoefficient(f_weighted, w^3);
+		//"alpha", alpha;
 		f_weighted /:= alpha;
 		f_weighted := Evaluate(f_weighted, [s, t, w-ExactQuotient(Terms(f_weighted, w)[3], 3*w^2)]);
 
-		f_weighted := Evaluate(f_weighted, [s, t, w]);
+		//f_weighted := Evaluate(f_weighted, [s, t, w]);
+		//f_weighted;
 
 		S<[x]> := PolynomialRing(BaseRing(Parent(f_weighted)), 2);
 		vprint Genus4 : "Computing invariants...";
 		Inv, Wgt := InvariantsGenus4CurvesRank3(S!Evaluate(f_weighted, [x[1], x[2], 0]), S!Evaluate(ExactQuotient(Terms(f_weighted, w)[2], w), [x[1], x[2], 0]));
+		return Inv, Wgt;
+		//Inv[1];
+		//Wgt[1];
+		//Inv[1]*alpha^6/Determinant(P)^18;
 		Inv := WPSMultiply(Wgt, Inv, alpha/Determinant(P)^3);
-
-		Inv := ChangeUniverse(Inv, K);
-
+		//"inv", Inv[1..5];
+		//return S!Evaluate(f_weighted, [x[1], x[2], 0])*S!Evaluate(ExactQuotient(Terms(f_weighted, w)[2], w), [x[1], x[2], 0]);
+		if IsExact(K) then
+			Inv := ChangeUniverse(Inv, K);
+		end if;
 		if normalize then
 			return WPSNormalize(Wgt, Inv), Wgt;
 		end if;
