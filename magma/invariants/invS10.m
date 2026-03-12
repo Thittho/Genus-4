@@ -1,3 +1,8 @@
+/*																								  
+These functions were written by Reynald Lercier 
+https://perso.univ-rennes1.fr/reynald.lercier/
+/*                            
+
 /* Entries, mainly the degree of the binary forms */
 
 /* A covariant (U, V)^level */

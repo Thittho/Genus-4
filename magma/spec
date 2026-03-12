@@ -1,5 +1,7 @@
 {
-    invariants_genus_4.m
     tools.m
-    discriminant.m
+    invariants/invariants_genus_4.m
+    discriminant/discriminant.m
+    isomorphisms/isomorphisms.m
+    minimization/minimization.m
 }
