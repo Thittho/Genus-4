@@ -1,3 +1,11 @@
+/*
+ *  Genus 4 curves
+ *
+ *  Thomas Bouchet
+ *
+ *  See LICENSE.txt for license details.
+*/
+
 intrinsic QuadraticFormToMatrix(Q::RngMPolElt) -> AlgMatElt
     {
         Given a homogeneous quadratic form, return the associated symmetric matrix. 

@@ -1,3 +1,11 @@
+/*
+ *  Genus 4 curves
+ *
+ *  Thomas Bouchet
+ *
+ *  See LICENSE.txt for license details.
+*/
+
 function DiscriminantRk4(L)
 	renorm := [1, 1, 1, 1, 1, 1, 1, 3/16, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2, 6, 2, 3, 3, 3, 2, 1, 2, 2, 2, 1, 3, 1, 3, 3, 1, 3, 1, 3, 1, 1, 3, 1, 1, 3, 1, 1, 3, 3, 1, 3, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 3];
     L := [L[i]/renorm[i] : i in [1..65]];

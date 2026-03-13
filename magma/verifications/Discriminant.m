@@ -1,3 +1,11 @@
+/*
+ *  Genus 4 curves
+ *
+ *  Thomas Bouchet
+ *
+ *  See LICENSE.txt for license details.
+*/
+
 K := Rationals();
 
 S1<a33,a32,a31,a30,a23,a22,a21,a20,a13,a12,a11,a10,a03,a02,a01,a00> := PolynomialRing(K, [1 : i in [1..16]]);

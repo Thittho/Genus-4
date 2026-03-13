@@ -1,3 +1,11 @@
+/*
+ *  Genus 4 curves
+ *
+ *  Thomas Bouchet
+ *
+ *  See LICENSE.txt for license details.
+*/
+
 import "decomposition_disc_rk4.m" : DiscriminantRk4;
 import "decomposition_disc_rk3.m" : DiscriminantRk3;
 

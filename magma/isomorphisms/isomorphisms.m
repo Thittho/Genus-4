@@ -1,3 +1,11 @@
+/*
+ *  Genus 4 curves
+ *
+ *  Thomas Bouchet
+ *
+ *  See LICENSE.txt for license details.
+*/
+
 //
 // Some technical functions for the normalization in the rank 3 case
 //

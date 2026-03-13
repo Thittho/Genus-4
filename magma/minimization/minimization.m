@@ -1,5 +1,10 @@
-/* 
-* Developped with Andreas Pieper (https://andreas-pieper.github.io/)
+/*
+ *  Genus 4 curves
+ *
+ *  Thomas Bouchet
+ *	Andreas Pieper
+ *
+ *  See LICENSE.txt for license details.
 */
 
 //

@@ -1,3 +1,10 @@
+/*
+ *  Genus 4 curves
+ *
+ *  Thomas Bouchet
+ *
+ *  See LICENSE.txt for license details.
+*/
 
 function CoefficientMatrix(f)
 	P := Parent(f);

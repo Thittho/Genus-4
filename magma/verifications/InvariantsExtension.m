@@ -1,3 +1,11 @@
+/*
+ *  Genus 4 curves
+ *
+ *  Thomas Bouchet
+ *
+ *  See LICENSE.txt for license details.
+*/
+
 // In the case of rank 4, we check that the first invariant I2 does not depend on the choice of the square root
 R<a3000,a2100,a2010,a2001,a1200,a1110,a1101,a1020,a1011,a1002,a0300,a0210,a0201,a0120,a0111,a0102,a0030,a0021,a0012,a0003,A,B,D1,D2> := PolynomialRing(Rationals(), 24);
 S<X,Y,Z,T> := PolynomialRing(FieldOfFractions(R), 4);

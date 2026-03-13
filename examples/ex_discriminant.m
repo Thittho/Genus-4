@@ -1,3 +1,11 @@
+/*
+ *  Genus 4 curves
+ *
+ *  Thomas Bouchet
+ *
+ *  See LICENSE.txt for license details.
+*/
+ 
 /* computation of the discriminant */
 // Rank 4 case
 R<x,y,z,t> := PolynomialRing(Rationals(), 4);

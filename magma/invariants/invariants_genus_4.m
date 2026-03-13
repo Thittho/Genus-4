@@ -1,3 +1,12 @@
+/*
+ *  Genus 4 curves
+ *
+ *  Thomas Bouchet
+ *	Reynald Lercier 
+ *
+ *  See LICENSE.txt for license details.
+*/
+
 declare verbose Genus4, 1;
 
 import "../tools.m" :
@@ -508,44 +517,3 @@ intrinsic InvariantsGenus4Curves(C::CrvHyp : normalize := false) -> SeqEnum, Seq
 
 	return InvariantsGenus4Curves(f : normalize := normalize);
 end intrinsic;
-
-
-/*
-intrinsic IsIsomorphicG4(C1::Crv, C2::Crv : K := BaseRing(CoordinateRing(C1))) -> bool
-	{Given two curves of genus 4, check if they are isomorphic over K.}
-
-	I1, wgt := InvariantsGenus4Curves(C1);
-	I2 := InvariantsGenus4Curves(C2);
-
-	t := &and[IsCoercible(K, i) : i in I1 cat I2];
-
-	require t : "Not comparable in the ring K.";
-
-	if #I1 eq #I2 then
-		if WPSEqual(wgt, ChangeUniverse(I1, K), ChangeUniverse(I2, K)) then
-			return true;
-		end if;
-	end if;
-	vprint Genus4 : "Curves are not of the same type (different rank of quadric or hyperelliptic).";
-	return false;
-end intrinsic;
-
-intrinsic IsIsomorphicG4(Q1::RngMPolElt, E1::RngMPolElt, Q2::RngMPolElt, E2::RngMPolElt : K := BaseRing(Parent(Q1))) -> bool
-	{Given two curves of genus 4 as the intersection of a quadric and a cubic in P^3, return if they are isomorphic over K.}
-
-        I1, wgt := InvariantsGenus4Curves(Q1, E1);
-        I2 := InvariantsGenus4Curves(Q2, E2);
-
-        t := &and[IsCoercible(K, i) : i in I1 cat I2];
-
-        require t : "Not comparable in the ring K.";
-
-        if #I1 eq #I2 then
-                if WPSEqual(wgt, ChangeUniverse(I1, K), ChangeUniverse(I2, K)) then
-                        return true;
-                end if;
-        end if;
-        vprint Genus4 : "Curves are not of the same type (different rank of quadric or hyperelliptic).";
-        return false;
-end intrinsic;
-*/

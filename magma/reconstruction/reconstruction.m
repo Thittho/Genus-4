@@ -1,3 +1,11 @@
+/*
+ *  Genus 4 curves
+ *
+ *  Thomas Bouchet
+ *
+ *  See LICENSE.txt for license details.
+*/
+
 declare verbose Reconstruction, 1;
 
 function ReconstructionGenus4Rank4(I)

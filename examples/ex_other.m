@@ -1,3 +1,11 @@
+/*
+ *  Genus 4 curves
+ *
+ *  Thomas Bouchet
+ *
+ *  See LICENSE.txt for license details.
+*/
+
 // Example rank 3 
 QQ := Rationals();
 P3 := ProjectiveSpace(QQ, 3);
