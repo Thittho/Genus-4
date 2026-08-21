@@ -39,5 +39,5 @@ IsIsomorphicGenus4(HyperellipticCurve(f), HyperellipticCurve(g));
 Quadric1 := &+[&+[Random(-5,5)*m : m in MonomialsOfDegree(Rtest, 1)]^2 : i in [1..4]];
 Cubic1 := &+[Random(-5,5)*m : m in MonomialsOfDegree(Rtest, 3)];
 
-Q, E := ReconstructionGenus4(InvariantsGenus4Curves(Quadric1, Cubic1));
+Q, E := Genus4CurveFromInvariants(InvariantsGenus4Curves(Quadric1, Cubic1));
 Q_min, E_min := MinimizeGenus4(Q, E);

@@ -220,7 +220,7 @@ intrinsic HyperellipticCurveFromBrouwerPopoviciuInvariants(I::SeqEnum :
 
 end intrinsic;
 
-intrinsic Genus4FromInvariants(I::SeqEnum : minimize := true) -> RngMPolElt, RngMPolElt
+intrinsic Genus4CurveFromInvariants(I::SeqEnum : minimize := true) -> RngMPolElt, RngMPolElt
     {
         Given a generic tuple of invariants for curves of genus 4, returns either:
 		- a degree 2 polynomial Q and a degree 3 polynomial E in 4 variables such that V(Q,E) is a non-hyp genus 4 curve with said invariants (up to scaling). Both cases (rank 3 and 4) are covered. 
