@@ -4,4 +4,5 @@
     discriminant/discriminant.m
     isomorphisms/isomorphisms.m
     minimization/minimization.m
+    reconstruction/reconstruction.m
 }
