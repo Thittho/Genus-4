@@ -62,7 +62,7 @@ IsIsomorphicGenus4(Q1, E1, Q2, E2);
 C1 := Curve(P3, [Q1, E1]);
 C2 := Curve(P3, [Q2, E2]);
 IsIsomorphicGenus4(C1, C2);
-
+```
 
 Reconstruction of curves of genus 4 (and minimization over QQ)
 ```
@@ -73,6 +73,7 @@ E1 := 4*x^3-x^2*y - x^2*z - 5*x^2*w - 6*x*y^2 - 2*x*y*z - 9*x*y*w + 7*x*z^2 + 3*
 
 Q, E := ReconstructionGenus4(InvariantsGenus4Curves(Q1, E1));
 Q_min, E_min := MinimizeGenus4(Q, E);
+```
 
 
 ```
@@ -100,4 +101,4 @@ The skeleton of this README file was copied from [https://github.com/JRSijsling/
 Special thanks to:
 - Laurent Bus{\'e} for providing helpful code and comments for computing discriminants of non-hyperelliptic genus 4 curves (https://www-sop.inria.fr/members/Laurent.Buse/index.html),
 - Reynald Lercier for providing some functions to compute invariants of hyperelliptic curves of genus 4,
-- Andreas Pieper for writing a function to minimize a quadric with rationals coefficients.
+- Andreas Pieper for writing a function to minimize a quadric with rational coefficients.
